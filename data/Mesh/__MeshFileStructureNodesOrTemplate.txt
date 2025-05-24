@@ -1,0 +1,62 @@
+// This is a comment and is ignored
+
+// for now, only static supported. All the functions are for now implied to be spatial and not temporal (also you could in fact do like area time dependent and such lol)
+
+// White space in the form of empty lines is skipped (line is skipped)
+
+// The following are the basic region names and necessary values:
+
+PROBLEM_INFO // If you comment on the same line, everything after // is of course also ignored
+  TYPE = Linear1D
+  DYN = static
+  NAME = myProblemName_WithoutSpaces
+  // Also, this should be valid I guess. Even if a line also technically has a tab but is otherwise white, it shoudld treat it as white space
+// As I said, empty or commented lines are ignored so you can have the regions next to eachother or not
+
+// also, just like yaml or whatever i guess, the order of regions or definitions doesnt matter at all
+// i think the strat here is to basically have a rigid structure at the core for the file, and then have a simple function which basically removes all the comments and white spaces and tabs in otherwise empty lines and whatever, so that then it is worked with from a rigid structure (still no order though)
+  
+// basically, a DOMAIN is a body with al the nodes and the definitions and such. Here, the ID of the body is 0 and DOMAIN is a region which then has the subregion NODES with the data of the nodes and also some other subregions and data
+DOMAIN
+  ID = 0
+  NODES
+  // ID and then position in reference configuration (x,y,z if higher dim)
+    0 = -2
+    1 = -0.5
+    2 = 1
+    3 = 2.0
+    5 = 4.51720
+    4 = 5.29
+    // all of these are valid, and order is not necessarily sequential (in node ID or position)
+  ELEMENTS
+    0 = 0,1
+    1 = 1,2
+    2 = 2,3
+  AREA
+  // here this is the cross sectional area function
+    FUNC_TYPE = linear
+    FUNC_PARAMS
+      P_0 = 2
+      P_1 = 0.1
+  CONSTITUTIVE
+    FUNC_TYPE = quadratic
+    FUNC_PARAMS
+      P_0 = 5
+      P_1 = 0
+      P_2 = -4.2
+  DENSITY
+    // undefined is basically just for the user, because if density is not needed, it will skip it, but if you do actually need density and it sees FUNC_TYPE = undefined, it will throw an error
+    FUNC_TYPE = undefined
+  BOUNDARY
+    ID = 0
+    TYPE = dirichlet
+    NODES = 0,1
+    FUNC_TYPE = constant
+    FUNC_PARAMS = 0
+  BOUNDARY
+    ID = 1
+    NODES = 3
+    TYPE = dirichlet // dirichlet, neumann, etc I should say is basically equivalent to saying order0 order1, and then you can also have something like order2 or idk we shall look into the theory, for now i stay standard terms
+    FUNC_TYPE = constant
+    FUNC_PARAMS = 1
+    

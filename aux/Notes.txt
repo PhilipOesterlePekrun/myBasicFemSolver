@@ -1,0 +1,74 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cmake_minimum_required(VERSION 3.25)
+
+project(myBasicFemSolver)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+
+# Collect all source files, excluding those starting with EXCLUDE
+file(GLOB ALL_SRC_FILES "src/*.cpp" "src/*.hpp")
+
+# Filter out files that start with "EXCLUDE"
+set(SRC_FILES "")
+foreach(file ${ALL_SRC_FILES})
+    get_filename_component(fname ${file} NAME)
+    if(NOT fname MATCHES "^EXCLUDE.*")
+        list(APPEND SRC_FILES ${file})
+    endif()
+endforeach()
+
+# Add the executable
+add_executable(myBasicFemSolver ${SRC_FILES})
+
+
+# Link myUtils
+set(MYUTILS_DIR "$ENV{HOME}/util/myUtils_Base/install_myUtils")
+include_directories(${MYUTILS_DIR}/include)
+link_directories(${MYUTILS_DIR}/lib)
+target_link_libraries(myBasicFemSolver ${MYUTILS_DIR}/lib/libmyUtils.a)
+
+# Link SFML
+set(CMAKE_PREFIX_PATH "$ENV{HOME}/misc/tpl/SFML_base/install_SFML")
+find_package(SFML REQUIRED COMPONENTS System Window Graphics)
+
+target_link_libraries(myBasicFemSolver
+    sfml-system
+    sfml-window
+    sfml-graphics
+)
+
+
+
+

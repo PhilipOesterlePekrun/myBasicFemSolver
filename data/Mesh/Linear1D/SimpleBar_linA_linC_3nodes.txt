@@ -1,0 +1,41 @@
+// This problem consists of a simple 1D bar with:
+// - Cross-sectional area A is a linear function of space (x)
+// - Constitutive relation is linear (SVK but really just like spring because 1D) and is also a linear function of space
+// - The discretization consists of 3 nodes, so 2 elements
+// - There are no external forces; all boundaries have Dirchlet BCs
+
+PROBLEM_INFO
+  TYPE = Linear1D
+  DYN = static
+  NAME = myProblemName_WithoutSpaces
+  
+DOMAIN
+  ID = 0
+  NODES // ID and then position in reference configuration (x,y,z if higher dim)
+    0 = 0
+    1 = 0.7
+    2 = 1
+  ELEMENTS
+    0 = 0,1
+    1 = 1,2
+  AREA
+    FUNC_TYPE = linear
+    FUNC_PARAMS
+      P_0 = 0.5
+      P_1 = 0.5
+  CONSTITUTIVE
+    FUNC_TYPE = constant
+    FUNC_PARAMS
+      P_0 = 5
+  BOUNDARY
+    ID = 0
+    TYPE = dirichlet
+    NODES = 0
+    FUNC_TYPE = constant
+    FUNC_PARAMS = 0
+  BOUNDARY
+    ID = 1
+    NODES = 2
+    TYPE = dirichlet
+    FUNC_TYPE = constant
+    FUNC_PARAMS = 1
