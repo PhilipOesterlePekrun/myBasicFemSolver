@@ -33,9 +33,16 @@ int main2(int argCount, char** args) {
 }
 
 int main(int argCount, char** args) {
-  Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
-  std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
-  linProb.readMeshTxt(dataDirPathAbs+"Mesh/Linear1D/SimpleBar_linA_linC_3nodes.txt");
+  //Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
+  //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
+  //linProb.readMeshTxt(dataDirPathAbs+"Mesh/Linear1D/SimpleBar_linA_linC_3nodes.txt");
+  
+  std::vector<std::vector<int>> e;
+  e.push_back(std::vector({1, 2, 3, 4}));
+  e[0][2] = 2;
+  
+  std::array<std::array<int, 5>, 5> a;
+  a[2][4] = 2;
   
   return 0;
 }

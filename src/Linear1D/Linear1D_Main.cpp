@@ -1,6 +1,17 @@
 #include "Linear1D_Main.hpp"
 
+#include "Element_line2.hpp"
+
 namespace Linear1D {
+using namespace Element;
+  
+void Linear1DProblem::runNoInputExample() {
+  double nodeX_0[] = {0, 0.7, 1};
+  
+  Element_line2* elements[] = {new Element_line2({0, 1}, {nodeX_0[0], nodeX_0[1]}), new Element_line2({1, 2}, {nodeX_0[1], nodeX_0[2]})};
+  
+  
+}
 
 void Linear1DProblem::readMeshTxt(std::string inputFilePath) {
   std::vector<std::string>* fileData = new std::vector<std::string>();
