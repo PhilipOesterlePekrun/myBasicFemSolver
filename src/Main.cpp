@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "Visualization.hpp"
-#include "Linear1D/Linear1D_Main.hpp"
 
 int main2(int argCount, char** args) {
   db::pr("Test Global.hpp");
@@ -14,7 +13,7 @@ int main2(int argCount, char** args) {
   std::cout<<timesNewRoman->getInfo().family<<"\n";
   Visualization v = Visualization(2000, 1000, 60, sf::Color(120,120,120), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12);
   v.activate();
-  while(v.active) v.drawFrame();
+  while(v.active_) v.drawFrame();
   //Visualization v = Visualization();
   //v.activate();
   //while(v.active) v.drawFrame();
@@ -32,17 +31,17 @@ int main2(int argCount, char** args) {
   return 0;
 }
 
+#include "Linear1D/Linear1D_Manager.hpp"
+
 int main(int argCount, char** args) {
+  std::cout<<"Main start\n";
   //Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
   //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
   //linProb.readMeshTxt(dataDirPathAbs+"Mesh/Linear1D/SimpleBar_linA_linC_3nodes.txt");
   
-  std::vector<std::vector<int>> e;
-  e.push_back(std::vector({1, 2, 3, 4}));
-  e[0][2] = 2;
+  Problem::Linear1D p;
+  p.runNoInputExample();
   
-  std::array<std::array<int, 5>, 5> a;
-  a[2][4] = 2;
-  
+  std::cout<<"Main end\n";
   return 0;
 }

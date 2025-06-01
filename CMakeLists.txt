@@ -10,7 +10,7 @@ file(GLOB_RECURSE ALL_SRC_FILES "src/*.cpp" "src/*.hpp")
 set(SRC_FILES "")
 foreach(file ${ALL_SRC_FILES})
     get_filename_component(fname ${file} NAME)
-    if(NOT fname MATCHES "^EXCLUDE.*")
+    if(NOT fname MATCHES "^_EXCLUDE.*")
         list(APPEND SRC_FILES ${file})
     endif()
 endforeach()
@@ -18,7 +18,10 @@ endforeach()
 
 
 # --- Self-include ---
-include_directories("src/GlobalDefinitions")
+include_directories(
+  "src/GlobalDefinitions"
+  "src"
+  )
 
 # --- SFML ---
 get_filename_component(SFML_ROOT "$ENV{HOME}/misc/tpl/SFML_base/install_SFML" ABSOLUTE)
