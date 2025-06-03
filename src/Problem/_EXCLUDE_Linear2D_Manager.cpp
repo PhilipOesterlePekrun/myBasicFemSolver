@@ -1,4 +1,4 @@
-#include "Linear1D_Manager.hpp"
+#include "Linear2D_Manager.hpp"
 
 namespace Problem {
   

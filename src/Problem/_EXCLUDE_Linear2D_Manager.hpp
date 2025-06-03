@@ -3,7 +3,7 @@
 
 #include <myUtils.hpp>
 
-#include "Element_line2.hpp"
+#include "Element_Tri3.hpp"
 
 namespace Problem {
   
@@ -17,7 +17,7 @@ class Linear1D {
   void runNoInputExample();
   
  private:
-  dynArray<Element::line2*> elements_;
+  dynArray<Element::Tri3*> elements_;
   dynMatrixd K_;
   dynArrayd rhs_;
   

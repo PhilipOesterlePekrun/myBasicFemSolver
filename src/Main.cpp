@@ -31,7 +31,7 @@ int main2(int argCount, char** args) {
   return 0;
 }
 
-#include "Linear1D/Linear1D_Manager.hpp"
+#include "Problem/Linear1D_Manager.hpp"
 
 int main(int argCount, char** args) {
   std::cout<<"Main start\n";
