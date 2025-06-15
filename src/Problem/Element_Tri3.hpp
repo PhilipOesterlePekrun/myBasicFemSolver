@@ -55,8 +55,8 @@ xi1 | |  \
   }
  private:
   // St. Venant - Kirchoff
-  Matrixd stressFromStrain(const Matrixd& strain, double x0, double x1) const {
-    Matrixd stress = Matrixd(strain.nRows(), strain.nCols());
+  Matrix2d stressFromStrain(const Matrix2d& strain, double x0, double x1) const {
+    Matrix2d stress = Matrix2d(strain.nRows(), strain.nCols());
     const auto lambdaMu = lameConsts_x(x0, x1);
     double trE = strain.trace();
     for(int i=0; i<strain.nRows(); ++i)
@@ -94,8 +94,8 @@ xi1 | |  \
   }
   static constexpr int shFctMatrixForm_nRows_ = ndofn_;
   static constexpr int shFctMatrixForm_nCols_ = ndof_;
-  static inline Matrixd shFctMatrixForm_xi(double xi0, double xi1) {
-    Matrixd mat(ndofn_, ndof_);
+  static inline Matrix2d shFctMatrixForm_xi(double xi0, double xi1) {
+    Matrix2d mat(ndofn_, ndof_);
     auto shFct = shFct_xi(xi0, xi1);
     for(int i=0; i<ndofn_; ++i)
       for(int j=0; j<ndof_; ++j) {
@@ -105,9 +105,9 @@ xi1 | |  \
     return mat;
   }
   // const because line shFcts
-  static inline Matrixd gradL_shFct_xi(double xi0 = -2, double xi = -2) {
+  static inline Matrix2d gradL_shFct_xi(double xi0 = -2, double xi = -2) {
     // \partial N_i / (\partial xi_j) (each row is grad(N_i) where i const)
-    Matrixd mat(nnode_, ndofn_,
+    Matrix2d mat(nnode_, ndofn_,
     {
       -1, -1, // grad shFct(0)
       1, 0, // grad shFct(1)
@@ -118,8 +118,8 @@ xi1 | |  \
   }
   
   // row = node, col = node-local dof
-  inline Matrixd X_0_asMat() const {
-    Matrixd mat(nnode_, ndofn_);
+  inline Matrix2d X_0_asMat() const {
+    Matrix2d mat(nnode_, ndofn_);
     for(int i=0; i<nnode_; ++i)
       for(int j=0; j<ndofn_; ++j)
         mat(i, j) = X_0_(i*ndofn_+j);
@@ -127,19 +127,19 @@ xi1 | |  \
   }
   
   // Jacobian, with right hand gradient I guess
-  inline Matrixd gradR_x_xi(double xi0, double xi1) {
+  inline Matrix2d gradR_x_xi(double xi0, double xi1) {
     
-    Matrixd mat(ndofn_, ndofn_);
+    Matrix2d mat(ndofn_, ndofn_);
     auto gradL_shFct = gradL_shFct_xi(xi0, xi1);
-    mat = matTimesMat(transposeMat(gradL_shFct), X_0_asMat()),
+    mat = matTimesMat2(transposeMat2(gradL_shFct), X_0_asMat());
     /*for(int i=0; i<ndofn_; ++i)
       for(int j=0; j<ndofn_; ++j)
         for(int k=0; k<ndofn_; ++k)
           mat(i, j) += gradL_shFct_xi(i, k) * deriv*/
   }
   
-  inline Matrixd gradL_shFct_x(double x0, double x1) {
-    matTimesMat(invertMat2(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
+  inline Matrix2d gradL_shFct_x(double x0, double x1) {
+    matTimesMat2(invertMat2(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
   }
   
   // Q and q will be my in general "some quantity"
@@ -177,10 +177,10 @@ xi1 | |  \
   // = \del D^T int_xi(deriv_shFct_xi^T * deriv_shFct_xi dxi) * Jinv * D * Cvk // Jinv const so can be taken out of integral
   //                                    ^dyadic product because vertical vector times horizontal vector
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
-  Matrixd integrandKmat(double xi0, double xi1) {
+  Matrix2d integrandKmat(double xi0, double xi1) {
     double J = vectDotProduct(deriv_shFct_xi(xi), X_0_);
     double Jinv = 1.0/J; // Jinv const in this case, can be taken out of integral
-    return scaleMat(Cvk_xi(xi) * Jinv,
+    return scaleMat2(Cvk_xi(xi) * Jinv,
       vectDyadicProduct(deriv_shFct_xi(xi), deriv_shFct_xi(xi))
     );/*
     return {
@@ -189,8 +189,8 @@ xi1 | |  \
     };*/
   }
  public: //tmp
-  Matrixd Kmat() {
-    Matrixd result(ndof_, ndof_);
+  Matrix2d Kmat() {
+    Matrix2d result(ndof_, ndof_);
     for(int i=0;i<ndof_; ++i)
       for(int j=0;j<ndof_; ++j) {
         auto integrandKmatij = [this, i, j](double xi) {return integrandKmat(xi)(i, j);};

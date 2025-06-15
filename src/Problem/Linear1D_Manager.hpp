@@ -19,13 +19,13 @@ class Linear1D {
   
  private:
   Array<Element::Line2*> elements_;
-  Matrixd K_;
+  Matrix2d K_;
   Vectord rhs_;
   
  private:
   void readMeshTxt(std::string inputFilePath);
   
-  Matrixd assembleK();
+  Matrix2d assembleK();
   //dynArrayd assembleRhs();// later when we have Wext
   
   void applyDirichlet(int globalNodeId/*, dofIndex or localDofindex of the node, needed for higher dim*/, double val);

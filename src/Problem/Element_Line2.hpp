@@ -86,10 +86,10 @@ class Line2 {
   // = \del D^T int_xi(deriv_shFct_xi^T * deriv_shFct_xi dxi) * Jinv * D * Cvk // Jinv const so can be taken out of integral
   //                                    ^dyadic product because vertical vector times horizontal vector
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
-  Matrixd integrandKmat(double xi) {
+  Matrix2d integrandKmat(double xi) {
     double J = vectDotProduct(deriv_shFct_xi(xi), X_0_);
     double Jinv = 1.0/J; // Jinv const in this case, can be taken out of integral
-    return scaleMat(Cvk_xi(xi) * Jinv,
+    return scaleMat2(Cvk_xi(xi) * Jinv,
       vectDyadicProduct(deriv_shFct_xi(xi), deriv_shFct_xi(xi))
     );/*
     return {
@@ -98,8 +98,8 @@ class Line2 {
     };*/
   }
  public: //tmp
-  Matrixd Kmat() {
-    Matrixd result(ndof_, ndof_);
+  Matrix2d Kmat() {
+    Matrix2d result(ndof_, ndof_);
     for(int i=0;i<ndof_; ++i)
       for(int j=0;j<ndof_; ++j) {
         auto integrandKmatij = [this, i, j](double xi) {return integrandKmat(xi)(i, j);};

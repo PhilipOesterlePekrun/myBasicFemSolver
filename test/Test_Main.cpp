@@ -5,7 +5,7 @@
 int main(int argCount, char** args) {
   using namespace LinAlg;
   
-  auto m = Matrixd(2, 3,
+  auto m = Matrix2d(2, 3,
     {
       11, 12, 13,
       21, 22, 33

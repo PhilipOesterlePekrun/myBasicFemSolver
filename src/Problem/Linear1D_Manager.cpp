@@ -43,7 +43,7 @@ void Linear1D::runNoInputExample() {
   */
 }
 
-Matrixd Linear1D::assembleK() {
+Matrix2d Linear1D::assembleK() {
   int globalNodeCount = 0;
   for(int e=0; e<elements_.size(); ++e) {
     auto eleGlobalNodeIds = elements_(e)->globalNodeIds_;
@@ -53,7 +53,7 @@ Matrixd Linear1D::assembleK() {
         globalNodeCount = eleGlobalNodeIds(locId)+1;
     }
   }
-  Matrixd assembledK(globalNodeCount, globalNodeCount); // TODO we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
+  Matrix2d assembledK(globalNodeCount, globalNodeCount); // TODO we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
   db::pr("line44");
   db::pr(std::to_string(globalNodeCount));
   for(int e=0; e<elements_.size(); ++e) {
@@ -83,7 +83,7 @@ void Linear1D::applyDirichlet(int globalNodeId/*, dofIndex or localDofindex of t
   }
   
   
-  auto K2 = Matrixd(n-1, n-1);
+  auto K2 = Matrix2d(n-1, n-1);
   auto rhs2 = Vectord(n-1);
   int i2 = 0;
   for(int i=0; i<n; ++i) {
@@ -123,7 +123,7 @@ Vectord Linear1D::solveSystem_Jacobi() {
         D(i, j) = 0;
     }
     
-  auto residual = [K = K_, rhs = rhs_](Vectord x){return addVects(matTimesVect(K, x), scaleVect(-1.0, rhs));};
+  auto residual = [K = K_, rhs = rhs_](Vectord x){return addVects(mat2TimesVect(K, x), scaleVect(-1.0, rhs));};
   auto residualNorm = [&, residual](Vectord x){auto res = residual(x); return vectDotProduct(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
   Vectord x_i = x_0;
@@ -143,10 +143,10 @@ Vectord Linear1D::solveSystem_Jacobi() {
   db::pr("line 112");
   invD.print();
   while(iter < maxiter/* && residualNorm(x_i) < maxResNorm*/) {
-    x_i = matTimesVect(invD,
+    x_i = mat2TimesVect(invD,
       addVects(rhs_,
         scaleVect(-1.0,
-          matTimesVect(addMats(L, U),
+          mat2TimesVect(addMat2s(L, U),
             x_i))));
     iter++;
     std::cout<<"Iter "<<iter<<", resNorm="<<residualNorm(x_i)<<std::endl;

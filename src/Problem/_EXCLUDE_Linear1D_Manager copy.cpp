@@ -134,7 +134,7 @@ dynArrayd Linear1D::solveSystem_gaussSeidel() {
         U[i][j] = 0;
     }
     
-  auto residual = [K = K_, rhs = rhs_](dynArrayd x){return vectAdd(matTimesVect(K, x), scaleVect(-1.0, rhs));};
+  auto residual = [K = K_, rhs = rhs_](dynArrayd x){return vectAdd(mat2TimesVect(K, x), scaleVect(-1.0, rhs));};
   auto residualNorm = [&, residual](dynArrayd x){auto res = residual(x); return vectDotProduct(res, res);};
   dynArrayd x_0(n); // Initial guess, zeros here
   dynArrayd x_i = x_0;
@@ -142,7 +142,7 @@ dynArrayd Linear1D::solveSystem_gaussSeidel() {
   constexpr int maxiter = 200;
   constexpr double maxResNorm = 0.01;
   while(iter < maxiter/* && residualNorm(x_i) < maxResNorm*/) {
-    auto bMinusUx = vectAdd(rhs_, scaleVect(-1.0, matTimesVect(U, x_i)));
+    auto bMinusUx = vectAdd(rhs_, scaleVect(-1.0, mat2TimesVect(U, x_i)));
     //x_i =
   }
   return x_i;
@@ -166,7 +166,7 @@ dynArrayd Linear1D::solveSystem_Jacobi() {
         D[i][j] = 0;
     }
     
-  auto residual = [K = K_, rhs = rhs_](dynArrayd x){return vectAdd(matTimesVect(K, x), scaleVect(-1.0, rhs));};
+  auto residual = [K = K_, rhs = rhs_](dynArrayd x){return vectAdd(mat2TimesVect(K, x), scaleVect(-1.0, rhs));};
   auto residualNorm = [&, residual](dynArrayd x){auto res = residual(x); return vectDotProduct(res, res);};
   dynArrayd x_0(n); // Initial guess, zeros here
   dynArrayd x_i = x_0;
@@ -188,10 +188,10 @@ dynArrayd Linear1D::solveSystem_Jacobi() {
     invD[i][i] = 1.0/D[i][i];
   db::pr("line 112");
   while(iter < maxiter/* && residualNorm(x_i) < maxResNorm*/) {
-    x_i = matTimesVect(invD,
+    x_i = mat2TimesVect(invD,
       vectAdd(rhs_,
         scaleVect(-1.0,
-          matTimesVect(matAdd(L, U),
+          mat2TimesVect(matAdd(L, U),
             x_i))));
     iter++;
     printVectd(x_i);

@@ -16,7 +16,7 @@ class Array {
  public:
  // Default ctor
   Array()
-    : size_(0), data_(0) {};
+    : size_(0), data_(0) {}
   // Standard constructor
   Array(size_t size)
     : size_(size), data_(size) {}
@@ -105,7 +105,7 @@ class Vectord {
  public:
   // Default ctor
   Vectord()
-    : size_(0), data_(0) {};
+    : size_(0), data_(0) {}
   // Standard constructor
   Vectord(size_t size)
     : size_(size), data_(size) {}
@@ -201,7 +201,7 @@ class Vectord {
 }
 };
   
-class Matrixd {
+class Matrix2d {
   using size_t = std::size_t;
  private:
   size_t nRows_, nCols_;
@@ -209,16 +209,16 @@ class Matrixd {
 
  public:
   // Default ctor
-  Matrixd()
-    : nRows_(0), nCols_(0), data_() {};
+  Matrix2d()
+    : nRows_(0), nCols_(0), data_() {}
   // Standard constructor
-  Matrixd(size_t rows, size_t cols)
+  Matrix2d(size_t rows, size_t cols)
     : nRows_(rows), nCols_(cols), data_(rows * cols) {}
   // This constructor just duplicates other
-  Matrixd(const Matrixd& other)
+  Matrix2d(const Matrix2d& other)
     : nRows_(other.nRows()), nCols_(other.nCols()), data_(other.raw()) {}
   // This constructor makes the matrix from a raw flat std::vector and sets the rows and cols
-  Matrixd(size_t rows, size_t cols, const std::vector<double>& flatVect)
+  Matrix2d(size_t rows, size_t cols, const std::vector<double>& flatVect)
     : nRows_(rows), nCols_(cols), data_(flatVect) {}
     
   const Vectord& raw() const {return data_;}
@@ -381,6 +381,175 @@ class Matrixd {
 }
 };
 
+class Matrix3d {
+  // implement when necessary
+};
+
+class Matrix4d {
+  using size_t = std::size_t;
+ private:
+  size_t nI_, nJ_, nK_, nL_;
+  Vectord data_;
+
+ public:
+  // Default ctor
+  Matrix4d()
+    : nI_(0), nJ_(0), nK_(0), nL_(0), data_() {}
+  // Standard constructor
+  Matrix4d(size_t I, size_t J, size_t K, size_t L)
+    : nI_(I), nJ_(J), nK_(K), nL_(L), data_(I * J * K * L) {}
+  // This constructor just duplicates other
+  Matrix4d(const Matrix4d& other)
+    : nI_(other.nI()), nJ_(other.nJ()), nK_(other.nK()), nL_(other.nL()), data_(other.raw()) {}
+  // This constructor makes the matrix from a raw flat std::vector and sets the rows and cols
+  Matrix4d(size_t I, size_t J, size_t K, size_t L, const std::vector<double>& flatVect)
+    : nI_(I), nJ_(J), nK_(K), nL_(L), data_(flatVect) {}
+    
+  const Vectord& raw() const {return data_;}
+
+  // Access by (i, j)
+  double& operator()(size_t i, size_t j, size_t k, size_t l) {
+    return data_(i*nJ_ + j*nK_ + k*nL_ + l);
+  }
+  const double& operator()(size_t i, size_t j, size_t k, size_t l) const {
+    return data_(i*nJ_ + j*nK_ + k*nL_ + l);
+  }
+
+  size_t nI() const {return nI_;}
+  size_t nJ() const {return nJ_;}
+  size_t nK() const {return nK_;}
+  size_t nL() const {return nL_;}
+  
+  /*TODO
+  Vectord rowAt(size_t i) {
+    Vectord row;
+    for(int j=0; j<nCols_; ++j)
+      row.push_back((*this)(i, j));
+    return row;
+  }
+  const Vectord rowAt(size_t i) const {
+    Vectord row;
+    for(int j=0; j<nCols_; ++j)
+      row.push_back((*this)(i, j));
+    return row;
+  }
+  Vectord colAt(size_t j) {
+    Vectord col;
+    for(int i=0; i<nRows_; ++i)
+      col.push_back((*this)(i, j));
+    return col;
+  }
+  const Vectord colAt(size_t j) const {
+    Vectord col;
+    for(int i=0; i<nRows_; ++i)
+      col.push_back((*this)(i, j));
+    return col;
+  }
+  
+  void deleteRows(const std::vector<size_t>& rowsToDelete) {
+    std::vector<size_t> keepRows;
+    for (size_t i = 0; i < nRows_; ++i) {
+      if (std::find(rowsToDelete.begin(), rowsToDelete.end(), i) == rowsToDelete.end())
+        keepRows.push_back(i);
+    }
+
+    Vectord newData(keepRows.size() * nCols_);
+    for (size_t iNew = 0; iNew < keepRows.size(); ++iNew) {
+      size_t iOld = keepRows[iNew];
+      for (size_t j = 0; j < nCols_; ++j)
+        newData(iNew * nCols_ + j) = (*this)(iOld, j);
+    }
+
+    nRows_ = keepRows.size();
+    data_ = std::move(newData);
+  }
+  void deleteCols(const std::vector<size_t>& colsToDelete) {
+    std::vector<size_t> keepCols;
+    for (size_t j = 0; j < nCols_; ++j) {
+      if (std::find(colsToDelete.begin(), colsToDelete.end(), j) == colsToDelete.end())
+        keepCols.push_back(j);
+    }
+
+    Vectord newData(nRows_ * keepCols.size());
+    for (size_t i = 0; i < nRows_; ++i)
+      for (size_t jNew = 0; jNew < keepCols.size(); ++jNew)
+        newData(i * keepCols.size() + jNew) = (*this)(i, keepCols[jNew]);
+
+    nCols_ = keepCols.size();
+    data_ = std::move(newData);
+  }
+  void extendRows(size_t newRowCount) {
+    if (newRowCount < nRows_)
+      throw std::invalid_argument("New row count must be >= current row count");
+
+    data_.resize(newRowCount * nCols_);
+    nRows_ = newRowCount;
+  }
+  void extendCols(size_t newColCount) {
+    if (newColCount < nCols_)
+      throw std::invalid_argument("New col count must be >= current col count");
+
+    Vectord newData(nRows_ * newColCount);
+    for (size_t i = 0; i < nRows_; ++i)
+      for (size_t j = 0; j < nCols_; ++j)
+        newData(i * newColCount + j) = (*this)(i, j);
+
+    nCols_ = newColCount;
+    data_ = std::move(newData);
+  }*/
+
+  // Non-essential/utility functions
+  void scale(double sc) {
+    for(int i=0; i<nI_*nJ_*nK_*nL_; ++i)
+      data_(i) *=sc;
+  }
+  
+  const double trace() const {
+    size_t n = std::min(std::min(nI_, nJ_), std::min(nK_, nL_));
+    double tr = 0.0;
+    for(int i=0; i<n; ++i)
+      tr += (*this)(i, i, i, i);
+    return tr;
+  }
+  
+  double frobeniusNorm() const {
+    double sum = 0.0;
+    for(int i=0; i<nI_*nJ_*nK_*nL_; ++i)
+      sum += data_(i) * data_(i);
+    return std::sqrt(sum);
+  }
+  double maxAbs() const {
+    double maxVal = 0.0;
+    for(int i=0; i<nI_*nJ_*nK_*nL_; ++i)
+      maxVal = std::max(maxVal, std::abs(data_(i)));
+    return maxVal;
+  }
+  
+  /*TODO
+  inline void print(int eleStrLen = 5) const {
+  for(int i=0; i<nRows_; ++i) {
+    std::cout<<"[";
+    for(int j=0; j<nCols_; ++j) {
+      std::string tmpStr = std::to_string((*this)(i, j));
+      std::string tmpStr2;
+      // Inefficient as fuck but whatever
+      for(int s=0; s<eleStrLen; ++s) {
+        if(s >= tmpStr.length() || (*this)(i, j)==0)
+          tmpStr2 += " ";
+        else
+          tmpStr2 +=tmpStr[s];
+      }
+      std::cout<<tmpStr2;
+      if(j<nCols_-1)
+        std::cout<<" ";
+    }
+    std::cout<<"]\n";
+  }
+  std::cout<<std::endl;
+}
+*/
+};
+
 
 // Functions not part of any class
 
@@ -397,8 +566,8 @@ inline Vectord scaleVect(double sc, const Vectord& v) {
     r(i) += sc*v(i);
   return r;
 }
-inline Matrixd scaleMat(double sc, const Matrixd& mat) {
-  Matrixd r(mat.nRows(), mat.nCols());
+inline Matrix2d scaleMat2(double sc, const Matrix2d& mat) {
+  Matrix2d r(mat.nRows(), mat.nCols());
   for(int i=0; i<mat.nRows(); ++i)
     for(int j=0; j<mat.nCols(); ++j)
       r(i, j) = sc*mat(i, j);
@@ -410,8 +579,8 @@ inline Vectord addVects(const Vectord& v1, const Vectord& v2) {
     r(i) = v1(i)+v2(i);
   return r;
 }
-inline Matrixd addMats(const Matrixd& mat1, const Matrixd& mat2) {
-  Matrixd r(mat1.nRows(), mat1.nCols());
+inline Matrix2d addMat2s(const Matrix2d& mat1, const Matrix2d& mat2) {
+  Matrix2d r(mat1.nRows(), mat1.nCols());
   for(int i=0; i<mat1.nRows(); ++i)
     for(int j=0; j<mat1.nCols(); ++j)
       r(i, j) = mat1(i, j)+mat2(i, j);
@@ -423,24 +592,24 @@ inline double vectDotProduct(const Vectord& v1, const Vectord& v2) {
     r += v1(i)*v2(i);
   return r;
 }
-inline Matrixd vectDyadicProduct(const Vectord& v1, const Vectord& v2) {
-  Matrixd r(v1.size(), v2.size());
+inline Matrix2d vectDyadicProduct(const Vectord& v1, const Vectord& v2) {
+  Matrix2d r(v1.size(), v2.size());
   for(int i=0; i<v1.size(); ++i)
     for(int j=0; j<v2.size(); ++j)
       r(i, j) = v1(i)*v2(j);
   return r;
 }
-inline Vectord matTimesVect(const Matrixd& mat, const Vectord& v) {
+inline Vectord mat2TimesVect(const Matrix2d& mat, const Vectord& v) {
   Vectord r(mat.nRows());
   for(int i=0; i<mat.nRows(); ++i)
     r(i) = vectDotProduct(mat.rowAt(i), v);
   return r;
 }
-inline Matrixd matTimesMat(const Matrixd& mat1, const Matrixd& mat2) {//unfinished
+inline Matrix2d matTimesMat2(const Matrix2d& mat1, const Matrix2d& mat2) {//unfinished
   int rNr = mat1.nRows();
   int rNc = mat2.nCols();
   int Ni = mat1.nCols(); //==mat2.row()
-  Matrixd r(rNr, rNc);
+  Matrix2d r(rNr, rNc);
   for(int i=0; i<rNr; ++i)
     for(int j=0; j<rNc; ++j) {
       r(i, j) = vectDotProduct(mat1.rowAt(i), mat2.colAt(j));
@@ -450,18 +619,18 @@ inline Matrixd matTimesMat(const Matrixd& mat1, const Matrixd& mat2) {//unfinish
 ///inline double mat2DoubleContractionMat2(const Matrixd& mat1, const Matrixd& mat2) {} // TODO
 
 // etc
-inline Matrixd transposeMat(const Matrixd& mat) {
-  Matrixd r(mat.nCols(), mat.nRows());
+inline Matrix2d transposeMat2(const Matrix2d& mat) {
+  Matrix2d r(mat.nCols(), mat.nRows());
   for(int i=0; i<mat.nCols(); ++i)
     for(int j=0; j<mat.nRows(); ++j)
       r(i, j) = mat(j, i);
   return r;
 }
-inline Matrixd makeMatSymmetric(const Matrixd& mat) {
-  return addMats(scaleMat(0.5, mat), scaleMat(0.5, transposeMat(mat)));
+inline Matrix2d makeMatSymmetric(const Matrix2d& mat) {
+  return addMat2s(scaleMat2(0.5, mat), scaleMat2(0.5, transposeMat2(mat)));
 }
 
-inline double detMat2(const Matrixd& mat) {
+inline double detMat2(const Matrix2d& mat) {
   if(mat.nRows() != mat.nCols()) db::throwAndExit("mat.nRows() != mat.nCols()");
   else if(mat.nRows() == 2) return mat(0, 0)*mat(1, 1) - mat(1, 0)*mat(0, 1);
   else db::throwAndExit("det for n>2 not yet implemented"); // TODO
@@ -469,19 +638,25 @@ inline double detMat2(const Matrixd& mat) {
 }
 
 // Only for small matrices
-inline Matrixd invertMat2(Matrixd mat) {
-  if(mat.nRows() != mat.nCols()) db::throwAndExit("mat.nRows() != mat.nCols()");
+inline Matrix2d invertMat2(Matrix2d mat) {
+  if(mat.nRows() != mat.nCols())
+    db::throwAndExit("mat.nRows() != mat.nCols()");
+  else if(mat.nRows() == 1) {
+    Matrix2d r(1, 1,
+      {1.0/mat(0,0)});
+    return r;
+  }
   else if(mat.nRows() == 2) {
-    Matrixd r(2, 2,
+    Matrix2d r(2, 2,
     {
       mat(1, 1), -1.0*mat(0, 1),
       -1.0*mat(1, 0), mat(0, 0)
     }
     );
-    return scaleMat(1.0/detMat2(mat), r);
+    return scaleMat2(1.0/detMat2(mat), r);
   }
   else db::throwAndExit("invert for n>2 not yet implemented");
-  return Matrixd(0, 0); // return empty I guess whatever man
+  return Matrix2d(0, 0); // return empty I guess whatever man
 }
 
 } //namespace LinAlg
