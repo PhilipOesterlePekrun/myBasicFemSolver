@@ -74,6 +74,7 @@ class Array {
     size_ = newRowCount;
   }
   
+  // TODO: instead of print(), all of these should in general just have a tostring() function so it can also be written to whatever you want, and you can do other operations on the string. print() is unnecessarily limiting
   inline void print(int eleStrLen = 5) const { //# we make inline for now
   std::cout<<"[";
   for(int i=0; i<size_; ++i) {
@@ -90,7 +91,6 @@ class Array {
       std::cout<<" ";
   }
   std::cout<<"]^T\n";
-  std::cout<<std::endl;
 }
 };
 
@@ -197,7 +197,6 @@ class Vectord {
       std::cout<<" ";
   }
   std::cout<<"]^T\n";
-  std::cout<<std::endl;
 }
 };
   
@@ -377,7 +376,6 @@ class Matrix2d {
     }
     std::cout<<"]\n";
   }
-  std::cout<<std::endl;
 }
 };
 
@@ -545,7 +543,6 @@ class Matrix4d {
     }
     std::cout<<"]\n";
   }
-  std::cout<<std::endl;
 }
 */
 };

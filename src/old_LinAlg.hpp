@@ -219,7 +219,6 @@ namespace LinAlg::Dynamic {
     for(int i=0; i<v.size(); ++i)
       std::cout<<v[i]<<" ";
     std::cout<<"]\n";
-    std::cout<<std::endl;
   }
   inline void printMatd(const dynMatrixd mat) {
     for(int i=0; i<mat.size(); ++i) {
@@ -228,6 +227,5 @@ namespace LinAlg::Dynamic {
         std::cout<<mat[i][j]<<" ";
       std::cout<<"]\n";
     }
-    std::cout<<std::endl;
   }
 } // namespace LinAlg::Dynamic

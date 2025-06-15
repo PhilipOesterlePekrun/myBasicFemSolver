@@ -35,12 +35,12 @@ find_package(SFML REQUIRED COMPONENTS Graphics Window System)
 add_executable(myBasicFemSolver ${SRC_FILES})
 
 # --- Create executable for testing/demo ---
-add_executable(myBasicFemSolver_Test test/Test_Main.cpp)
+add_executable(test_main test/Test_Main.cpp)
 
 # --- myUtils ---
 set(MYUTILS_DIR "$ENV{HOME}/util/myUtils_Base/install_myUtils")
 target_include_directories(myBasicFemSolver PRIVATE ${MYUTILS_DIR}/include)
-target_include_directories(myBasicFemSolver_Test PRIVATE ${MYUTILS_DIR}/include)
+target_include_directories(test_main PRIVATE ${MYUTILS_DIR}/include)
 
 
 
@@ -51,7 +51,7 @@ target_link_libraries(myBasicFemSolver
         ${MYUTILS_DIR}/lib/libmyUtils.a
         sfml-graphics sfml-window sfml-system
 )
-target_link_libraries(myBasicFemSolver_Test
+target_link_libraries(test_main
     PRIVATE
         ${MYUTILS_DIR}/lib/libmyUtils.a
         sfml-graphics sfml-window sfml-system

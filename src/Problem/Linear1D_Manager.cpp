@@ -31,7 +31,7 @@ void Linear1D::runNoInputExample() {
   db::pr("rhs_ after2");
   rhs_.print();
   
-  solveSystem_Jacobi();
+  solveSystem_Jacobi(50, 0.0001);
   
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
@@ -106,7 +106,7 @@ void Linear1D::applyDirichlet(int globalNodeId/*, dofIndex or localDofindex of t
   rhs_ = rhs2;
 }
 
-Vectord Linear1D::solveSystem_Jacobi() {
+Vectord Linear1D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   db::pr("Solve start");
   
   const int n = K_.nRows();
@@ -123,13 +123,12 @@ Vectord Linear1D::solveSystem_Jacobi() {
         D(i, j) = 0;
     }
     
-  auto residual = [K = K_, rhs = rhs_](Vectord x){return addVects(mat2TimesVect(K, x), scaleVect(-1.0, rhs));};
-  auto residualNorm = [&, residual](Vectord x){auto res = residual(x); return vectDotProduct(res, res);};
+  auto residual = [&](Vectord x){return addVects(mat2TimesVect(K_, x), scaleVect(-1.0, rhs_));};
+  auto residualNorm = [=](Vectord x){auto res = residual(x); return vectDotProduct(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
+  auto relativeResidualNorm = [=, &x_0](Vectord x){return residualNorm(x)/residualNorm(x_0);};
   Vectord x_i = x_0;
   int iter = 0;
-  constexpr int maxiter = 50;
-  constexpr double maxResNorm = 0.01;
   
   db::pr("K_ L U D");
   K_.print();
@@ -140,18 +139,23 @@ Vectord Linear1D::solveSystem_Jacobi() {
   auto invD = D;
   for(int i=0; i<n; ++i)
     invD(i, i) = 1.0/D(i, i);
-  db::pr("line 112");
   invD.print();
-  while(iter < maxiter/* && residualNorm(x_i) < maxResNorm*/) {
+  db::pr("line 142");
+  std::cout<<std::to_string(iter < maxiter)<<"\n";
+  if(iter < maxiter) std::cout<<"true\n";
+  else std::cout<<"false\n";
+  while(iter < maxiter || [=](){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_i) > maxRelResNorm;}()) {
     x_i = mat2TimesVect(invD,
       addVects(rhs_,
         scaleVect(-1.0,
           mat2TimesVect(addMat2s(L, U),
             x_i))));
     iter++;
-    std::cout<<"Iter "<<iter<<", resNorm="<<residualNorm(x_i)<<std::endl;
+    std::cout<<"Iter "<<iter<<"\n";
+    std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
     residual(x_i).print(8);
     x_i.print(8);
+    std::cout<<"\n";
   }
   
   return x_i;

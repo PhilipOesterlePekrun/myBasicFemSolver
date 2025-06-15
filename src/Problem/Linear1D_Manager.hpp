@@ -32,7 +32,7 @@ class Linear1D {
   
   // TODO we will eventually put all the solver methods into a different class. This class is just a manager which also does the assembly.
   ///Vectord solveSystem_gaussSeidel();
-  Vectord solveSystem_Jacobi();
+  Vectord solveSystem_Jacobi(int maxiter, double maxResNorm = -1.0);
 }; // class Linear1D
 
 } // namespace Problem

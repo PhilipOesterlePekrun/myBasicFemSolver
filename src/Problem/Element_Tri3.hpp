@@ -107,7 +107,7 @@ xi1 | |  \
   // const because line shFcts
   static inline Matrix2d gradL_shFct_xi(double xi0 = -2, double xi = -2) {
     // \partial N_i / (\partial xi_j) (each row is grad(N_i) where i const)
-    Matrix2d mat(nnode_, ndofn_,
+    Matrix2d mat(3/*nnode_*/, 2/*ndofn_*/,
     {
       -1, -1, // grad shFct(0)
       1, 0, // grad shFct(1)
@@ -199,7 +199,7 @@ xi1 | |  \
     return result;
   };
   static void test() {
-    std::cout<<std::endl;
+    std::cout<<"\n";
   }
 
  public:

@@ -108,7 +108,7 @@ class Line2 {
     return result;
   };
   static void test() {
-    std::cout<<std::endl;
+    std::cout<<"\n";
   }
 
  public:

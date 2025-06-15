@@ -195,7 +195,7 @@ dynArrayd Linear1D::solveSystem_Jacobi() {
             x_i))));
     iter++;
     printVectd(x_i);
-    std::cout<<residualNorm(x_i)<<std::endl;
+    std::cout<<residualNorm(x_i)<<"\n";
   }
   
   return x_i;
