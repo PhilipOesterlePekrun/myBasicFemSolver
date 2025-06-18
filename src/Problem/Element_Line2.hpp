@@ -27,7 +27,7 @@ class Line2 {
   }
  private:
   double Cvk_xi(double xi) {
-    return Cvk_x(vectDotProduct(shFct_xi(xi), X_0_));
+    return Cvk_x(vect2dDotVect2d(shFct_xi(xi), X_0_));
   }
 
 // ctor(s)
@@ -87,10 +87,10 @@ class Line2 {
   //                                    ^dyadic product because vertical vector times horizontal vector
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
   Matrix2d integrandKmat(double xi) {
-    double J = vectDotProduct(deriv_shFct_xi(xi), X_0_);
+    double J = vect2dDotVect2d(deriv_shFct_xi(xi), X_0_);
     double Jinv = 1.0/J; // Jinv const in this case, can be taken out of integral
-    return scaleMat2(Cvk_xi(xi) * Jinv,
-      vectDyadicProduct(deriv_shFct_xi(xi), deriv_shFct_xi(xi))
+    return scaleMat2d(Cvk_xi(xi) * Jinv,
+      vect2dOuterVect2d(deriv_shFct_xi(xi), deriv_shFct_xi(xi))
     );/*
     return {
       {2, 2,

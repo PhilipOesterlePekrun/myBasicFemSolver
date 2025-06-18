@@ -516,7 +516,7 @@ class Matrix4d {
       sum += data_(i) * data_(i);
     return std::sqrt(sum);
   }
-  double maxAbs() const {
+  double maxAbs() const { // TODO: Is this the same as inf norm? Maybe change it to that then
     double maxVal = 0.0;
     for(int i=0; i<nI_*nJ_*nK_*nL_; ++i)
       maxVal = std::max(maxVal, std::abs(data_(i)));
@@ -557,85 +557,92 @@ inline int diracDelta(int i, int j) {
 }
 
 // Operators linalg
-inline Vectord scaleVect(double sc, const Vectord& v) {
+inline Vectord scaleVect2d(double sc, const Vectord& v) {
   Vectord r(v.size());
   for(int i=0; i<v.size(); ++i)
     r(i) += sc*v(i);
   return r;
 }
-inline Matrix2d scaleMat2(double sc, const Matrix2d& mat) {
+inline Matrix2d scaleMat2d(double sc, const Matrix2d& mat) {
   Matrix2d r(mat.nRows(), mat.nCols());
   for(int i=0; i<mat.nRows(); ++i)
     for(int j=0; j<mat.nCols(); ++j)
       r(i, j) = sc*mat(i, j);
   return r;
 }
-inline Vectord addVects(const Vectord& v1, const Vectord& v2) {
+inline Vectord vect2dPlusVect2d(const Vectord& v1, const Vectord& v2) {
   Vectord r(v1.size());
   for(int i=0; i<v1.size(); ++i)
     r(i) = v1(i)+v2(i);
   return r;
 }
-inline Matrix2d addMat2s(const Matrix2d& mat1, const Matrix2d& mat2) {
+inline Matrix2d mat2dPlusMat2d(const Matrix2d& mat1, const Matrix2d& mat2) {
   Matrix2d r(mat1.nRows(), mat1.nCols());
   for(int i=0; i<mat1.nRows(); ++i)
     for(int j=0; j<mat1.nCols(); ++j)
       r(i, j) = mat1(i, j)+mat2(i, j);
   return r;
 }
-inline double vectDotProduct(const Vectord& v1, const Vectord& v2) {
+inline double vect2dDotVect2d(const Vectord& v1, const Vectord& v2) {
   double r = 0.0;
   for(int i=0; i<v1.size(); ++i)
     r += v1(i)*v2(i);
   return r;
 }
-inline Matrix2d vectDyadicProduct(const Vectord& v1, const Vectord& v2) {
+//using vect2dInnerVect2d = vect2dDotVect2d; // TODO: think about best way to alias, if that even makes sense
+inline Matrix2d vect2dOuterVect2d(const Vectord& v1, const Vectord& v2) {
   Matrix2d r(v1.size(), v2.size());
   for(int i=0; i<v1.size(); ++i)
     for(int j=0; j<v2.size(); ++j)
       r(i, j) = v1(i)*v2(j);
   return r;
 }
-inline Vectord mat2TimesVect(const Matrix2d& mat, const Vectord& v) {
+//using vect2dDyadicVect2d = vect2dOuterVect2d; // TODO: think about best way to alias, if that even makes sense
+inline Vectord mat2dTimesVectd(const Matrix2d& mat, const Vectord& v) {
   Vectord r(mat.nRows());
   for(int i=0; i<mat.nRows(); ++i)
-    r(i) = vectDotProduct(mat.rowAt(i), v);
+    r(i) = vect2dDotVect2d(mat.rowAt(i), v);
   return r;
 }
-inline Matrix2d matTimesMat2(const Matrix2d& mat1, const Matrix2d& mat2) {//unfinished
+inline Matrix2d mat2dTimesMat2d(const Matrix2d& mat1, const Matrix2d& mat2) {//unfinished
   int rNr = mat1.nRows();
   int rNc = mat2.nCols();
   int Ni = mat1.nCols(); //==mat2.row()
   Matrix2d r(rNr, rNc);
   for(int i=0; i<rNr; ++i)
     for(int j=0; j<rNc; ++j) {
-      r(i, j) = vectDotProduct(mat1.rowAt(i), mat2.colAt(j));
+      r(i, j) = vect2dDotVect2d(mat1.rowAt(i), mat2.colAt(j));
     }
   return r;
 }
 ///inline double mat2DoubleContractionMat2(const Matrixd& mat1, const Matrixd& mat2) {} // TODO
 
 // etc
-inline Matrix2d transposeMat2(const Matrix2d& mat) {
+inline Matrix2d transposeMat2d(const Matrix2d& mat) {
   Matrix2d r(mat.nCols(), mat.nRows());
   for(int i=0; i<mat.nCols(); ++i)
     for(int j=0; j<mat.nRows(); ++j)
       r(i, j) = mat(j, i);
   return r;
 }
-inline Matrix2d makeMatSymmetric(const Matrix2d& mat) {
-  return addMat2s(scaleMat2(0.5, mat), scaleMat2(0.5, transposeMat2(mat)));
+inline Matrix2d symmetrizeMat2d(const Matrix2d& mat) {
+  return mat2dPlusMat2d(scaleMat2d(0.5, mat), scaleMat2d(0.5, transposeMat2d(mat)));
 }
 
-inline double detMat2(const Matrix2d& mat) {
-  if(mat.nRows() != mat.nCols()) db::throwAndExit("mat.nRows() != mat.nCols()");
-  else if(mat.nRows() == 2) return mat(0, 0)*mat(1, 1) - mat(1, 0)*mat(0, 1);
-  else db::throwAndExit("det for n>2 not yet implemented"); // TODO
+inline double detMat2d(const Matrix2d& mat) {
+  if(mat.nRows() != mat.nCols())
+    db::throwAndExit("mat.nRows() != mat.nCols()");
+  else if(mat.nRows() == 1)
+    return mat(0,0);
+  else if(mat.nRows() == 2)
+    return mat(0,0)*mat(1,1) - mat(1,0)*mat(0,1);
+  else
+    db::throwAndExit("det for n>2 not yet implemented"); // TODO
   return 0.0; // return who even cares
 }
 
 // Only for small matrices
-inline Matrix2d invertMat2(Matrix2d mat) {
+inline Matrix2d invertMat2d(Matrix2d mat) {
   if(mat.nRows() != mat.nCols())
     db::throwAndExit("mat.nRows() != mat.nCols()");
   else if(mat.nRows() == 1) {
@@ -646,13 +653,14 @@ inline Matrix2d invertMat2(Matrix2d mat) {
   else if(mat.nRows() == 2) {
     Matrix2d r(2, 2,
     {
-      mat(1, 1), -1.0*mat(0, 1),
-      -1.0*mat(1, 0), mat(0, 0)
+      mat(1,1), -1.0*mat(0,1),
+      -1.0*mat(1,0), mat(0,0)
     }
     );
-    return scaleMat2(1.0/detMat2(mat), r);
+    return scaleMat2d(1.0/detMat2d(mat), r);
   }
-  else db::throwAndExit("invert for n>2 not yet implemented");
+  else
+    db::throwAndExit("invert for n>2 not yet implemented");
   return Matrix2d(0, 0); // return empty I guess whatever man
 }
 

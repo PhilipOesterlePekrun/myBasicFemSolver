@@ -1,0 +1,596 @@
+\documentclass[12pt,a4paper]{article}
+%\usepackage[a4paper, margin=1.5cm]{geometry} %//##
+
+\newcommand{\thesistype}{Bachelor's Thesis}
+\newcommand{\thesistitle}{Algebraic Multigrid Preconditioning for Contact and Mesh Tying Problems in Saddle Point Formulation}
+\newcommand{\shorttitle}{AMG Preconditioning for Contact and Mesh Tying Problems in Saddle Point Formulation}
+\newcommand{\Author}{Philip Oesterle-Pekrun}
+\newcommand{\Supervisor}{SupervisorName}
+\newcommand{\DateOfSubmission}{14.04.2025}
+
+% packages included by LNM template
+\usepackage{fancyhdr}
+\usepackage{mdwlist}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{ifthen}
+% commented out in template:
+%\usepackage{epstopdf}
+%\epstopdfsetup{update} % only regenerate pdf files when eps file is newer
+
+% MY PACKAGES (some may be redundant):{
+	\usepackage{graphicx} % Required for inserting images
+	\usepackage{lipsum} % For dummy text
+	
+	\usepackage{hyperref} % For clickable links
+	\usepackage{xcolor} % For colored links
+	
+	\usepackage{tocloft} % For controlling ToC appearance
+	\usepackage[toc,page]{appendix}
+	
+	\usepackage{tabto} % For dotted lines automatically//#?
+	\usepackage{titlesec} % Needed for ``1 Introduction'' rather than ``Chapter 1 \\
+	%Introduction''//#?
+	%\usepackage{mathptmx}  % Times New Roman equivalent BUT DOES NOT WORK WITH BM
+	\usepackage{newtxtext} % Working Times New Romn equivalent
+	\usepackage{newtxmath} %
+	%\usepackage{unicode-math} % Does not work
+	\usepackage{bm} % Beter than \mathbf because also greek letters can be made bold
+	
+	\usepackage{chngcntr} % To number figures chapter.count
+	\counterwithin{figure}{section}
+	
+	\usepackage{url} % For MueLu/Trilinos citation url
+	
+	\usepackage{subcaption} % For subfigures
+	\usepackage{caption} %
+	
+	\usepackage{tikz} % For simple 3D figures and such
+	\usetikzlibrary{patterns, arrows, shapes.geometric}
+	\usetikzlibrary{3d, fadings}
+	
+	\usepackage{arydshln} % For dashed lines in block matrices
+	
+	%\usepackage{etex} % For more resources (stops random errors)
+	
+	%%\usepackage{cite} % For correct number ordering; INCOMPATIBLE WITH BIBLATEX BIBER WHATEVER
+	
+	\usepackage{algorithm} % For algorithms
+	\usepackage{algpseudocode} %
+	%\usepackage[ruled,vlined,linesnumbered]{algorithm2e} % For the vertical lines; WARNING: CANT BE LOADED TOGETHER WITH THE OTHER TWO
+	
+	\usepackage{caption} %
+	
+	\usepackage{accents} % For \underaccent
+	
+	\usepackage{float} % For fig and table and whatever placement
+	
+	\usepackage[absolute,overlay]{textpos} % For title image
+	
+	\usepackage[percent]{overpic} % Put images over stuff
+	
+	\usepackage{longtable} % Tables
+	
+	\usepackage[style=numeric,backend=biber]{biblatex} % For capitalized references titles
+	\addbibresource{00_Bibliography.bib}
+	
+	
+	%\usepackage{makecell} % For \Xhline{1pt} in tables
+	%\usepackage{multirow, booktabs}
+	%\usepackage{siunitx}
+	%\usepackage{tabularray} % none of these work...
+	
+	
+	\theoremstyle{remark} % Remarks from amsthm
+	\newtheorem{remark}{Remark}[section] %
+	%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MY NEWCOMMANDS:
+\newcommand{\nablaR}{\nabla^{\mathrm R}} % right-hand nabla
+\newcommand{\nablaRwrt}[1]{\nabla_{#1}^{\mathrm R}} % right-hand nabla wrt vector (1st order tensor)
+\newcommand{\nablaL}{\nabla^{\mathrm L}} % left-hand nabla
+\newcommand{\nablaLwrt}[1]{\nabla_{#1}^{\mathrm L}} % left-hand nabla wrt vector (1st order tensor)
+\newcommand{\bu}[1]{\bm{\mathrm #1}} % bold upright symbol (for non-tensor matrices and vectors)
+
+
+
+
+\makeatletter
+\newcommand{\thickhline}{\noalign{\ifnum0=`}\fi\hrule height 1pt \futurelet\reserved@a\@xhline} % might lead to issues...
+\makeatother
+
+
+
+
+
+
+% suggested math abbreviations - extend at will
+%\renewcommand{\vec}[1]{\boldsymbol{#1}}         % for vectors
+%\newcommand{\mat}[1]{\boldsymbol{#1}}           % for matrices
+
+%\newcommand{\dd}{\mathrm{d}}                    % differential d
+%\newcommand{\pd}{\partial}                      % partial differentiation d
+
+\newcommand{\tsum}{{\textstyle\sum\limits}}     % for small sums in large equations
+\newcommand{\pfrac}[2]{\frac{\pd #1}{\pd #2}}   % \pfrac{f(x,y)}{x} for partial derivative of f(x,y) with respect to x
+\renewcommand{\dfrac}[2]{\frac{\dd #1}{\dd #2}} % \dfrac{f(x,y)}{x} for total derivative of f(x,y) with respect to x
+%\newcommand{\grad}{\nabla}                      % for the gradient
+%\newcommand{\norm}[1]{\| #1 \|}                 % \norm{x} for the norm of x
+%\newcommand{\abs}[1]{| #1 |}                    % \abs{x} for the absolute value of x
+
+% suggested text abbreviations - extend at will
+\newcommand{\comment}[1]{ }  % put aroung regions that are not to be compiled
+
+%
+%\newcommand{\insertblankpage}{\mbox{}\thispagestyle{empty}\addtocounter{page}{-1}\newpage} % original
+\newcommand{\insertblankpage}{\mbox{}\thispagestyle{empty}\newpage} % mine
+\newcommand{\BibTeX}{$\mathrm{B{\scriptstyle{IB}} \! T\!_{\displaystyle E} \! X}$}
+
+% source of all figures
+\graphicspath{{./}}
+% This is the folder where your figures should be. 
+% You can define more folders by inserting  {./additionalPath/}.
+
+% Leere Fu''llseiten
+\makeatletter
+\renewcommand{\cleardoublepage}{\clearpage\if@twoside \ifodd\c@page\else
+	\hbox{}
+	\vspace*{\fill}
+	\thispagestyle{empty}
+	\newpage
+	\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% page layout %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% for details see, e.g. ``http://en.wikibooks.org/wiki/LaTeX/Page_Layout''
+\setlength{\topmargin}{0mm}                % space above header (excluding \voffset)
+\setlength{\headheight}{12pt}              % height of header
+\setlength{\headsep}{8mm}                  % distance between header and text
+\setlength{\textheight}{230mm}             % 
+\setlength{\footskip}{10mm}                % distance between text and footer, including footer itself
+
+\setlength{\evensidemargin}{0mm}           % distance to inner edge of left page (if twosided)
+%\setlength{\oddsidemargin}{8mm}            % distance to inner edge of right page (or both if onesided)
+\setlength{\oddsidemargin}{0mm}            % mine //##
+\setlength{\textwidth}{160mm}              % 
+\setlength{\marginparsep}{0mm}             % 
+
+\setlength{\voffset}{0mm}                  % 
+\setlength{\hoffset}{0mm}                  % 
+
+% suggested headers and footers
+%\pagestyle{fancyplain}
+\fancyhf{}
+\fancyfoot[C]{\fancyplain{}{\bfseries\thepage}}
+\fancyhead[RO]{\fancyplain{}{\Author}}
+\fancyhead[LO]{\fancyplain{}{\thesistype:\ \shorttitle}}
+
+\newenvironment{changemargin}[2]{%
+	\begin{list}{}{%
+			\setlength{\topsep}{0pt}%
+			\setlength{\leftmargin}{#1}%
+			\setlength{\rightmargin}{#2}%
+			\setlength{\listparindent}{\parindent}%
+			\setlength{\itemindent}{\parindent}%
+			\setlength{\parsep}{\parskip}%
+		}%
+		\item[]}{\end{list}}
+
+\usepackage{setspace}
+\usepackage{helvet}
+
+% Keep the text font unchanged
+%\usepackage{lmodern}
+
+% For better math font styling
+\usepackage{newtxmath}
+%\renewcommand{\familydefault}{\sfdefault}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MY CONFIGS BEFORE BEGIN DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\numberwithin{equation}{section} % Equations numbered as (Section.Number)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  	BEGIN DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% title %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%
+% title page
+\comment{
+\begin{titlepage}
+	\thispagestyle{empty}
+	%///\vspace{-1.5cm}
+	\vspace{-1.5cm}
+	\includegraphics[height=1.5772cm]{fig/lnm}
+	\hfill
+	\includegraphics[height=1.5772cm]{fig/tum_text}
+	%\vspace{-1.5cm}%////I added this
+	\vfill
+	
+	\begin{center}
+		\Huge{\thesistitle}
+		\\
+		\vspace{0.2cm}
+		\LARGE{\Author}
+		\\
+		\vspace{0.2cm}
+		\large{\thesistype}
+	\end{center}
+	% \vfill
+	\vspace{0.1cm}
+	%
+	% und an diese Stelle kommt ein tolles Bild aus der eigenen Arbeit
+	\begin{center}
+		\includegraphics[width=10cm]{fig/titlePageImage2.png}
+		%\includegraphics[width=10cm]{fig/titlePageSecondImage1.png}
+	\end{center}
+	%
+	% \vspace{0.1cm}
+	\vfill
+	%
+	\vspace{-0cm}%////I added this
+	\begin{minipage}[c]{1.0\textwidth}
+		\centering
+		{\large \scshape Supervisor:}\\
+		{Dr.-Ing. Matthias Mayr}\\
+		\texttt{matthias.mayr@unibw.de}\\
+		{M.Sc. Gil Robalo Rei}\\
+		\texttt{gil.rei@tum.de}\\
+	\end{minipage}
+	%
+	\vspace{1cm}\\
+	%
+	\rule{\textwidth}{1pt}
+	%
+	\begin{tabular}[t]{l}
+		Institute for Computational Mechanics
+		\\
+		Prof.\@ Dr.--Ing.\@ W.\ A.\ Wall
+		\\
+		Technische Universit\"at M\"unchen
+	\end{tabular}
+	\hfill
+	\begin{tabular}[t]{r}
+		%   \copyright Lehrstuhl f\"{u}r Numerische Mechanik
+		\DateOfSubmission
+		\\
+		Boltzmannstra\ss e 15
+		\\
+		85748 Garching b. M\"unchen (Germany)\\
+	\end{tabular}
+	\rule{\textwidth}{1pt}
+	
+\end{titlepage}
+
+% ***************** Deckblatt Fakultaet MW *****************
+
+%//##\cleardoublepage
+\newpage
+\thispagestyle{empty}
+\null
+\newpage
+\thispagestyle{empty}
+\begin{changemargin}{-1.0cm}{-1.0cm}
+	
+	\begin{flushright}
+		\includegraphics[width=20mm]{fig/tum.png}
+	\end{flushright}
+	\vspace*{5mm}
+	
+	{\sffamily
+		\Huge {\noindent
+			Algebraic Multigrid Preconditioning for Contact and Mesh Tying Problems in Saddle Point Formulation}
+		
+		\vspace*{4cm}
+		
+		\large {\noindent
+			Wissenschaftliche Arbeit zur Erlangung des Grades \\[1mm]
+			B.Sc. \\[1mm]
+			an der TUM School of Engineering and Design.
+		}
+		\vspace*{1.5cm}
+		
+		{%
+			\normalsize
+			\begin{onehalfspacing}
+				\begin{raggedright}
+					\begin{tabular}{ll}
+						\textbf{Themenstellender} & Univ.-Prof.\@ Dr.-Ing.\@ Wolfgang\ A.\ Wall \\
+						& Lehrstuhl f\"ur Numerische Mechanik \\[5mm]
+						\textbf{Betreuer} & Dr.-Ing. Matthias Mayr  \\
+						& (M.Sc. Gil Robalo Rei) \\[5mm]
+						\textbf{Eingereicht von} & Philip Oesterle-Pekrun \\
+						& +49 1522 6928328 \\[5mm]
+						\textbf{Eingereicht am} & \DateOfSubmission~in Garching bei M\"unchen \\
+					\end{tabular}
+				\end{raggedright}
+			\end{onehalfspacing}
+		}
+	}
+\end{changemargin}
+% *********************** Thesis Declaration **********************
+
+\begin{changemargin}{-1.0cm}{-1.0cm}
+	%//##\cleardoublepage
+	%\insertblankpage
+	\newpage
+	\raggedright
+	\begin{flushright}
+		\includegraphics[width=20mm]{fig/tum.png}
+	\end{flushright}
+	
+	\vspace*{1.5cm}
+	
+	{\LARGE \textsf{\textbf{\noindent 
+				Erkl\"arung }}}
+	\thispagestyle{empty}
+	\vspace*{1.5cm}
+	
+	\begin{onehalfspacing}
+		\begin{raggedright}
+			\textsf{\noindent
+				Ich versichere hiermit, dass ich die von mir eingereichte Abschlussarbeit selbstst\"andig verfasst
+				und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.}
+			
+			\vspace{1.5cm}
+			\flushleft
+			
+			\rule[-0,5cm]{\textwidth}{0,5pt}
+			\flushleft
+			\textsf{(Ort, Datum, Unterschrift)}
+		\end{raggedright}
+	\end{onehalfspacing}
+	
+	% === Insert image absolutely at position (x,y) in mm ===
+	\begin{textblock}{50}(1.18,6.45) % width, (x,y) position in mm
+		\includegraphics[width=70mm]{fig/ortDatum.png} % adjust path and width
+	\end{textblock}
+	
+	\begin{textblock}{50}(7.5,6.22) % width, (x,y) position in mm
+		\includegraphics[width=60mm]{fig/SignatureTranspBackground.png} % adjust path and width
+	\end{textblock}
+	
+\end{changemargin}
+
+% % Old version of English declaration
+
+%   Hereby I confirm that this is my own work and I referenced all sources and
+%   auxiliary means used and acknowledged any help that I have received from
+%   others as appropriate.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Acknowledgement
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%//##\cleardoublepage
+
+\pagestyle{plain}
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+
+\section*{Misc}
+\thispagestyle{plain}
+}
+
+\comment{
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Table of content
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%//##\cleardoublepage
+	\clearpage
+	%\setlength{\cftbeforesecskip}{2.5pt}
+	\vspace*{-1.5cm}
+	\tableofcontents
+	
+	%//# I think I will only list the nomenclature and not the ``symbols'' (same as nomenclature, no?), figures or tables
+	% add lists as required - ask your supervisor
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% List of figures
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%//##\cleardoublepage
+	\clearpage
+	\listoffigures
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% List of tables
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\clearpage
+	\listoftables
+	
+
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% List of symbols
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%//##\cleardoublepage
+	\insertblankpage
+	\section*{List of Symbols}
+	% either by hand or find fancy macro and let me know :o
+	or
+	% \section*{Nomenclature}
+	
+	% falls Arbeit in DEUTSCH verfasst werden soll
+	% \section*{Nomenklatur} or
+	% \section*{Bezeichnungen, Abk\"urzungen, Vereinbarungen}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\comment{
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%% NOMENCLATURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%//##\cleardoublepage
+	\clearpage
+	\section*{Nomenclature}
+	% Table Layout
+	\noindent
+}
+\comment{
+	Notation:
+	Upright non-bold symbols are operators or multiple-character things (e.g. Reynolds number Re)
+	Italicized bold symbols are tensors (including first order tensors)
+	Upright bold symbols are non-tensor matrices and vectors (e.g. stiffness matrix or nodal displacements vector)
+}
+\comment{
+	\begin{tabbing}
+		\textbf{Superscripts and Subscripts} \\
+		(.)$^{(\mathcal{M})}$ \= \hspace{10em} \= Subdomain \\
+		(.)$_0$ \= \hspace{10em} \= Subdomain
+	\end{tabbing}
+	\begin{tabbing}
+		\textbf{Miscellaneous} \\
+		%$\mathbb I _{\mathrm n,\mathrm d}$ \= \hspace{10em} \= n-th order identity tensor acting on $\mathbb R ^{\mathrm d}$ \\ %//## maybe a bit over the top but lets see
+		$\mathbb I _{\mathrm n}$ \= \hspace{10em} \= 2nd order identity tensor acting on $\mathbb R ^{\mathrm n}$ \\
+		$\delta_{ij}$ \= \hspace{10em} \= Kronecker delta \\
+		$\left\| \cdot \right\|_p$ \= \hspace{10em} \= $\mathrm L^p$ norm \\
+		$\left\| \cdot \right\|$ \= \hspace{10em} \= Any consistent norm \\
+	\end{tabbing}
+	\begin{tabbing}
+		\textbf{Solid Mechanics and FEM} \\
+		$\bm{X}$ \= \hspace{10em} \= Material points in the reference configuration \\
+		$\bm{x}$ \= \hspace{10em} \= Material points in the current configuration \\
+		$\bm{u}$ \= \hspace{10em} \= Solid deformation \\
+	\end{tabbing}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CONTENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%//##\cleardoublepage
+\clearpage
+
+\pagenumbering{arabic}
+
+\pagestyle{fancyplain}
+\fancyhf{}
+\fancyfoot[C]{\fancyplain{}{\bfseries\thepage}}
+\fancyhead[RO]{\fancyplain{}{\Author}}
+\fancyhead[LO]{\fancyplain{}{\thesistype:\ \shorttitle}}
+
+\setboolean{@twoside}{false} %//## HERE TO CHANGE BETWEEN ASYMMETRIC VS SYMMETRIC MARGINS
+\fancyhead[RO,LE,LO]{\fancyplain{}{}}
+\fancyhead[CE]{\fancyplain{}{\leftmark}}
+\fancyhead[CO]{\fancyplain{}{\rightmark}}
+
+
+
+
+
+\pagestyle{fancyplain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{FEM Solver Implementation} \label{sec:intro}
+Full weak form:
+\begin{equation}
+	-\delta W = \underbrace{\int_{\Omega_0} \bm S : \delta \bm E \mathrm d V}_{-\delta W_{\text{int}}} \underbrace{- \int_{\Omega_0} \hat{\bm b}_0^T \delta \bm u \mathrm d V - \int_{\Gamma_{0; \bm \sigma}} \hat{\bm t}_0^T \delta \bm u \mathrm d A}_{-\delta W_{\text{ext}}} \overset{!}{=} 0 .
+\end{equation}
+%
+We neglect $\delta W_{\text{ext}}$ for now, and focus on internal work:
+\begin{equation}
+	-\delta W_{\text{int}} = \int_{\Omega_0} \bm S : \delta \bm E \mathrm d V \equiv \int_{\Omega_0} \delta \bm E : \bm S \mathrm d V \overset{!}{=} 0 ,
+\end{equation}
+due to symmetry of both tensors.
+
+We use the linear (engineering) strain
+\begin{equation} \label{eq:kinematicEngStrain}
+	\bm E = \text{symmetrize}(\nabla \bm u) = \frac{1}{2} (\nabla \bm u + (\nabla \bm u)^T) ,
+\end{equation}
+as well as the linear St.Venant-Kirchoff constitutive relation
+\begin{equation}
+	\bm S = \bm C_{\text{VK}} : \bm E ,
+\end{equation}
+\begin{equation}
+	(C_{\text{VK}})_{ijkl} = \lambda \delta_{ij} \delta{kl} + \mu (\delta_{ik} \delta_{jl} + \delta_{il} \delta_{jk}) ,
+\end{equation}
+with the Lam\'e constants $\lambda$ and $\mu$.
+
+\subsubsection{Discretization within an element}
+We use the discretized quantities (technically they should have an "h" subscript, but we leave it away here because we do not handle the analytical quantities anyways)
+\begin{align}
+	u_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm d_{\text{nodeldof2dof}(k, i)} , \\
+	\delta u_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \delta \mathrm d_{\text{nodeldof2dof}(k, i)} , \\
+	x_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, i)} ,
+\end{align}
+where
+\begin{equation}
+	\text{nodeldof2dof}(k, i) = k \cdot \text{nnode} + i
+\end{equation}
+is the mapping from node $k$ and node-local (node-scoped) dof $i$ to the corresponding element-global (element-scoped) dof. The inverse of this mapping is
+\begin{equation}
+	\text{dof2nodeldof}(g) = \{\text{floor}(g/\text{ndofn}), \text{mod}(g, \text{ndofn})\} .
+\end{equation}
+%
+Given the need for the gradient of the unknown displacement in \ref{eq:kinematicEngStrain}, we need to discretize it. In index notation,
+\begin{equation}
+	\frac{\partial u_i}{\partial x_j} = \frac{\partial (\mathrm N \mathrm d)_i}{\partial x_j} = \sum_{k = 1}^{\text{nnode}} \frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{\text{nodeldof2dof}(k, i)} .
+\end{equation}
+%
+Now, we can find the gradient of the shape functions from the parametric coordinates and (inverse) Jacobian:
+\begin{equation}
+	\frac{\partial \mathrm N_k}{\partial x_j} = \sum_{l = 1}^{\text{ndofn}} \frac{\partial \mathrm N_k}{\partial \xi_l} \frac{\partial \xi_l}{\partial x_j}.
+\end{equation}
+To find the inverse Jacobian, we need the Jacobian:
+\begin{equation}
+	J_{lj} = \frac{\partial x_j}{\partial \xi_l} = \frac{\sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, j)}}{\partial \xi_l} = \sum_{k = 1}^{\text{nnode}} \frac{\mathrm N_k}{\partial \xi_l} \mathrm X_{\text{nodeldof2dof}(k, j)}
+\end{equation}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\comment{
+	\cleardoublepage
+	%\bibliographystyle{plain}
+	%\bibliography{00_Bibliography.bib}
+	\addcontentsline{toc}{section}{References}
+	\printbibliography
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%% END DOCUMENT
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}
+\end{document}

@@ -7,9 +7,8 @@
 
 namespace Element {
   
-using namespace LinAlg;
-// for now, how we do it is we give element the info of both the reference config and the displacement/current config. This is probably necessary; if not, whatever
-// most of this class is actually general enough to be the 1D element base class. But not for dim>1
+using namespace LinAlg; // mTODO: consider removing this and replacing it by specific usings. Maybe with a good macro I can reuse in other files too; In any case, except for structures like matrix vector array, I will try to be explicit about LinAlg::
+
 class Tri3 {
 // Characteristic of the element type
  public:
@@ -35,7 +34,22 @@ xi1 | |  \
    N0   N1
   
   */
-  
+
+
+// Node/dof mappings
+ public:
+  // node and node-local dof to element-global dof
+  int nodeldof2dof(int n, int i) {
+    return n*ndofn_ + i;
+  }
+  int nodeldof2dof(Array<int> ni) {
+    return ni(0)*ndofn_ + ni(1);
+  }
+  // element-global dof to node and node-local dof
+  Array<int> dof2nodeldof(int g) {
+    return Array<int>({g/ndofn_, g%ndofn_});
+  }
+
 // Constitutive
  public:
   bool planeStressElsePlaneStrain_;
@@ -54,7 +68,7 @@ xi1 | |  \
       return Vectord({yp(0)*yp(1) / ((1.0 + yp(1))*(1.0 - 2.0*yp(1))), yp(0) / (2.0*(1.0 + yp(1)))});
   }
  private:
-  // St. Venant - Kirchoff
+  // St. Venant-Kirchoff
   Matrix2d stressFromStrain(const Matrix2d& strain, double x0, double x1) const {
     Matrix2d stress = Matrix2d(strain.nRows(), strain.nCols());
     const auto lambdaMu = lameConsts_x(x0, x1);
@@ -63,6 +77,21 @@ xi1 | |  \
       for(int j=0; j<strain.nCols(); ++j)
         stress(i, j) = lambdaMu(0)*diracDelta(i, j)*trE + 2.0*lambdaMu(1)*strain(i, j);
     return stress;
+  }
+  
+  // St. Venant-Kirchoff tensor
+  Matrix4d C_VK(double x0, double x1) {
+    Matrix4d m(ndofn_, ndofn_, ndofn_, ndofn_);
+    auto dD = LinAlg::diracDelta; // function alias
+    
+    // INEFFICIENT: C_VK inherently has a lot of symmetry and I'm not using that here, so a bit inefficient no doubt; but to use it, I really need symmetry-exploiting operators (if I can even use the operators rather than pure index notation)
+    for(int i=0; i<ndofn_; ++i)
+      for(int j=0; j<ndofn_; ++j)
+        for(int k=0; k<ndofn_; ++k)
+          for(int l=0; l<ndofn_; ++l)
+            m(i,j,k,l) = lameConsts_x(x0, x1)(0) * dD(i, j) * dD(k, l) +
+              lameConsts_x(x0, x1)(1) * (dD(i, k) * dD(j, l) + dD(i, l) * dD(j, k));
+    return m;
   }
   
 // Kinematic
@@ -77,6 +106,22 @@ xi1 | |  \
   };
   
   strainMeasure strainMeasure_ = LINEAR; // support linear first, then others
+  
+  // J_lj = \frac{\del x_j}{\del \xi_l}
+  Matrix2d jacobian(double xi0, double xi1) {
+    Matrix2d J(ndofn_, ndofn_);
+    for(int l=0; l<ndofn_; ++l)
+      for(int j=0; j<ndofn_; ++j) {
+        double sumK = 0;
+        for(int k=0; k<nnode_; ++k)
+          sumK += gradL_shFct_xi(xi0, xi1)(k,l) * X_0_(nodeldof2dof(k, l));//#j or l in last l?
+        J(l,j) = sumK;
+      }
+  }
+  // (J^{-1})_lj = \frac{\del \xi_l}{\del x_j}
+  Matrix2d invJacobian(double xi0, double xi1) {
+    return LinAlg::invertMat2d(jacobian(xi0, xi1));
+  }
 
 // ctor(s)
  public:
@@ -131,7 +176,7 @@ xi1 | |  \
     
     Matrix2d mat(ndofn_, ndofn_);
     auto gradL_shFct = gradL_shFct_xi(xi0, xi1);
-    mat = matTimesMat2(transposeMat2(gradL_shFct), X_0_asMat());
+    mat = mat2dTimesMat2d(transposeMat2d(gradL_shFct), X_0_asMat());
     /*for(int i=0; i<ndofn_; ++i)
       for(int j=0; j<ndofn_; ++j)
         for(int k=0; k<ndofn_; ++k)
@@ -139,7 +184,7 @@ xi1 | |  \
   }
   
   inline Matrix2d gradL_shFct_x(double x0, double x1) {
-    matTimesMat2(invertMat2(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
+    mat2dTimesMat2d(invertMat2d(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
   }
   
   // Q and q will be my in general "some quantity"
@@ -178,15 +223,8 @@ xi1 | |  \
   //                                    ^dyadic product because vertical vector times horizontal vector
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
   Matrix2d integrandKmat(double xi0, double xi1) {
-    double J = vectDotProduct(deriv_shFct_xi(xi), X_0_);
-    double Jinv = 1.0/J; // Jinv const in this case, can be taken out of integral
-    return scaleMat2(Cvk_xi(xi) * Jinv,
-      vectDyadicProduct(deriv_shFct_xi(xi), deriv_shFct_xi(xi))
-    );/*
-    return {
-      {2, 2,
-        3, 4}
-    };*/
+    Matrix2d Jinv = invJacobian(xi0, xi1);
+    double detJ = detMat2d(Jinv);
   }
  public: //tmp
   Matrix2d Kmat() {
