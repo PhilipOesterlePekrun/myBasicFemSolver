@@ -5,7 +5,7 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Visualization.hpp"
+#include "Vis/Visualization.hpp"
 
 int main2(int argCount, char** args) {
   db::pr("Test Global.hpp");

@@ -523,7 +523,7 @@ Full weak form:
 \end{equation}
 %
 We neglect $\delta W_{\text{ext}}$ for now, and focus on internal work:
-\begin{equation}
+\begin{equation} \label{eq:dwInt}
 	-\delta W_{\text{int}} = \int_{\Omega_0} \bm S : \delta \bm E \mathrm d V \equiv \int_{\Omega_0} \delta \bm E : \bm S \mathrm d V \overset{!}{=} 0 ,
 \end{equation}
 due to symmetry of both tensors.
@@ -557,7 +557,13 @@ is the mapping from node $k$ and node-local (node-scoped) dof $i$ to the corresp
 	\text{dof2nodeldof}(g) = \{\text{floor}(g/\text{ndofn}), \text{mod}(g, \text{ndofn})\} .
 \end{equation}
 %
-Given the need for the gradient of the unknown displacement in \ref{eq:kinematicEngStrain}, we need to discretize it. In index notation,
+We will henceforth use the shorthand notation
+\begin{equation}
+	\mathrm q_{(k, j)} := \mathrm q_{\text{nodeldof2dof}(k, i)} ,
+\end{equation}
+for any non-tensor vector quantity $\mathrm q$ as above.
+
+Now, given the need for the gradient of the unknown displacement in (\ref{eq:kinematicEngStrain}), we need to discretize it. In index notation,
 \begin{equation}
 	\frac{\partial u_i}{\partial x_j} = \frac{\partial (\mathrm N \mathrm d)_i}{\partial x_j} = \sum_{k = 1}^{\text{nnode}} \frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{\text{nodeldof2dof}(k, i)} .
 \end{equation}
@@ -568,7 +574,13 @@ Now, we can find the gradient of the shape functions from the parametric coordin
 \end{equation}
 To find the inverse Jacobian, we need the Jacobian:
 \begin{equation}
-	J_{lj} = \frac{\partial x_j}{\partial \xi_l} = \frac{\sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, j)}}{\partial \xi_l} = \sum_{k = 1}^{\text{nnode}} \frac{\mathrm N_k}{\partial \xi_l} \mathrm X_{\text{nodeldof2dof}(k, j)}
+	J_{lj} = \frac{\partial x_j}{\partial \xi_l} = \frac{\sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, j)}}{\partial \xi_l} = \sum_{k = 1}^{\text{nnode}} \frac{\mathrm N_k}{\partial \xi_l} \mathrm X_{\text{nodeldof2dof}(k, j)} .
+\end{equation}
+%
+Ok, so, that was easy enough with the Jacobian. It is an isolated task. But, we now look at the rest of the stuff, i.e. (\ref{eq:dwInt}). We start from (\ref{eq:kinematicEngStrain}) basically.
+\begin{equation}
+	E_{ij} = frac{1}{2} (\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i}) =
+	frac{1}{2} (\frac{\partial N_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})	
 \end{equation}
 
 

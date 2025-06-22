@@ -1,0 +1,16 @@
+{
+  "version": 5,
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug Preset",
+      "description": "Debug build with compile commands",
+      "hidden": false,
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ]
+}
