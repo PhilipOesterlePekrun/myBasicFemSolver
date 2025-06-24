@@ -274,7 +274,6 @@ xi1 | |  \
   }
   template<typename Fct>
   static double integrateTrapzTemplated(Fct f, double l, double r, double n) {
-    db::pr("integrateTrapzTemplated()");
     double h = (r - l) / n;
     double result = 0;
     for(int i=0; i<n-1; ++i) {

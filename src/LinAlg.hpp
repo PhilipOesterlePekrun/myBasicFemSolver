@@ -40,7 +40,7 @@ class Array {
   size_t size() const {return size_;}
   
   // Find ele with the value and return the positions of all occurances; if not found, return empty arr
-  Array<size_t> find(T val) {
+  Array<size_t> find(T val) const {
     Array<size_t> arr = Array<size_t>();
     for(int i=0; i<size_; ++i) {
       if((*this)(i) == val)
@@ -60,16 +60,16 @@ class Array {
     data_.push_back(ele);
   };
   
-  void deleteIndices(const std::vector<size_t>& indicesToDelete) {
-    std::vector<size_t> keepIndices;
+  void deleteIndices(const Array<size_t>& indicesToDelete) {
+    Array<size_t> keepIndices;
     for (size_t i = 0; i < size_; ++i) {
-      if (std::find(indicesToDelete.begin(), indicesToDelete.end(), i) == indicesToDelete.end())
+      if(indicesToDelete.find((size_t)i).size()==0)
         keepIndices.push_back(i);
     }
 
     std::vector<T> newData(keepIndices.size());
     for (size_t iNew = 0; iNew < keepIndices.size(); ++iNew) {
-      size_t iOld = keepIndices[iNew];
+      size_t iOld = keepIndices(iNew);
       newData[iNew] = (*this)(iOld);
     }
 
@@ -100,7 +100,7 @@ class Array {
     if(i<size_-1)
       std::cout<<" ";
   }
-  std::cout<<"]^T\n";
+  std::cout<<"]^T\n\n";
 }
 };
 
@@ -149,16 +149,16 @@ class Vectord {
     data_.push_back(ele);
   };
   
-  void deleteIndices(const std::vector<size_t>& indicesToDelete) {
-    std::vector<size_t> keepIndices;
+  void deleteIndices(const Array<size_t>& indicesToDelete) {
+    Array<size_t> keepIndices;
     for (size_t i = 0; i < size_; ++i) {
-      if (std::find(indicesToDelete.begin(), indicesToDelete.end(), i) == indicesToDelete.end())
+      if(indicesToDelete.find((size_t)i).size()==0)
         keepIndices.push_back(i);
     }
 
     std::vector<double> newData(keepIndices.size());
     for (size_t iNew = 0; iNew < keepIndices.size(); ++iNew) {
-      size_t iOld = keepIndices[iNew];
+      size_t iOld = keepIndices(iNew);
       newData[iNew] = (*this)(iOld);
     }
 
@@ -206,7 +206,7 @@ class Vectord {
     if(i<size_-1)
       std::cout<<" ";
   }
-  std::cout<<"]^T\n";
+  std::cout<<"]^T\n\n";
 }
 };
   
@@ -390,6 +390,7 @@ class Matrix2d {
     }
     std::cout<<"]\n";
   }
+  std::cout<<"\n";
 }
 };
 

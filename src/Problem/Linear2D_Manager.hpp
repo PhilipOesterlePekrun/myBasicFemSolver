@@ -17,6 +17,7 @@ class Linear2D {
   Linear2D() {};
   
   void runNoInputExample();
+  void runNoInputExample2();
   
  private:
   std::size_t nnode_;
@@ -33,7 +34,7 @@ class Linear2D {
   Vectord solutionVect_;
   
  public:
-  Vectord globalX_0_;
+  Vectord X_0_;
   // Full solution vector including dirichlet
   Vectord fullSolution();
   
@@ -48,6 +49,10 @@ class Linear2D {
   // TODO we will eventually put all the solver methods into a different class. This class is just a manager which also does the assembly.
   ///Vectord solveSystem_gaussSeidel();
   Vectord solveSystem_Jacobi(int maxiter, double maxResNorm = -1.0);
+  
+  
+  // TODO: we move this suff outside later I suppose
+  void visualize();
 }; // class Linear1D
 
 } // namespace Problem

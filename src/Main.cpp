@@ -7,7 +7,7 @@
 
 #include "Vis/Visualization.hpp"
 
-int main2(int argCount, char** args) {
+int main1(int argCount, char** args) {
   db::pr("Test Global.hpp");
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   std::cout<<timesNewRoman->getInfo().family<<"\n";
@@ -44,7 +44,7 @@ int main(int argCount, char** args) {
   ///p.runNoInputExample();
   
   Problem::Linear2D p2;
-  p2.runNoInputExample();
+  p2.runNoInputExample2();
   
   std::cout<<"Main end\n";
   return 0;
