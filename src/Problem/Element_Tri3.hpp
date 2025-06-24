@@ -35,6 +35,19 @@ xi1 | |  \
   
   */
 
+ public:
+  // This is the local (pos) to global (val) mapping
+  Array<int> globalNodeIds_;
+  Vectord X_0_;
+  
+  Array<int> getGlobalDofIds() {
+    Array<int> arr = Array<int>();
+    FOR(i, nnode_) {
+      arr.push_back(2*globalNodeIds_(i));
+      arr.push_back(2*globalNodeIds_(i) + 1);
+    }
+    return arr;
+  }
 
 // Node/dof mappings
  public:
@@ -46,8 +59,19 @@ xi1 | |  \
     return ni(0)*ndofn_ + ni(1);
   }
   // element-global dof to node and node-local dof
-  Array<int> dof2nodeldof(int g) {
-    return Array<int>({g/ndofn_, g%ndofn_});
+  Array<int> dof2nodeldof(int m) {
+    return Array<int>({m/ndofn_, m%ndofn_});
+  }
+  
+  
+  void test() { // TODOe: move to end or something when everythings done
+    X_0_.print();
+    jacobian_xi(0, 0).print();
+    invJacobian_xi(0, 0).print();
+    
+    LinAlg::mat2dTimesMat2d(jacobian_xi(0, 0), invJacobian_xi(0,0)).print(10);
+    
+    Kmat().print();
   }
 
 // Constitutive
@@ -80,7 +104,7 @@ xi1 | |  \
   }
   
   // St. Venant-Kirchoff tensor
-  Matrix4d C_VK(double x0, double x1) {
+  Matrix4d C_VK_x(double x0, double x1) {
     Matrix4d m(ndofn_, ndofn_, ndofn_, ndofn_);
     auto dD = LinAlg::diracDelta; // function alias
     
@@ -93,11 +117,13 @@ xi1 | |  \
               lameConsts_x(x0, x1)(1) * (dD(i, k) * dD(j, l) + dD(i, l) * dD(j, k));
     return m;
   }
+  inline Matrix4d C_VK_xi(double xi0, double xi1) {
+    auto xVect = x_xi(xi0, xi1);
+    return C_VK_x(xVect(0), xVect(1));
+  }
   
 // Kinematic
- private:
-  //strainMeasure
-  
+ public:
   enum strainMeasure {
     LINEAR,
     GREEN_LAGRANGE,
@@ -107,26 +133,38 @@ xi1 | |  \
   
   strainMeasure strainMeasure_ = LINEAR; // support linear first, then others
   
+ private:
   // J_lj = \frac{\del x_j}{\del \xi_l}
-  Matrix2d jacobian(double xi0, double xi1) {
+  // i.e. gradR_x_wrtxi_xi
+  Matrix2d jacobian_xi(double xi0, double xi1) {
     Matrix2d J(ndofn_, ndofn_);
     for(int l=0; l<ndofn_; ++l)
       for(int j=0; j<ndofn_; ++j) {
         double sumK = 0;
         for(int k=0; k<nnode_; ++k)
-          sumK += gradL_shFct_xi(xi0, xi1)(k,l) * X_0_(nodeldof2dof(k, l));//#j or l in last l?
+          sumK += gradL_shFct_wrtxi_xi(xi0, xi1)(k,l) * X_0_(nodeldof2dof(k, j));//#j or l in last l?
         J(l,j) = sumK;
       }
+    return J;
   }
   // (J^{-1})_lj = \frac{\del \xi_l}{\del x_j}
-  Matrix2d invJacobian(double xi0, double xi1) {
-    return LinAlg::invertMat2d(jacobian(xi0, xi1));
+  Matrix2d invJacobian_xi(double xi0, double xi1) {
+    return LinAlg::invertMat2d(jacobian_xi(xi0, xi1));
   }
 
 // ctor(s)
  public:
   Tri3(Array<int> nodes, Vectord X_0, bool planeStressElsePlaneStrain)
   : globalNodeIds_(nodes), X_0_(X_0), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {}
+  
+  Tri3(Vectord globalX_0, Array<int> nodes, bool planeStressElsePlaneStrain)
+  : globalNodeIds_(nodes), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {
+    X_0_ = Vectord();
+    FOR(i, nodes.size()) {
+      X_0_.push_back(globalX_0(nodes(i)*ndofn_));
+      X_0_.push_back(globalX_0(nodes(i)*ndofn_+1));
+    }
+  }
   
 // Shape functions
  private:
@@ -139,7 +177,7 @@ xi1 | |  \
   }
   static constexpr int shFctMatrixForm_nRows_ = ndofn_;
   static constexpr int shFctMatrixForm_nCols_ = ndof_;
-  static inline Matrix2d shFctMatrixForm_xi(double xi0, double xi1) {
+  /*///static inline Matrix2d shFctMatrixForm_xi(double xi0, double xi1) {
     Matrix2d mat(ndofn_, ndof_);
     auto shFct = shFct_xi(xi0, xi1);
     for(int i=0; i<ndofn_; ++i)
@@ -148,9 +186,9 @@ xi1 | |  \
         mat(i, j) = diracDelta(i, j%ndofn_) * shFct(nodeBlock);
       }
     return mat;
-  }
+  }*/
   // const because line shFcts
-  static inline Matrix2d gradL_shFct_xi(double xi0 = -2, double xi = -2) {
+  static inline Matrix2d gradL_shFct_wrtxi_xi(double xi0 = -2, double xi = -2) {
     // \partial N_i / (\partial xi_j) (each row is grad(N_i) where i const)
     Matrix2d mat(3/*nnode_*/, 2/*ndofn_*/,
     {
@@ -163,32 +201,64 @@ xi1 | |  \
   }
   
   // row = node, col = node-local dof
-  inline Matrix2d X_0_asMat() const {
+  /*///inline Matrix2d X_0_asMat() const {
     Matrix2d mat(nnode_, ndofn_);
     for(int i=0; i<nnode_; ++i)
       for(int j=0; j<ndofn_; ++j)
         mat(i, j) = X_0_(i*ndofn_+j);
     return mat;
+  }*/
+  
+  ///inline Matrix2d gradL_shFct_x(double x0, double x1) {
+  ///  return mat2dTimesMat2d(invertMat2d(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
+  ///}
+  
+  // \frac{\partial \mathrm N_k}{\partial x_j} = \sum_{l = 1}^{\text{ndofn}} \frac{\partial \mathrm N_k}{\partial \xi_l} (\bm J^{-1})_{lj} =: (\tilde{\bu N})_{kj}.
+  // also \tilde{N}
+  inline Matrix2d gradL_shFct_wrtx_xi(double xi0, double xi1) {
+    Matrix2d mat(nnode_, ndofn_);
+    auto invJ = invJacobian_xi(xi0, xi1);
+    auto dNdxi = gradL_shFct_wrtxi_xi(xi0, xi1);
+    for(int k=0; k<nnode_; ++k) {
+      for(int j=0; j<ndofn_; ++j) {
+        double tmpSum = 0;
+        for(int l=0; l<ndofn_; ++l) {
+          tmpSum += dNdxi(k,l) * invJ(l,j);
+        mat(k,j) = tmpSum;
+        }
+      }
+    }
+    return mat;
   }
   
-  // Jacobian, with right hand gradient I guess
-  inline Matrix2d gradR_x_xi(double xi0, double xi1) {
-    
-    Matrix2d mat(ndofn_, ndofn_);
-    auto gradL_shFct = gradL_shFct_xi(xi0, xi1);
-    mat = mat2dTimesMat2d(transposeMat2d(gradL_shFct), X_0_asMat());
-    /*for(int i=0; i<ndofn_; ++i)
-      for(int j=0; j<ndofn_; ++j)
-        for(int k=0; k<ndofn_; ++k)
-          mat(i, j) += gradL_shFct_xi(i, k) * deriv*/
-  }
-  
-  inline Matrix2d gradL_shFct_x(double x0, double x1) {
-    mat2dTimesMat2d(invertMat2d(gradR_x_xi(x0, x1)), gradL_shFct_xi(x0, x1));
+  // B operator, a 2x2x6 matrix B_{ijm}
+  inline Matrix3d BOp_xi(double xi0, double xi1) {
+    Matrix3d mat(ndofn_, ndofn_, ndof_);
+    auto Ntilde = gradL_shFct_wrtx_xi(xi0, xi1);
+    for(int i=0; i<ndofn_; ++i) {
+      for(int j=0; j<ndofn_; ++j) {
+        for(int m=0; m<ndof_; ++m) {
+          auto vectm = dof2nodeldof(m);
+          mat(i,j,m) = 0.5 * (Ntilde(vectm(0),j)*diracDelta(vectm(1),i) + Ntilde(vectm(0),i)*diracDelta(vectm(1),j));
+        }
+      }
+    }
+    return mat;
   }
   
   // Q and q will be my in general "some quantity"
   ///inline double q_xi(const Vectord& Q_xi_, double xi) {return vectDotProduct(shFct_xi(xi), Q_xi_);}
+  
+  inline Vectord x_xi(double xi0, double xi1) {
+    Vectord x(ndofn_);
+    FOR(i, ndofn_) {
+      double tmpSum = 0;
+      FOR(k, nnode_)
+        tmpSum += shFct_xi(xi0, xi1)(k) * X_0_(nodeldof2dof(k,i));
+      x(i) = tmpSum;
+    }
+    return x;
+  }
   
   ///inline static double deriv(double (*f)(double), double xix, double h) {return (f(xix+h)-f(xix-h))/2.0;}
   
@@ -204,6 +274,7 @@ xi1 | |  \
   }
   template<typename Fct>
   static double integrateTrapzTemplated(Fct f, double l, double r, double n) {
+    db::pr("integrateTrapzTemplated()");
     double h = (r - l) / n;
     double result = 0;
     for(int i=0; i<n-1; ++i) {
@@ -211,6 +282,7 @@ xi1 | |  \
     }
     return result;
   }
+  
   //\del E : S | For engineering/infinitesimal/linear strains: E = (\Grad u + (\Grad u)^T)/2 == makeMatSymmetric(\Grad u)
   //\del (1+F) : S(E)
   //(\del du/dx)*Cvk*(du/dx) | u = ND, N is a horizontally-long matrix, D is a vertical vector
@@ -222,28 +294,58 @@ xi1 | |  \
   // = \del D^T int_xi(deriv_shFct_xi^T * deriv_shFct_xi dxi) * Jinv * D * Cvk // Jinv const so can be taken out of integral
   //                                    ^dyadic product because vertical vector times horizontal vector
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
-  Matrix2d integrandKmat(double xi0, double xi1) {
-    Matrix2d Jinv = invJacobian(xi0, xi1);
-    double detJ = detMat2d(Jinv);
+  Matrix2d integrandKmat_xi(double xi0, double xi1) {
+    Matrix2d mat(ndof_, ndof_);
+    double detJ = detMat2d(invJacobian_xi(xi0, xi1));
+    auto CVK = C_VK_xi(xi0, xi1);
+    auto B = BOp_xi(xi0, xi1);
+    // TODO: inefficient as fuck
+    FOR(mLeft, ndof_) {
+      FOR(mRight, ndof_) {
+        double tmpSum = 0;
+        FOR(j, ndofn_) {
+          FOR(i, ndofn_) {
+            FOR(k, ndofn_) {
+              FOR(l, ndofn_) {
+                tmpSum += B(j,i,mLeft) * CVK(i,j,k,l) * B(k,l,mRight);
+              }
+            }
+          }
+        }
+        mat(mLeft, mRight) = tmpSum * detJ;
+      }
+    }
+    return mat;
   }
  public: //tmp
   Matrix2d Kmat() {
     Matrix2d result(ndof_, ndof_);
+    
+    // integration counts in xi0 and xi1 direction
+    int n0 = 20;
+    int n1 = 20;
+    
     for(int i=0;i<ndof_; ++i)
       for(int j=0;j<ndof_; ++j) {
-        auto integrandKmatij = [this, i, j](double xi) {return integrandKmat(xi)(i, j);};
-        result(i, j) = integrateTrapzTemplated(integrandKmatij, Xi_[0], Xi_[1], 500);
+        ///auto integrandKmat_xi_ij = [this, i, j](double xi0, double xi1) {return integrandKmat_xi(xi0, xi1)(i, j);};
+        
+        auto g = [&, i, j, n1](double xi0)
+        {
+          auto f = [&, i, j, xi0](double xi1)
+          {
+            return integrandKmat_xi(xi0, xi1)(i, j);
+          };
+          
+          // inner integration
+          return integrateTrapzTemplated(f, 0.0, 1.0 - xi0, n1);
+        };
+        
+        // outer integration
+        result(i, j) = integrateTrapzTemplated(g, 0.0, 1.0, n0);
+
       }
     return result;
-  };
-  static void test() {
-    std::cout<<"\n";
   }
-
- public:
-  // This is the local (pos) to global (val) mapping
-  Array<int> globalNodeIds_;
-  Vectord X_0_;
 }; // class Tri3
 
 } // namespace Element

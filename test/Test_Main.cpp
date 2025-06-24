@@ -18,7 +18,9 @@ int main(int argCount, char** args) {
     }
   );
   m.print();
+  std::cout<<"m.rowAt(1).print();\n";
   m.rowAt(1).print();
+  std::cout<<"m.colAt(1).print();\n";
   m.colAt(1).print();
   
   std::cout<<testDelimiter;

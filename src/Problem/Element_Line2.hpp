@@ -106,8 +106,8 @@ class Line2 {
         result(i, j) = integrateTrapzTemplated(integrandKmatij, Xi_[0], Xi_[1], 500);
       }
     return result;
-  };
-  static void test() {
+  }
+  void test() {
     std::cout<<"\n";
   }
 

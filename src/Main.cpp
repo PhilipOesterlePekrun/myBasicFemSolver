@@ -32,6 +32,7 @@ int main2(int argCount, char** args) {
 }
 
 #include "Problem/Linear1D_Manager.hpp"
+#include "Problem/Linear2D_Manager.hpp"
 
 int main(int argCount, char** args) {
   std::cout<<"Main start\n";
@@ -39,8 +40,11 @@ int main(int argCount, char** args) {
   //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
   //linProb.readMeshTxt(dataDirPathAbs+"Mesh/Linear1D/SimpleBar_linA_linC_3nodes.txt");
   
-  Problem::Linear1D p;
-  p.runNoInputExample();
+  ///Problem::Linear1D p;
+  ///p.runNoInputExample();
+  
+  Problem::Linear2D p2;
+  p2.runNoInputExample();
   
   std::cout<<"Main end\n";
   return 0;

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.23)  20 JUN 2025 23:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.23)  24 JUN 2025 14:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1610,6 +1610,31 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 {C:/Users/phili/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/phil
 i/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/newtx/ntx-ot1-tlf.enc}]
+LaTeX Font Info:    Font shape `U/ntxmia/b/it' will be
+(Font)              scaled to size 12.0pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxmia/b/it' will be
+(Font)              scaled to size 8.8pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxmia/b/it' will be
+(Font)              scaled to size 6.6pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsym/b/n' will be
+(Font)              scaled to size 12.0pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsym/b/n' will be
+(Font)              scaled to size 8.8pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsym/b/n' will be
+(Font)              scaled to size 6.6pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsyc/b/n' will be
+(Font)              scaled to size 12.0pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsyc/b/n' will be
+(Font)              scaled to size 8.8pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxsyc/b/n' will be
+(Font)              scaled to size 6.6pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxexa/b/n' will be
+(Font)              scaled to size 12.0pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxexa/b/n' will be
+(Font)              scaled to size 8.8pt on input line 581.
+LaTeX Font Info:    Font shape `U/ntxexa/b/n' will be
+(Font)              scaled to size 6.6pt on input line 581.
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1617,7 +1642,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[2] (Formalize.aux)
+[2]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[3] (Formalize.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2020/03/25>
@@ -1629,26 +1662,27 @@ Package logreq Info: Writing requests to 'Formalize.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 36082 strings out of 474486
- 678205 string characters out of 5743755
- 1946542 words of memory out of 5000000
- 57734 multiletter control sequences out of 15000+600000
- 591187 words of font info for 106 fonts, out of 8000000 for 9000
+ 36117 strings out of 474486
+ 678662 string characters out of 5743755
+ 1947542 words of memory out of 5000000
+ 57754 multiletter control sequences out of 15000+600000
+ 596406 words of font info for 121 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,12n,131p,684b,852s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,13n,131p,684b,852s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/NewTXB
 MI.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/N
 ewTXBMI7.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1/public/n
 ewtx/NewTXMI.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/newtx/txexas.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1/p
-ublic/newtx/txexs.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1
-/public/newtx/txmiaX.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/ty
-pe1/public/newtx/txsys.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/
-type1/public/newtx/ztmb.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts
-/type1/public/newtx/ztmr.pfb>
-Output written on Formalize.pdf (2 pages, 143057 bytes).
+ic/newtx/NewTXMI7.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/newtx/txexas.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/ty
+pe1/public/newtx/txexs.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/newtx/txmiaX.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/newtx/txsys.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/f
+onts/type1/public/newtx/ztmb.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/newtx/ztmr.pfb>
+Output written on Formalize.pdf (3 pages, 155599 bytes).
 PDF statistics:
- 119 PDF objects out of 1000 (max. 8388607)
- 20 named destinations out of 1000 (max. 500000)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 500000)
  125 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -524,7 +524,7 @@ Full weak form:
 %
 We neglect $\delta W_{\text{ext}}$ for now, and focus on internal work:
 \begin{equation} \label{eq:dwInt}
-	-\delta W_{\text{int}} = \int_{\Omega_0} \bm S : \delta \bm E \mathrm d V \equiv \int_{\Omega_0} \delta \bm E : \bm S \mathrm d V \overset{!}{=} 0 ,
+	-\delta W_{\text{int}} = \int_{\Omega_0} \bm S : \delta \bm E \mathrm d V \equiv \int_{\Omega_0} \delta \bm E : \bm S \mathrm d V = \int_{\Omega_0} \delta \bm E^T : \bm S \mathrm d V \overset{!}{=} 0 ,
 \end{equation}
 due to symmetry of both tensors.
 
@@ -544,7 +544,7 @@ with the Lam\'e constants $\lambda$ and $\mu$.
 \subsubsection{Discretization within an element}
 We use the discretized quantities (technically they should have an "h" subscript, but we leave it away here because we do not handle the analytical quantities anyways)
 \begin{align}
-	u_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm d_{\text{nodeldof2dof}(k, i)} , \\
+	u_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm d_{\text{nodeldof2dof}(k, i)} , \label{eq:uNd} \\
 	\delta u_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \delta \mathrm d_{\text{nodeldof2dof}(k, i)} , \\
 	x_i &= \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, i)} ,
 \end{align}
@@ -553,35 +553,76 @@ where
 	\text{nodeldof2dof}(k, i) = k \cdot \text{nnode} + i
 \end{equation}
 is the mapping from node $k$ and node-local (node-scoped) dof $i$ to the corresponding element-global (element-scoped) dof. The inverse of this mapping is
-\begin{equation}
+\begin{equation} \label{eq:dof2nodeldof}
 	\text{dof2nodeldof}(g) = \{\text{floor}(g/\text{ndofn}), \text{mod}(g, \text{ndofn})\} .
 \end{equation}
 %
 We will henceforth use the shorthand notation
-\begin{equation}
+\begin{equation} \label{eq:shorthandMapping}
 	\mathrm q_{(k, j)} := \mathrm q_{\text{nodeldof2dof}(k, i)} ,
 \end{equation}
 for any non-tensor vector quantity $\mathrm q$ as above.
 
 Now, given the need for the gradient of the unknown displacement in (\ref{eq:kinematicEngStrain}), we need to discretize it. In index notation,
-\begin{equation}
-	\frac{\partial u_i}{\partial x_j} = \frac{\partial (\mathrm N \mathrm d)_i}{\partial x_j} = \sum_{k = 1}^{\text{nnode}} \frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{\text{nodeldof2dof}(k, i)} .
+\begin{equation} \label{eq:dudx}
+	\frac{\partial u_i}{\partial x_j} = \frac{\partial (\mathrm N \mathrm d)_i}{\partial x_j} = \sum_{k = 1}^{\text{nnode}} \frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{(k, i)} .
 \end{equation}
 %
 Now, we can find the gradient of the shape functions from the parametric coordinates and (inverse) Jacobian:
-\begin{equation}
-	\frac{\partial \mathrm N_k}{\partial x_j} = \sum_{l = 1}^{\text{ndofn}} \frac{\partial \mathrm N_k}{\partial \xi_l} \frac{\partial \xi_l}{\partial x_j}.
+\begin{equation} \label{eq:dNdx}
+	\frac{\partial \mathrm N_k}{\partial x_j} = \sum_{l = 1}^{\text{ndofn}} \frac{\partial \mathrm N_k}{\partial \xi_l} \frac{\partial \xi_l}{\partial x_j} .
 \end{equation}
 To find the inverse Jacobian, we need the Jacobian:
 \begin{equation}
-	J_{lj} = \frac{\partial x_j}{\partial \xi_l} = \frac{\sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{\text{nodeldof2dof}(k, j)}}{\partial \xi_l} = \sum_{k = 1}^{\text{nnode}} \frac{\mathrm N_k}{\partial \xi_l} \mathrm X_{\text{nodeldof2dof}(k, j)} .
+	J_{lj} = \frac{\partial x_j}{\partial \xi_l} = \frac{\partial \sum_{k = 1}^{\text{nnode}} \mathrm N_k \mathrm X_{(k, j)}}{\partial \xi_l} = \sum_{k = 1}^{\text{nnode}} \frac{\partial \mathrm N_k}{\partial \xi_l} \mathrm X_{(k, j)} .
+\end{equation}
+Then we can simply write (\ref{eq:dNdx}) as
+\begin{equation}
+	\frac{\partial \mathrm N_k}{\partial x_j} = \sum_{l = 1}^{\text{ndofn}} \frac{\partial \mathrm N_k}{\partial \xi_l} (\bm J^{-1})_{lj} =: (\tilde{\bu N})_{kj}.
+\end{equation}
+Note that this computation is a completely isolated task.
+
+But, we now look at the rest of the stuff, i.e. (\ref{eq:dwInt}). We start from (\ref{eq:kinematicEngStrain}) basically, and insert (\ref{eq:dudx}).
+\begin{align} \label{eq:Eij}
+	E_{ij} = \frac{1}{2} \left( \frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i} \right)
+	= \frac{1}{2} \left( \sum_{k = 1}^{\text{nnode}}(\frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{(k, i)}) + \sum_{k = 1}^{\text{nnode}}(\frac{\partial \mathrm N_k}{\partial x_i} \mathrm d_{(k, j)}) \right) \nonumber \\
+	= \frac{1}{2} \sum_{k = 1}^{\text{nnode}} \left( \frac{\partial \mathrm N_k}{\partial x_j} \mathrm d_{(k, i)} + \frac{\partial \mathrm N_k}{\partial x_i} \mathrm d_{(k, j)} \right)
+	= \frac{1}{2} \sum_{k = 1}^{\text{nnode}} \left( \mathrm{\tilde N}_{kj} \mathrm d_{(k, i)} + \mathrm{\tilde N}_{ki} \mathrm d_{(k, j)} \right) .
+\end{align}
+To get this into a form like $E_{ij} = \mathrm B_{ijm} \mathrm d_m$, where $m = 1, 2, ..., 6$, we must use the inverse mapping given in (\ref{eq:dof2nodeldof}), which we will just shorthand (similar to \ref{eq:shorthandMapping}) with the vector/array $[m]$, where node is $= [m]_1$ and node-local dof is $= [m]_2$. Then,
+\begin{equation}
+	E_{ij} = \frac{1}{2} \sum_{m = 1}^{\text{ndof}} \left( \mathrm{\tilde N}_{[m]_1 j} \mathrm d_m \delta_{[m]_2 i} + \mathrm{\tilde N}_{[m]_1 i} \mathrm d_m \delta_{[m]_2 j} \right) ,
+\end{equation}
+where the diracs ensure that basically i and j in $E_{ij}$ are basically matching how it is in (\ref{eq:Eij}). So, equivalently,
+\begin{equation}
+	\mathrm B_{ijm} = \frac{1}{2} \left( \mathrm{\tilde N}_{[m]_1 j} \delta_{[m]_2 i} + \mathrm{\tilde N}_{[m]_1 i} \delta_{[m]_2 j} \right) .
+\end{equation}
+
+Finally, we can look at the whole internal work equation (\ref{eq:dwInt}) and formulate its discretized version as a quadratic form, where we again leave out any explicit "h" subscript, even though it is a discretized quantity;
+\begin{align} \label{eq:dWIntDiscretized}
+	\delta W_{\text{int}}^{(e)} = \int_{\Omega_0^{(e)}} \delta (\bm E^T)_{ij} S_{ij} \mathrm d V
+	= \int_{\Omega_0^{(e)}} \delta E_{ji} S_{ij} \mathrm d V
+	= \int_{\Omega_0^{(e)}} \delta E_{ji} (C_{\text{VK}})_{ijkl} E_{kl} \mathrm d V \nonumber \\
+	= \int_{\Omega_0^{(e)}} \delta \mathrm d_{\underline m} \mathrm B_{ji \underline m} (C_{\text{VK}})_{ijkl} \mathrm B_{kl \overline m} \mathrm d_{\overline m} \mathrm d V
+	= \int_{\Omega_0^{(e)}} \delta \mathrm d_{\underline m} \mathrm k^{(e)}_{\underline m \overline m} \mathrm d_{\overline m} \mathrm d V
+	= \delta \mathrm d_{\underline m} \int_{\Omega_0^{(e)}} \mathrm k^{(e)}_{\underline m \overline m} \mathrm d V \mathrm d_{\overline m} \nonumber \\
+	= \delta \mathrm d_{\underline m} \mathrm K^{(e)}_{\underline m \overline m} \mathrm d_{\overline m}
+\end{align}
+Of course, this holds $\forall \delta \bu d$, so we end up with this on each element:
+\begin{equation}
+	\mathrm K^{(e)}_{\underline m \overline m} \mathrm d_{\overline m} .
+\end{equation}
+To get the integral in (\ref{eq:dWIntDiscretized}) w.r.t. $\bm \xi$, we recall
+\begin{equation}
+	\mathrm d V = \text{det}(\bu J) \mathrm d \xi_1 \mathrm d \xi_2 ,
+\end{equation}
+as well as the parametric domain, and hence,
+\begin{equation}
+	\int_{\Omega_0^{(e)}} \bu k^{(e)} \mathrm d V
+	= \int_{\xi_1=0}^{1} \int_{\xi_2=0}^{1-\xi_1} \bu k^{(e)}(\bm \xi) \text{det}(\bm J) \mathrm d \xi_2 \mathrm d \xi_1
 \end{equation}
 %
-Ok, so, that was easy enough with the Jacobian. It is an isolated task. But, we now look at the rest of the stuff, i.e. (\ref{eq:dwInt}). We start from (\ref{eq:kinematicEngStrain}) basically.
-\begin{equation}
-	E_{ij} = frac{1}{2} (\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i}) =
-	frac{1}{2} (\frac{\partial N_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})	
-\end{equation}
+We assemble that to get the actual linear system.
 
 
 

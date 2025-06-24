@@ -39,6 +39,16 @@ class Array {
 
   size_t size() const {return size_;}
   
+  // Find ele with the value and return the positions of all occurances; if not found, return empty arr
+  Array<size_t> find(T val) {
+    Array<size_t> arr = Array<size_t>();
+    for(int i=0; i<size_; ++i) {
+      if((*this)(i) == val)
+        arr.push_back(i);
+    }
+    return arr;
+  }
+  
   // Expose some raw std::vector functions
   void resize(size_t newSize) {
     size_ = newSize;
@@ -233,6 +243,10 @@ class Matrix2d {
   size_t nRows() const {return nRows_;}
   size_t nCols() const {return nCols_;}
   
+  Array<size_t> dims() const {
+    return Array<size_t>({nRows_, nCols_});
+  }
+  
   Vectord rowAt(size_t i) {
     Vectord row;
     for(int j=0; j<nCols_; ++j)
@@ -380,7 +394,170 @@ class Matrix2d {
 };
 
 class Matrix3d {
-  // implement when necessary
+  using size_t = std::size_t;
+ private:
+  size_t nI_, nJ_, nK_;
+  Vectord data_;
+
+ public:
+  // Default ctor
+  Matrix3d()
+    : nI_(0), nJ_(0), nK_(0), data_() {}
+  // Standard constructor
+  Matrix3d(size_t I, size_t J, size_t K)
+    : nI_(I), nJ_(J), nK_(K), data_(I * J * K) {}
+  // This constructor just duplicates other
+  Matrix3d(const Matrix3d& other)
+    : nI_(other.nI()), nJ_(other.nJ()), nK_(other.nK()), data_(other.raw()) {}
+  // This constructor makes the matrix from a raw flat std::vector and sets the rows and cols
+  Matrix3d(size_t I, size_t J, size_t K, const std::vector<double>& flatVect)
+    : nI_(I), nJ_(J), nK_(K), data_(flatVect) {}
+    
+  const Vectord& raw() const {return data_;}
+
+  // Access by (i, j)
+  double& operator()(size_t i, size_t j, size_t k) {
+    return data_(i*nJ_*nK_ + j*nK_ + k);
+  }
+  const double& operator()(size_t i, size_t j, size_t k) const {
+    return data_(i*nJ_*nK_ + j*nK_ + k);
+  }
+
+  size_t nI() const {return nI_;}
+  size_t nJ() const {return nJ_;}
+  size_t nK() const {return nK_;}
+  
+  Array<size_t> dims() const {
+    return Array<size_t>({nI_, nJ_, nK_});
+  }
+  
+  /*TODO
+  Vectord rowAt(size_t i) {
+    Vectord row;
+    for(int j=0; j<nCols_; ++j)
+      row.push_back((*this)(i, j));
+    return row;
+  }
+  const Vectord rowAt(size_t i) const {
+    Vectord row;
+    for(int j=0; j<nCols_; ++j)
+      row.push_back((*this)(i, j));
+    return row;
+  }
+  Vectord colAt(size_t j) {
+    Vectord col;
+    for(int i=0; i<nRows_; ++i)
+      col.push_back((*this)(i, j));
+    return col;
+  }
+  const Vectord colAt(size_t j) const {
+    Vectord col;
+    for(int i=0; i<nRows_; ++i)
+      col.push_back((*this)(i, j));
+    return col;
+  }
+  
+  void deleteRows(const std::vector<size_t>& rowsToDelete) {
+    std::vector<size_t> keepRows;
+    for (size_t i = 0; i < nRows_; ++i) {
+      if (std::find(rowsToDelete.begin(), rowsToDelete.end(), i) == rowsToDelete.end())
+        keepRows.push_back(i);
+    }
+
+    Vectord newData(keepRows.size() * nCols_);
+    for (size_t iNew = 0; iNew < keepRows.size(); ++iNew) {
+      size_t iOld = keepRows[iNew];
+      for (size_t j = 0; j < nCols_; ++j)
+        newData(iNew * nCols_ + j) = (*this)(iOld, j);
+    }
+
+    nRows_ = keepRows.size();
+    data_ = std::move(newData);
+  }
+  void deleteCols(const std::vector<size_t>& colsToDelete) {
+    std::vector<size_t> keepCols;
+    for (size_t j = 0; j < nCols_; ++j) {
+      if (std::find(colsToDelete.begin(), colsToDelete.end(), j) == colsToDelete.end())
+        keepCols.push_back(j);
+    }
+
+    Vectord newData(nRows_ * keepCols.size());
+    for (size_t i = 0; i < nRows_; ++i)
+      for (size_t jNew = 0; jNew < keepCols.size(); ++jNew)
+        newData(i * keepCols.size() + jNew) = (*this)(i, keepCols[jNew]);
+
+    nCols_ = keepCols.size();
+    data_ = std::move(newData);
+  }
+  void extendRows(size_t newRowCount) {
+    if (newRowCount < nRows_)
+      throw std::invalid_argument("New row count must be >= current row count");
+
+    data_.resize(newRowCount * nCols_);
+    nRows_ = newRowCount;
+  }
+  void extendCols(size_t newColCount) {
+    if (newColCount < nCols_)
+      throw std::invalid_argument("New col count must be >= current col count");
+
+    Vectord newData(nRows_ * newColCount);
+    for (size_t i = 0; i < nRows_; ++i)
+      for (size_t j = 0; j < nCols_; ++j)
+        newData(i * newColCount + j) = (*this)(i, j);
+
+    nCols_ = newColCount;
+    data_ = std::move(newData);
+  }*/
+
+  // Non-essential/utility functions
+  void scale(double sc) {
+    for(int i=0; i<nI_*nJ_*nK_; ++i)
+      data_(i) *=sc;
+  }
+  
+  const double trace() const {
+    size_t n = std::min(std::min(nI_, nJ_), nK_);
+    double tr = 0.0;
+    for(int i=0; i<n; ++i)
+      tr += (*this)(i, i, i);
+    return tr;
+  }
+  
+  double frobeniusNorm() const {
+    double sum = 0.0;
+    for(int i=0; i<nI_*nJ_*nK_; ++i)
+      sum += data_(i) * data_(i);
+    return std::sqrt(sum);
+  }
+  double maxAbs() const { // TODO: Is this the same as inf norm? Maybe change it to that then
+    double maxVal = 0.0;
+    for(int i=0; i<nI_*nJ_*nK_; ++i)
+      maxVal = std::max(maxVal, std::abs(data_(i)));
+    return maxVal;
+  }
+  
+  /*TODO
+  inline void print(int eleStrLen = 5) const {
+  for(int i=0; i<nRows_; ++i) {
+    std::cout<<"[";
+    for(int j=0; j<nCols_; ++j) {
+      std::string tmpStr = std::to_string((*this)(i, j));
+      std::string tmpStr2;
+      // Inefficient as fuck but whatever
+      for(int s=0; s<eleStrLen; ++s) {
+        if(s >= tmpStr.length() || (*this)(i, j)==0)
+          tmpStr2 += " ";
+        else
+          tmpStr2 +=tmpStr[s];
+      }
+      std::cout<<tmpStr2;
+      if(j<nCols_-1)
+        std::cout<<" ";
+    }
+    std::cout<<"]\n";
+  }
+}
+*/
 };
 
 class Matrix4d {
@@ -407,16 +584,20 @@ class Matrix4d {
 
   // Access by (i, j)
   double& operator()(size_t i, size_t j, size_t k, size_t l) {
-    return data_(i*nJ_ + j*nK_ + k*nL_ + l);
+    return data_(i*nJ_*nK_*nL_ + j*nK_*nL_ + k*nL_ + l);
   }
   const double& operator()(size_t i, size_t j, size_t k, size_t l) const {
-    return data_(i*nJ_ + j*nK_ + k*nL_ + l);
+    return data_(i*nJ_*nK_*nL_ + j*nK_*nL_ + k*nL_ + l);
   }
 
   size_t nI() const {return nI_;}
   size_t nJ() const {return nJ_;}
   size_t nK() const {return nK_;}
   size_t nL() const {return nL_;}
+  
+  Array<size_t> dims() const {
+    return Array<size_t>({nI_, nJ_, nK_, nL_});
+  }
   
   /*TODO
   Vectord rowAt(size_t i) {
