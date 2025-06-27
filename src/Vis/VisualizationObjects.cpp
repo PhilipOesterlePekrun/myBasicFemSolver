@@ -1,8 +1,8 @@
-#include "VisualizationElements.hpp"
+#include "VisualizationObjects.hpp"
 
-namespace MyFem::VisElements {
+namespace MyFem::Vis::Objects {
   
-void Graph::draw() {
+void Graph::draw() {/*
   visWindow_.draw(vis_.textConstructorXY("X-axis", (float)width_/2, 1));
   sf::RectangleShape xAxis(sf::Vector2f(width_-2, 2));
   xAxis.setPosition(vis_.Vector2fInXY(2, 2));
@@ -13,7 +13,7 @@ void Graph::draw() {
   sf::RectangleShape yAxis(sf::Vector2f(2, height_-2));
   yAxis.setPosition(vis_.Vector2fInXY(2, 2));
   yAxis.setFillColor(sf::Color(255, 255, 255));
-  visWindow_.draw(yAxis);
+  visWindow_.draw(yAxis);*/
 }
 
 }

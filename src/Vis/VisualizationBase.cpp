@@ -1,36 +1,37 @@
 #include "VisualizationBase.hpp"
 
-#include "VisualizationElements.hpp"
-using namespace MyFem::VisElements;
+#include "VisualizationObjects.hpp"
 
-namespace MyFem {
+using namespace MyFem::Vis::Objects;
+
+namespace MyFem::Vis {
 
 void VisualizationBase::drawBaseUI() {
 	// pause bar and symbol
 	{
-		sf::RectangleShape playPauseLoopBar(sf::Vector2f(400, 100));
-		playPauseLoopBar.setPosition(Vector2fInXY((float)windowWidth_/2-200, 200));
+		sf::RectangleShape playPauseLoopBar(sf::Vector2f(200, 50));
+		playPauseLoopBar.setPosition(Vector2fInXY((float)windowWidth_/2-100, 50));
 		playPauseLoopBar.setFillColor(sf::Color(100, 100, 100));
 		renderWindow_.draw(playPauseLoopBar);
 		if(paused_)
 		{
-			sf::RectangleShape pauseL(sf::Vector2f(10, 80));
-			pauseL.setPosition(Vector2fInXY((float)windowWidth_/2-5-20, 200-10));
+			sf::RectangleShape pauseL(sf::Vector2f(4, 40));
+			pauseL.setPosition(Vector2fInXY((float)windowWidth_/2-10, 40));
 			pauseL.setFillColor(sf::Color(0,0,0));
 			renderWindow_.draw(pauseL);
-			sf::RectangleShape pauseR(sf::Vector2f(10, 80));
-			pauseR.setPosition(Vector2fInXY((float)windowWidth_/2-5+20, 200-10));
+			sf::RectangleShape pauseR(sf::Vector2f(4, 40));
+			pauseR.setPosition(Vector2fInXY((float)windowWidth_/2+10, 40));
 			pauseR.setFillColor(sf::Color(0,0,0));
-			renderWindow_.draw(pauseR);
+			renderWindow_.draw(pauseR); // TODO: make better
 		}
 		else
 		{
 			sf::ConvexShape playTriangle;
 			playTriangle.setFillColor(sf::Color(0,0,0));
 			playTriangle.setPointCount(3);
-			playTriangle.setPoint(0, Vector2fInXY((float)windowWidth_/2+20, 200-50));
-			playTriangle.setPoint(1, Vector2fInXY((float)windowWidth_/2-20, 200-10));
-			playTriangle.setPoint(2, Vector2fInXY((float)windowWidth_/2-20, 200-90));
+			playTriangle.setPoint(0, Vector2fInXY((float)windowWidth_/2+10, 25));
+			playTriangle.setPoint(1, Vector2fInXY((float)windowWidth_/2-10, 5));
+			playTriangle.setPoint(2, Vector2fInXY((float)windowWidth_/2-10, 50-5));
 			renderWindow_.draw(playTriangle);
 		}
 	}
@@ -130,10 +131,6 @@ bool VisualizationBase::goToTime(double toTime) {
 	return 1;
 }
 
-void VisualizationBase::drawFrameImplementation() {
-	drawBaseUI();
-}
-
 void VisualizationBase::drawFrame() {
 	if(renderWindow_.isOpen()) {
     while (const std::optional event = renderWindow_.pollEvent())
@@ -152,6 +149,7 @@ void VisualizationBase::drawFrame() {
       currentFrame_++;
 
 		renderWindow_.clear(baseColor_);
+    drawBaseUI();
 		drawFrameImplementation();
 		renderWindow_.display();
 	}

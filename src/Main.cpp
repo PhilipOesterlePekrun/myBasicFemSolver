@@ -13,7 +13,7 @@ int main1(int argCount, char** args) {
   db::pr("Test Global.hpp");
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   std::cout<<timesNewRoman->getInfo().family<<"\n";
-  VisualizationBase v = VisualizationBase(2000, 1000, 60, sf::Color(120,120,120), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12);
+  Vis::VisualizationBase v = Vis::VisualizationBase(2000, 1000, 60, sf::Color(120,120,120), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12);
   v.activate();
   while(v.active_) v.drawFrame();
   //Visualization v = Visualization();
@@ -33,8 +33,10 @@ int main1(int argCount, char** args) {
   return 0;
 }
 
+
 #include "Problem/Linear1D_Manager.hpp"
 #include "Problem/Linear2D_Manager.hpp"
+#include "Vis/Visualization2D.hpp";
 
 int main(int argCount, char** args) {
   std::cout<<"Main start\n";
@@ -45,9 +47,23 @@ int main(int argCount, char** args) {
   ///Problem::Linear1D p;
   ///p.runNoInputExample();
   
-  MyFem::Problem::Linear2D p2;
+  Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
   p2.runNoInputExample1();
+  
+  sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
+  std::cout<<timesNewRoman->getInfo().family<<"\n";
+  
+  std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
+  
+  
+  p2.getX_t().print();
+  
+  Vis::Visualization2D vis(2000, 1000, 60, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
+  600, p2Shared);
+  
+  vis.activate();
+  while(vis.active_) vis.drawFrame();
   
   std::cout<<"Main end\n";
   return 0;

@@ -26,7 +26,6 @@ class Linear2D {
  private:
   size_t nnode_;
   size_t ndofn_;// = 2;
-  size_t get_ndof() {return nnode_*ndofn_;}
   ///std::size_t nele_;
   
   Array<Element::Tri3*> elements_;
@@ -38,10 +37,22 @@ class Linear2D {
   Vectord dirichletVect_;
   Vectord solutionVect_;
   
- public:
+ private:
   Vectord X_0_;
+  
+ public:
+  Vectord getX_0() {return X_0_;}
+  Vectord getX_t();
   // Full solution vector including dirichlet
   Vectord fullSolution();
+  
+  size_t get_ndof() {return nnode_*ndofn_;}
+  int get_nnode() {return nnode_;}
+  int get_ndofn() {return ndofn_;}
+  
+  Array<Element::Tri3*> getElements() {
+    return elements_;
+  }
   
  private:
   void readMeshTxt(std::string inputFilePath);

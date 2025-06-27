@@ -9,7 +9,7 @@
 
 namespace MyFem {
 
-namespace VisElements {
+namespace Vis::Objects {
 
 // A graph object is more flexible than just a function. But the "Visualization" class is rather more like for a window with the whole UI, so graph will not derive from Visualization, instead it will reference the Visualization object; i.e., it is basically attached to a Visualization object but it controls itself so its like an autonomous object attached to the Visualization object.
 class Graph {
@@ -35,6 +35,6 @@ public:
   
 };
 
-}
+} // namespace Vis::Objects
 
 } // namespace MyFem

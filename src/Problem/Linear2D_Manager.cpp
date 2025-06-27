@@ -21,6 +21,15 @@ Vectord Linear2D::fullSolution() {
   return v;
 }
 
+Vectord Linear2D::getX_t() {
+  Vectord X_0 = Vectord(getX_0());
+  auto d = fullSolution();
+  FOR(i, X_0.size()) {
+    X_0(i) += d(i);
+  }
+  return X_0;
+}
+
 void Linear2D::visualize() {// TODO: delete
   sf::RenderWindow rw;
   rw.create(sf::VideoMode({1600, 1000}), "tmp");
@@ -121,7 +130,7 @@ void Linear2D::runNoInputExample_SingleEle() {
   
   
   
-  visualize();
+  //visualize();
   /**/
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
@@ -245,26 +254,17 @@ void Linear2D::runNoInputExample1() {
   ));
   
   
-  FOR(i, elements_.size()) {
+  /*FOR(i, elements_.size()) {
     std::cout<<"================\nEle"<<i<<"\n";
     elements_(i)->test();
-  }
+  }*/
   
   
   assembleK();
+  std::cout<<"K_ after assembly:\n";
   std::cout<<K_.toString(8)<<"n";
   
-  std::cout<<"globalDofs_\n";
-  //solutionDofIds_.print();
-  
   rhs_ = Vectord(K_.nRows()); // zero vect for now
-  
-  //applyDirichlet(2*3+1, 0.0);
-  //applyDirichlet(2*3+0, 0.0);
-  db::pr("rhs_ after1");
-  rhs_.print();
-  std::cout<<"globalDofs_\n";
-  //solutionDofIds_.print();
   
   applyDirichlet(
     Array<size_t>({2*0+0, 2*2+1, 2*3+0, 2*3+1,
@@ -272,51 +272,37 @@ void Linear2D::runNoInputExample1() {
     Vectord({0.0, 0.0, 0.0, 0.0,
       -0.2, -0.2}));
   
+      
   
-  //applyDirichlet(2*2+0, -0.1);
-  db::pr("rhs_ after2");
+  std::cout<<"K_ after applyDirichlet():\n";
+  K_.print();
+  
+  std::cout<<"rhs_ after applyDirichlet():\n";
   rhs_.print();
-  std::cout<<"globalDofs_\n";
-  //solutionDofIds_.print();
   
-  //applyDirichlet(2*0+1, 0.0);
-  //applyDirichlet(2*0+0, 0.0);
-  db::pr("rhs_ after3");
-  rhs_.print();
-  std::cout<<"globalDofs_\n";
-  //solutionDofIds_.print();
-  
-  K_.print(8);
-  
-  solveSystem_GaussSeidel(100, 0.00001);
+  solveSystem_GaussSeidel(500, 0.0000005);
   
   
   //solutionVect_.print(8);
   
+  std::cout<<"\nComputation finished.\n\n";
   
-  
-  
-  db::pr("solutionVect_.print(8);");
-  solutionVect_.print(8);
-  fullSolution().print(8);
-  dirichletVect_.print(8);
-  dirichletDofIds_.print(8);
-  db::pr("globalDofIds_.print(8);");
+  db::pr("globalDofIds_:\n");
   globalDofIds_.print(8);
-  rhs_.print();
-  //solutionDofIds_.print();
   
+  db::pr("solutionVect_:\n");
+  solutionVect_.print(8);
+  db::pr("dirichletDofIds_:\n");
+  dirichletDofIds_.print(8);
+  db::pr("dirichletVect_:\n");
+  dirichletVect_.print(8);
+  db::pr("fullSolution():\n");
+  fullSolution().print(8);
   
-  visualize();
-  /**/
-  /*for(int i=0; i<2; ++i)
-    for(int j=0; j<2; ++j) {
-      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
-      std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
-    }
-    
-  //Element_line2::test();
-  */
+  db::pr("\nX_0_:\n");
+  X_0_.print(8);
+  db::pr("getX_t():\n");
+  getX_t().print(8);
 }
 
 void Linear2D::runNoInputExample2() {
@@ -413,16 +399,10 @@ Matrix2d Linear2D::assembleK() {
   int globalNodeCount = 0;
   for(int e=0; e<elements_.size(); ++e) {
     auto eleGlobalNodeIds = elements_(e)->globalNodeIds_;
-    for(int locId=0; locId<eleGlobalNodeIds.size(); ++locId) {
-      std::cout<<globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()<<"wwwwwww\n";
-      if(globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()==0) { // TODO: I think right now this assumes that the number of nodes is also equal to the max node id, which is fine but could change it to not make that assumption
+    for(int locId=0; locId<eleGlobalNodeIds.size(); ++locId)
+      if(globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()==0)
         if(eleGlobalNodeIds(locId)+1 > globalNodeCount)
           globalNodeCount = eleGlobalNodeIds(locId)+1;
-        db::pr("eleGlobalNodeIds(locId), +1");
-        std::cout<<ndofn_*eleGlobalNodeIds(locId)<<"\n";
-        std::cout<<ndofn_*eleGlobalNodeIds(locId)+1<<"\n\n";
-      }
-    }
   }
   FOR(i, globalNodeCount) {
         globalDofIds_.push_back(ndofn_*i);
@@ -497,9 +477,6 @@ void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
   Matrix2d K_reduced(n_reduced, n_reduced);
   Vectord rhs_reduced(n_reduced);
   
-  db::pr("solutionDofIds.print();line496");
-  solutionDofIds.print();
-  
   FOR(v, n_reduced) {
     int idS = solutionDofIds(v);
     
@@ -516,10 +493,6 @@ void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
     }
     rhs_reduced(v) = rhs_i;
   }
-  
-  db::pr("K_ vs K_reduced:");
-  K_.print(8);
-  K_reduced.print(8);
   
   rhs_ = rhs_reduced;
   K_ = K_reduced;

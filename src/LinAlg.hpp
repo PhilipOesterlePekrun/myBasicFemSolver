@@ -225,7 +225,7 @@ class Vectord {
     if(i<size_-1)
       std::cout<<" ";
   }
-  std::cout<<"]^T\n\n";
+  std::cout<<"]^T\n";
 }
 };
   

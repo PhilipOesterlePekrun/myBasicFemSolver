@@ -6,9 +6,11 @@
 
 namespace MyFem {
 
+namespace Vis {
+  
 class VisualizationBase {
   // UTILITIES
- public:
+ protected:
 	inline sf::Vector2f Vector2fInXY(float posX, float posY){
 		return sf::Vector2f(posX,windowHeight_-posY);
 	}
@@ -42,7 +44,7 @@ class VisualizationBase {
  protected:
 	void drawBaseUI(); //# should this be virtual or not idk?
  protected:
-	virtual void drawFrameImplementation(); // this has the logic to draw the frame, with the functions inserted into it
+	virtual void drawFrameImplementation() {} // this has the logic to draw the frame, with the functions inserted into it
  private:
 	bool pDown=false;
  public:
@@ -86,4 +88,6 @@ class VisualizationBase {
 	sf::Time maxTime_; // or maxFrame idk; in any case, it is taken from simulation in the constructor for everything except the Visualization base class
 };
 
-} // namespace MyFem {
+} // namespace Vis
+
+} // namespace MyFem
