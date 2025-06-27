@@ -76,6 +76,23 @@ class Array {
     size_ = keepIndices.size();
     data_ = std::move(newData);
   }
+  void deleteIndices(const Array<int>& indicesToDelete) { // TODO: think about which we want. size_t or int or both possibly but also maybe not very good to have both
+    Array<size_t> keepIndices;
+    for (size_t i = 0; i < size_; ++i) {
+      if(indicesToDelete.find((size_t)i).size()==0)
+        keepIndices.push_back(i);
+    }
+
+    std::vector<T> newData(keepIndices.size());
+    for (size_t iNew = 0; iNew < keepIndices.size(); ++iNew) {
+      size_t iOld = keepIndices(iNew);
+      newData[iNew] = (*this)(iOld);
+    }
+
+    size_ = keepIndices.size();
+    data_ = std::move(newData);
+  }
+  
   void extend(size_t newRowCount) {
     if (newRowCount < size_)
       throw std::invalid_argument("New row count must be >= current row count");
@@ -85,6 +102,7 @@ class Array {
   }
   
   // TODO: instead of print(), all of these should in general just have a tostring() function so it can also be written to whatever you want, and you can do other operations on the string. print() is unnecessarily limiting
+  // TODO: Also this should be a better structure so it looks better
   inline void print(int eleStrLen = 5) const { //# we make inline for now
   std::cout<<"[";
   for(int i=0; i<size_; ++i) {
@@ -239,6 +257,8 @@ class Matrix2d {
   const double& operator()(size_t i, size_t j) const {
     return data_(i * nCols_ + j);
   }
+  
+  size_t size() const {return nRows_*nCols_;}
 
   size_t nRows() const {return nRows_;}
   size_t nCols() const {return nCols_;}
@@ -371,27 +391,56 @@ class Matrix2d {
     return maxRowSum;
   }
   
+  // DEPRECATED
   inline void print(int eleStrLen = 5) const {
-  for(int i=0; i<nRows_; ++i) {
-    std::cout<<"[";
-    for(int j=0; j<nCols_; ++j) {
-      std::string tmpStr = std::to_string((*this)(i, j));
-      std::string tmpStr2;
-      // Inefficient as fuck but whatever
-      for(int s=0; s<eleStrLen; ++s) {
-        if(s >= tmpStr.length() || (*this)(i, j)==0)
-          tmpStr2 += " ";
-        else
-          tmpStr2 +=tmpStr[s];
+    for(int i=0; i<nRows_; ++i) {
+      std::cout<<"[";
+      for(int j=0; j<nCols_; ++j) {
+        std::string tmpStr = std::to_string((*this)(i, j));
+        std::string tmpStr2;
+        // Inefficient as fuck but whatever
+        for(int s=0; s<eleStrLen; ++s) {
+          if(s >= tmpStr.length() || (*this)(i, j)==0)
+            tmpStr2 += " ";
+          else
+            tmpStr2 +=tmpStr[s];
+        }
+        std::cout<<tmpStr2;
+        if(j<nCols_-1)
+          std::cout<<" ";
       }
-      std::cout<<tmpStr2;
-      if(j<nCols_-1)
-        std::cout<<" ";
+      std::cout<<"]\n";
     }
-    std::cout<<"]\n";
+    std::cout<<"\n";
   }
-  std::cout<<"\n";
-}
+  inline std::string toString(int eleStrLen = 8) const { // TODO: do this also for arrays and vectors and matrix3d and matrix4d
+    std::string str = "[";
+    for(int i=0; i<nRows_; ++i) {
+      if(i>0) str += "|";
+      for(int j=0; j<nCols_; ++j) {
+        std::string tmpStr = std::to_string((*this)(i, j));
+        std::string tmpStr2;
+        // Inefficient as fuck but whatever
+        for(int s=0; s<eleStrLen; ++s) {
+          if(s >= tmpStr.length() || (*this)(i, j)==0)
+            tmpStr2 += " ";
+          else
+            tmpStr2 +=tmpStr[s];
+        }
+        str += tmpStr2;
+        if(j<nCols_-1)
+          str += " ";
+      }
+      if(i<nRows_-1) str += "|\n";
+    }
+    str += "]\n";
+    
+    return str;
+  }
+  std::string sparsityPattern() {
+    // TODO: return a string that is basically the matrix (to print out) but just the sparsity pattern so where nonzeros just have like x or * or something
+    return "not implemented yet";
+  }
 };
 
 class Matrix3d {
@@ -423,6 +472,8 @@ class Matrix3d {
   const double& operator()(size_t i, size_t j, size_t k) const {
     return data_(i*nJ_*nK_ + j*nK_ + k);
   }
+  
+  size_t size() const {return nI_*nJ_*nK_;}
 
   size_t nI() const {return nI_;}
   size_t nJ() const {return nJ_;}
@@ -590,6 +641,8 @@ class Matrix4d {
   const double& operator()(size_t i, size_t j, size_t k, size_t l) const {
     return data_(i*nJ_*nK_*nL_ + j*nK_*nL_ + k*nL_ + l);
   }
+  
+  size_t size() const {return nI_*nJ_*nK_*nL_;}
 
   size_t nI() const {return nI_;}
   size_t nJ() const {return nJ_;}
@@ -844,6 +897,20 @@ inline Matrix2d invertMat2d(Matrix2d mat) {
   else
     db::throwAndExit("invert for n>2 not yet implemented");
   return Matrix2d(0, 0); // return empty I guess whatever man
+}
+
+// Solve lower triangular system Lx=b by forward substitution
+inline Vectord solveLxb(const Matrix2d& A, const Vectord& b) { // TODO: add checks
+  int n = b.size();
+  Vectord x(n);
+  FOR(i, n) {
+    double otherAx = 0;
+    FOR(j, i) {
+      otherAx += A(i,j)*x(j);
+    }
+    x(i) = Utils::Math::CommonFunctions::inv(A(i,i))*(b(i) - otherAx); // TODO: alias Utils::Math::CommonFunctions::inv(
+  }
+  return x;
 }
 
 } //namespace LinAlg

@@ -65,13 +65,18 @@ xi1 | |  \
   
   
   void test() { // TODOe: move to end or something when everythings done
-    X_0_.print();
-    jacobian_xi(0, 0).print();
-    invJacobian_xi(0, 0).print();
+    std::string outString = "--------------- Element ";
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_(i)) + "-";
+    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
+    outString += " test() ---------------\n";
     
-    LinAlg::mat2dTimesMat2d(jacobian_xi(0, 0), invJacobian_xi(0,0)).print(10);
+    std::cout<<outString;
     
-    Kmat().print();
+    std::cout<<Kmat().toString(8)<<"\n";
+    //gradL_shFct_wrtx_xi(-1, -1).print();
+    
+    //x_xi(0, 0.5).print();
   }
 
 // Constitutive
@@ -281,6 +286,12 @@ xi1 | |  \
     }
     return result;
   }
+  template<typename Fct>
+  static double integrateGaussianQuadratureTemplated(Fct f, double l, double r, double n) {
+    double result = 0;
+    // TODO
+    return result;
+  }
   
   //\del E : S | For engineering/infinitesimal/linear strains: E = (\Grad u + (\Grad u)^T)/2 == makeMatSymmetric(\Grad u)
   //\del (1+F) : S(E)
@@ -295,7 +306,8 @@ xi1 | |  \
   // Also, for Cvk(x) to Cvk(xi), we need x(xi). We have x(xi), it is just N(xi)*X
   Matrix2d integrandKmat_xi(double xi0, double xi1) {
     Matrix2d mat(ndof_, ndof_);
-    double detJ = detMat2d(invJacobian_xi(xi0, xi1));
+    double detJ = detMat2d(jacobian_xi(xi0, xi1));
+    //db::pr("detJ="+std::to_string(detJ));
     auto CVK = C_VK_xi(xi0, xi1);
     auto B = BOp_xi(xi0, xi1);
     // TODO: inefficient as fuck

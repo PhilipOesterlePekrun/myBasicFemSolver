@@ -44,7 +44,8 @@ int main(int argCount, char** args) {
   ///p.runNoInputExample();
   
   Problem::Linear2D p2;
-  p2.runNoInputExample2();
+  //p2.runNoInputExample_SingleEle();
+  p2.runNoInputExample1();
   
   std::cout<<"Main end\n";
   return 0;

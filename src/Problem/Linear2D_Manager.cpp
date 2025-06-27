@@ -4,13 +4,20 @@
 namespace Problem {
   
 Vectord Linear2D::fullSolution() {
-  Vectord v = Vectord(nnode_*ndofn_);
-  FOR(i, solutionDofIds_.size()) {
-    v(solutionDofIds_(i)) = solutionVect_(i);
+  Vectord v = Vectord(globalDofIds_.size());
+  
+  Array<size_t> solutionDofIds(globalDofIds_);
+  solutionDofIds.deleteIndices(dirichletDofIds_);
+  //db::pr("solutionDofIds.print();line11");
+  //solutionDofIds.print();
+  FOR(i, solutionDofIds.size()) {
+    v(solutionDofIds(i)) = solutionVect_(i);
   }
+  
   FOR(i, dirichletDofIds_.size()) {
     v(dirichletDofIds_(i)) = dirichletVect_(i);
   }
+  
   return v;
 }
 
@@ -31,6 +38,7 @@ void Linear2D::visualize() {// TODO: delete
     auto vect = [](double x, double y) {return sf::Vector2f(200+x, 1000-(200+y));};
     
     auto fullSol = fullSolution();
+    //auto fullSol = solutionVect_;
     
     sf::ConvexShape quad;
     quad.setFillColor(sf::Color(0,0,0));
@@ -56,12 +64,81 @@ void Linear2D::visualize() {// TODO: delete
 
 }
 
+void Linear2D::runNoInputExample_SingleEle() {
+  X_0_ = Vectord({
+    0.0, 0.0, // x, y
+    2.0, 0.0,
+    0.0, 1.0
+  });
+  
+  elements_.push_back(new Element::Tri3(
+    X_0_,
+    Array<int>({0, 1, 2}),
+    true
+  ));
+  
+  
+  FOR(i, elements_.size()) {
+    std::cout<<"================\nEle"<<i<<"\n";
+    elements_(i)->test();
+  }
+  
+  
+  assembleK();
+  std::cout<<K_.toString(8)<<"n";
+  
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  rhs_ = Vectord(K_.nRows()); // zero vect for now
+  
+  
+  applyDirichlet(2*2+0, 0.0);
+  applyDirichlet(2*2+1, 0.0);
+  db::pr("rhs_ after2");
+  rhs_.print();
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  applyDirichlet(2*1+0, 0.2);
+  
+  applyDirichlet(2*0+1, 0.0);
+  db::pr("rhs_ after3");
+  rhs_.print();
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  K_.print();
+  
+  solveSystem_Jacobi(500, 0.00001);
+  
+  db::pr("line117");
+  solutionVect_.print();
+  dirichletVect_.print();
+  dirichletDofIds_.print();
+  
+  fullSolution().print();
+  //solutionDofIds_.print();
+  
+  
+  
+  visualize();
+  /**/
+  /*for(int i=0; i<2; ++i)
+    for(int j=0; j<2; ++j) {
+      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
+      std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
+    }
+    
+  //Element_line2::test();
+  */
+}
+
 void Linear2D::runNoInputExample() {
   X_0_ = Vectord({
     0.0, 0.0, // x, y
-    1.0, 0.0,
-    0.4, 1.0,
-    1.0, 1.0
+    2.0, 0.0,
+    0.0, 1.0,
+    2.0, 1.0
   });
   
   elements_.push_back(new Element::Tri3(
@@ -71,49 +148,167 @@ void Linear2D::runNoInputExample() {
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>({2, 1, 3}),
+    Array<int>({1, 3, 2}),
     true
   ));
   
   
-  //elements_(0)->test();
+  FOR(i, elements_.size()) {
+    std::cout<<"================\nEle"<<i<<"\n";
+    elements_(i)->test();
+  }
   
   
   assembleK();
-  K_.print();
+  std::cout<<K_.toString(8)<<"n";
   
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
-  applyDirichlet(2*3+1, 0.2);
+  applyDirichlet(2*3+1, -0.4);
+  applyDirichlet(2*3+0, 0.4);
   db::pr("rhs_ after1");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
-  applyDirichlet(2*0+0, 0.0);
-  applyDirichlet(2*0+1, 0.0);
+  
+  applyDirichlet(2*2+0, 0.0);
   db::pr("rhs_ after2");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
-  applyDirichlet(2*1+1, 0.0);
+  applyDirichlet(2*0+1, 0.0);
+  applyDirichlet(2*0+0, 0.0);
   db::pr("rhs_ after3");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
   K_.print();
   
-  solveSystem_Jacobi(50, 0.0001);
+  solveSystem_Jacobi(500, 0.00001);
+  
+  db::pr("line117");
+  solutionVect_.print();
+  dirichletVect_.print();
+  dirichletDofIds_.print();
   
   fullSolution().print();
+  //solutionDofIds_.print();
+  
+  
   
   visualize();
+  /**/
+  /*for(int i=0; i<2; ++i)
+    for(int j=0; j<2; ++j) {
+      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
+      std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
+    }
+    
+  //Element_line2::test();
+  */
+}
+void Linear2D::runNoInputExample1() {
+  X_0_ = Vectord({
+    0.0, 0.0, // x, y
+    1.0, 0.0,
+    2.0, 0.0,
+    0.0, 1.0,
+    1.0, 1.0,
+    2.0, 1.0,
+  });
   
+  elements_.push_back(new Element::Tri3(
+    X_0_,
+    Array<int>({0, 1, 3}),
+    true
+  ));
+  elements_.push_back(new Element::Tri3(
+    X_0_,
+    Array<int>({1, 4, 3}),
+    true
+  ));
+  elements_.push_back(new Element::Tri3(
+    X_0_,
+    Array<int>({1, 2, 4}),
+    true
+  ));
+  elements_.push_back(new Element::Tri3(
+    X_0_,
+    Array<int>({2, 5, 4}),
+    true
+  ));
+  
+  
+  FOR(i, elements_.size()) {
+    std::cout<<"================\nEle"<<i<<"\n";
+    elements_(i)->test();
+  }
+  
+  
+  assembleK();
+  std::cout<<K_.toString(8)<<"n";
+  
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  rhs_ = Vectord(K_.nRows()); // zero vect for now
+  
+  //applyDirichlet(2*3+1, 0.0);
+  //applyDirichlet(2*3+0, 0.0);
+  db::pr("rhs_ after1");
+  rhs_.print();
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  applyDirichlet(
+    Array<size_t>({2*0+0, 2*2+1, 2*3+0, 2*3+1,
+      2*2+1, 5*2+1}),
+    Vectord({0.0, 0.0, 0.0, 0.0,
+      -0.2, -0.2}));
+  
+  
+  //applyDirichlet(2*2+0, -0.1);
+  db::pr("rhs_ after2");
+  rhs_.print();
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  //applyDirichlet(2*0+1, 0.0);
+  //applyDirichlet(2*0+0, 0.0);
+  db::pr("rhs_ after3");
+  rhs_.print();
+  std::cout<<"globalDofs_\n";
+  //solutionDofIds_.print();
+  
+  K_.print(8);
+  
+  solveSystem_GaussSeidel(100, 0.00001);
+  
+  
+  //solutionVect_.print(8);
+  
+  
+  
+  
+  db::pr("solutionVect_.print(8);");
+  solutionVect_.print(8);
+  fullSolution().print(8);
+  dirichletVect_.print(8);
+  dirichletDofIds_.print(8);
+  db::pr("globalDofIds_.print(8);");
+  globalDofIds_.print(8);
+  rhs_.print();
+  //solutionDofIds_.print();
+  
+  
+  visualize();
+  /**/
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
       db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
@@ -163,32 +358,38 @@ void Linear2D::runNoInputExample2() {
   K_.print();
   
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
   db::pr("rhs_ after1");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
+  applyDirichlet(2*5+1, 0.05);
   
-  applyDirichlet(2*0+0, 0.0);
-  applyDirichlet(2*0+1, 0.0);
   applyDirichlet(2*3+0, 0.0);
-  applyDirichlet(2*3+1, 0.0);
+  
+  applyDirichlet(2*0+1, 0.0);
+  applyDirichlet(2*0+0, 0.0);
   db::pr("rhs_ after2");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
-  applyDirichlet(2*2+1, -0.1);
-  applyDirichlet(2*5+1, -0.1);
+  
   db::pr("rhs_ after3");
   rhs_.print();
   std::cout<<"globalDofs_\n";
-  solutionDofIds_.print();
+  //solutionDofIds_.print();
   
-  K_.print();
+  K_.print(8);
+  
+  std::cout<<"line193\n";
+  dirichletDofIds_.print();
+  dirichletVect_.print();
+  //solutionDofIds_.print(); // with removed ids after applying dirichlet
+  solutionVect_.print();
   
   solveSystem_Jacobi(500, 0.0001);
   
@@ -213,18 +414,22 @@ Matrix2d Linear2D::assembleK() {
   for(int e=0; e<elements_.size(); ++e) {
     auto eleGlobalNodeIds = elements_(e)->globalNodeIds_;
     for(int locId=0; locId<eleGlobalNodeIds.size(); ++locId) {
-      db::pr("line54: "+std::to_string(eleGlobalNodeIds(locId)+1));
-      if(eleGlobalNodeIds(locId)+1 > globalNodeCount) { // TODO: I think right now this assumes that the number of nodes is also equal to the max node id, which is fine but could change it to not make that assumption
-        globalNodeCount = eleGlobalNodeIds(locId)+1;
-        solutionDofIds_.push_back(ndofn_*eleGlobalNodeIds(locId));
-        solutionDofIds_.push_back(ndofn_*eleGlobalNodeIds(locId) + 1);
+      std::cout<<globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()<<"wwwwwww\n";
+      if(globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()==0) { // TODO: I think right now this assumes that the number of nodes is also equal to the max node id, which is fine but could change it to not make that assumption
+        if(eleGlobalNodeIds(locId)+1 > globalNodeCount)
+          globalNodeCount = eleGlobalNodeIds(locId)+1;
+        db::pr("eleGlobalNodeIds(locId), +1");
+        std::cout<<ndofn_*eleGlobalNodeIds(locId)<<"\n";
+        std::cout<<ndofn_*eleGlobalNodeIds(locId)+1<<"\n\n";
       }
     }
   }
+  FOR(i, globalNodeCount) {
+        globalDofIds_.push_back(ndofn_*i);
+        globalDofIds_.push_back(ndofn_*i + 1);
+  }
   nnode_ = globalNodeCount;
   Matrix2d assembledK(globalNodeCount*ndofn_, globalNodeCount*ndofn_); // TODO: we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
-  db::pr("line44");
-  db::pr(std::to_string(globalNodeCount));
   for(int e=0; e<elements_.size(); ++e) {
     const auto& eleGlobalDofIds = elements_(e)->getGlobalDofIds();
     const auto locK = elements_(e)->Kmat();
@@ -238,61 +443,21 @@ Matrix2d Linear2D::assembleK() {
 }
 
 // old
-///void Linear2D::applyDirichlet(int globalDofId/*, dofIndex or localDofindex of the node, needed for higher dim*/, double val) {
+void Linear2D::applyDirichlet(int dofId/*, dofIndex or localDofindex of the node, needed for higher dim*/, double val) {
   // x_d==val means that any occurence of K_ij*x_d, ie when j==d, should be instead subtracted from the rhs. and if i==d, it doesnt matter anyays because we remove that row or practically remove it.
   // ok but actually we want the following approach: remove the rows of dirichlet nodes but then subtract from the rhs the upper right*x_d. ok actually maybe practically the same thing, which makes sense I guess
-  /*int n = K_.nRows();
-  // TODO very inefficient but whatever
-  dirichletDofIds_.push_back(globalDofId);
-  dirichletVect_.push_back(val);
-  FOR(i, solutionDofIds_.size()) {
-    if(solutionDofIds_(i) == globalDofId)
-      solutionDofIds_.deleteIndices({(std::size_t)i});
-  }
-  
-  for(int i=0; i<n; ++i) {
-    for(int j=0; j<n; ++j) {
-      if(j==globalDofId && K_(i, j)!=0){
-        rhs_(i) -= K_(i, j)*val;
-      }
-    }
-  }
-  
-  // TODOx: fix applyDirichlet
-  auto K2 = Matrix2d(n-1, n-1);
-  auto rhs2 = Vectord(n-1);
-  int i2 = 0;
-  for(int i=0; i<n; ++i) {
-    if(i!=globalDofId) {
-      int j2 = 0;
-      for(int j=0; j<n; ++j) {
-        if(j!=globalDofId){
-          K2(i2, j2) = K_(i, j);
-          j2++;
-        }
-      }
-      
-      rhs2(i2) = rhs_(i);
-      
-      i2++;
-    }
-  }
-  
-  K_ = K2;
-  rhs_ = rhs2;
-}*/
-
-void Linear2D::applyDirichlet(Array<size_t> ids, Vectord vals) {
-  
   int n = K_.nRows();
   // TODO very inefficient but whatever
-  dirichletDofIds_ = ids;
-  dirichletVect_ = vals;
-  solutionDofIds_.deleteIndices(ids);
+  dirichletDofIds_.push_back(dofId);
+  dirichletVect_.push_back(val);
+  /*FOR(i, solutionDofIds_.size()) {
+    if(solutionDofIds_(i) == globalDofId)
+      solutionDofIds_.deleteIndices(Array<size_t>({(size_t)i}));
+  }*/
   
   for(int i=0; i<n; ++i) {
     for(int j=0; j<n; ++j) {
-      if(j==globalDofId && K_(i, j)!=0){
+      if(j==dofId && K_(i, j)!=0){
         rhs_(i) -= K_(i, j)*val;
       }
     }
@@ -302,11 +467,11 @@ void Linear2D::applyDirichlet(Array<size_t> ids, Vectord vals) {
   auto K2 = Matrix2d(n-1, n-1);
   auto rhs2 = Vectord(n-1);
   int i2 = 0;
-  for(int i=0; i<n; ++i) {
-    if(i!=globalDofId) {
+  for(int i=0; i<n-1; ++i) {
+    if(i!=dofId) {
       int j2 = 0;
-      for(int j=0; j<n; ++j) {
-        if(j!=globalDofId){
+      for(int j=0; j<n-1; ++j) {
+        if(j!=dofId){
           K2(i2, j2) = K_(i, j);
           j2++;
         }
@@ -320,6 +485,47 @@ void Linear2D::applyDirichlet(Array<size_t> ids, Vectord vals) {
   
   K_ = K2;
   rhs_ = rhs2;
+}
+
+void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
+  int n = K_.nRows();
+  
+  Array<size_t> solutionDofIds(globalDofIds_);
+  solutionDofIds.deleteIndices(ids); // or technically deleteIndices(...find(...)) but it will be the same
+  
+  int n_reduced = solutionDofIds.size();
+  Matrix2d K_reduced(n_reduced, n_reduced);
+  Vectord rhs_reduced(n_reduced);
+  
+  db::pr("solutionDofIds.print();line496");
+  solutionDofIds.print();
+  
+  FOR(v, n_reduced) {
+    int idS = solutionDofIds(v);
+    
+    double rhs_i = rhs_(idS);
+    
+    FOR(v2, n_reduced) {
+      int id2 = solutionDofIds(v2);
+      K_reduced(v, v2) = K_(idS, id2);
+    }
+    
+    FOR(i, ids.size()) {
+      int dId = ids(i);
+      rhs_i -= K_(idS, dId) * vals(i);
+    }
+    rhs_reduced(v) = rhs_i;
+  }
+  
+  db::pr("K_ vs K_reduced:");
+  K_.print(8);
+  K_reduced.print(8);
+  
+  rhs_ = rhs_reduced;
+  K_ = K_reduced;
+  
+  dirichletDofIds_ = ids;
+  dirichletVect_ = vals;
 }
 
 Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
@@ -339,10 +545,10 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
         D(i, j) = 0;
     }
     
-  auto residual = [&](Vectord x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
-  auto residualNorm = [=](Vectord x){auto res = residual(x); return vect2dDotVect2d(res, res);};
+  auto residual = [&](Vectord& x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
+  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vect2dDotVect2d(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
-  auto relativeResidualNorm = [=, &x_0](Vectord x){return residualNorm(x)/residualNorm(x_0);};
+  auto relativeResidualNorm = [&](Vectord& x){return residualNorm(x)/residualNorm(x_0);};
   Vectord x_i = x_0;
   int iter = 0;
   
@@ -354,13 +560,11 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   
   auto invD = D;
   for(int i=0; i<n; ++i)
-    invD(i, i) = 1.0/D(i, i);
+    if(invD(i, i) != 0)
+      invD(i, i) = 1.0/D(i, i);
   invD.print();
-  db::pr("line 142");
-  std::cout<<std::to_string(iter < maxiter)<<"\n";
-  if(iter < maxiter) std::cout<<"true\n";
-  else std::cout<<"false\n";
-  while(iter < maxiter && [=](){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_i) > maxRelResNorm;}()) {
+
+  while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = mat2dTimesVectd(invD,
       vect2dPlusVect2d(rhs_,
         scaleVect2d(-1.0,
@@ -369,7 +573,54 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
     iter++;
     std::cout<<"Iter "<<iter<<"\n";
     std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
+    std::cout<<"residual = ";
     residual(x_i).print(8);
+    std::cout<<"x_i = ";
+    x_i.print(8);
+    std::cout<<"\n";
+  }
+  
+  solutionVect_ = x_i; // we do both return and set member variable why not
+  return x_i;
+}
+
+Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
+  db::pr("Solve start - Gauss Seidel");
+  
+  const int n = K_.nRows();
+  auto L = K_;
+  auto U = K_;
+  for(int i=0; i<n; ++i)
+    for(int j=0; j<n; ++j) {
+      if(j>i)
+        L(i, j) = 0;
+      else// if(i>=j)
+        U(i, j) = 0;
+    }
+    
+  auto residual = [&](Vectord& x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
+  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vect2dDotVect2d(res, res);};
+  Vectord x_0(n); // Initial guess, zeros here
+  auto relativeResidualNorm = [&](Vectord& x){return residualNorm(x)/residualNorm(x_0);};
+  Vectord x_i = x_0;
+  int iter = 0;
+  
+  db::pr("K_ L U");
+  K_.print();
+  L.print();
+  U.print();
+
+  while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
+    x_i = LinAlg::solveLxb(L,
+      vect2dPlusVect2d(rhs_,
+        scaleVect2d(-1.0,
+          mat2dTimesVectd(U, x_i))));
+    iter++;
+    std::cout<<"Iter "<<iter<<"\n";
+    std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
+    std::cout<<"residual = ";
+    residual(x_i).print(8);
+    std::cout<<"x_i = ";
     x_i.print(8);
     std::cout<<"\n";
   }
