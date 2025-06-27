@@ -36,7 +36,7 @@ int main1(int argCount, char** args) {
 
 #include "Problem/Linear1D_Manager.hpp"
 #include "Problem/Linear2D_Manager.hpp"
-#include "Vis/Visualization2D.hpp";
+#include "Vis/Visualization2D.hpp"
 
 int main(int argCount, char** args) {
   std::cout<<"Main start\n";
@@ -49,7 +49,7 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.runNoInputExample1();
+  p2.example_beam(4.0, 0.5, 10, 3);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   std::cout<<timesNewRoman->getInfo().family<<"\n";
@@ -60,7 +60,7 @@ int main(int argCount, char** args) {
   p2.getX_t().print();
   
   Vis::Visualization2D vis(2000, 1000, 60, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  600, p2Shared);
+  400, p2Shared);
   
   vis.activate();
   while(vis.active_) vis.drawFrame();

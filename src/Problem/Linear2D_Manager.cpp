@@ -222,6 +222,87 @@ void Linear2D::runNoInputExample() {
   //Element_line2::test();
   */
 }
+
+void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
+  X_0_ = Vectord();
+  
+  FOR(j, ny)
+    FOR(i, nx) {
+      X_0_.push_back(i*lx/(nx-1));
+      X_0_.push_back(j*ly/(ny-1));
+    }
+    
+  auto eleNodes = Array<Array<int>>();
+  FOR(i, nx-1)
+    FOR(j, ny-1) {
+      eleNodes.push_back(Array<int>({j*nx+ i, j*nx+ i+1, (j+1)*nx+ i}));
+      eleNodes.push_back(Array<int>({j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i}));
+    }
+    
+  FOR(e, eleNodes.size()) {
+    elements_.push_back(new Element::Tri3(
+    X_0_,
+    eleNodes(e),
+    true));
+  }
+  
+  std::cout<<"Built elements\n\n";
+  
+  /*FOR(i, elements_.size()) {
+    std::cout<<"================\nEle"<<i<<"\n";
+    elements_(i)->test();
+  }*/
+  
+  
+  assembleK();
+  std::cout<<"K_ after assembly:\n";
+  std::cout<<K_.toString(8)<<"n";
+  
+  rhs_ = Vectord(K_.nRows()); // zero vect for now
+  
+  applyDirichlet(
+    Array<size_t>({
+      ndofn_*0+ 0, ndofn_*0+ 1,
+      ndofn_*nx*(ny-1)+ 0, ndofn_*nx*(ny-1)+ 1,
+      ndofn_*(nx-1)+ 0, ndofn_*(nx-1)+ 1}),
+    Vectord({
+      0.0, 0.0,
+      0.0, 0.0,
+      0.0, 0.25}));
+  
+      
+  
+  std::cout<<"K_ after applyDirichlet():\n";
+  K_.print();
+  
+  std::cout<<"rhs_ after applyDirichlet():\n";
+  rhs_.print();
+  
+  solveSystem_GaussSeidel(500, 0.0000005);
+  
+  
+  //solutionVect_.print(8);
+  
+  std::cout<<"\nComputation finished.\n\n";
+  
+  db::pr("globalDofIds_:\n");
+  globalDofIds_.print(8);
+  
+  db::pr("solutionVect_:\n");
+  solutionVect_.print(8);
+  db::pr("dirichletDofIds_:\n");
+  dirichletDofIds_.print(8);
+  db::pr("dirichletVect_:\n");
+  dirichletVect_.print(8);
+  db::pr("fullSolution():\n");
+  fullSolution().print(8);
+  
+  db::pr("\nX_0_:\n");
+  X_0_.print(8);
+  db::pr("getX_t():\n");
+  getX_t().print(8);
+}
+
 void Linear2D::runNoInputExample1() {
   X_0_ = Vectord({
     0.0, 0.0, // x, y
@@ -410,6 +491,8 @@ Matrix2d Linear2D::assembleK() {
   }
   nnode_ = globalNodeCount;
   Matrix2d assembledK(globalNodeCount*ndofn_, globalNodeCount*ndofn_); // TODO: we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
+  
+  std::cout<<"Starting Assembly\n\n";
   for(int e=0; e<elements_.size(); ++e) {
     const auto& eleGlobalDofIds = elements_(e)->getGlobalDofIds();
     const auto locK = elements_(e)->Kmat();

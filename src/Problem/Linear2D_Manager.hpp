@@ -18,6 +18,8 @@ class Linear2D {
  public:
   Linear2D() {};
   
+  void example_beam(double lx, double ly, int nx, int ny);
+  
   void runNoInputExample();
   void runNoInputExample1();
   void runNoInputExample2();

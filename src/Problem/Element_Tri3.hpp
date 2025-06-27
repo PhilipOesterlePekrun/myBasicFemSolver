@@ -87,7 +87,7 @@ xi1 | |  \
   
   // {E, \nu}
   Vectord YoungPoisson_x(double x0, double x1) const {
-    return Vectord({200, 0});
+    return Vectord({200, 0.2});
   }
   
   // {\lambda, \mu}
@@ -309,6 +309,7 @@ xi1 | |  \
   Matrix2d integrandKmat_xi(double xi0, double xi1) {
     Matrix2d mat(ndof_, ndof_);
     double detJ = detMat2d(jacobian_xi(xi0, xi1));
+    if(detJ<0) db::pr("detJ is negative! It is "+std::to_string(detJ));
     //db::pr("detJ="+std::to_string(detJ));
     auto CVK = C_VK_xi(xi0, xi1);
     auto B = BOp_xi(xi0, xi1);
@@ -332,6 +333,13 @@ xi1 | |  \
   }
  public: //tmp
   Matrix2d Kmat() {
+    std::string outString = "Element ";
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_(i)) + "-";
+    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
+    outString += ": getting Kmat()\n";
+    std::cout<<outString;
+    
     Matrix2d result(ndof_, ndof_);
     
     // integration counts in xi0 and xi1 direction

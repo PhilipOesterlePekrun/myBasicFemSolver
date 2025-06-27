@@ -27,7 +27,7 @@ void Visualization2D::drawFrameImplementation() {
   // Initial positions (dots)
   FOR(i, problem_->get_nnode()) {
     sf::CircleShape pt(5);
-    pt.setFillColor(sf::Color(0,0,0));
+    pt.setFillColor(sf::Color(0,100,200));
     pt.setPosition(offsetScaledVectXY(X_0(ndofn*i), X_0(ndofn*i+1)));
     renderWindow_.draw(pt);
   }
