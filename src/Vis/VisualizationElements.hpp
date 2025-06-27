@@ -5,7 +5,9 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Visualization.hpp"
+#include "VisualizationBase.hpp"
+
+namespace MyFem {
 
 namespace VisElements {
 
@@ -13,12 +15,12 @@ namespace VisElements {
 class Graph {
 public:
   Graph() = delete;
-  Graph(Visualization& vis)
+  Graph(VisualizationBase& vis)
     : vis_(vis), visWindow_(vis.renderWindow_) {};
-  Graph(Visualization& vis, uint width, uint height, uint posHorz, uint posVert)
+  Graph(VisualizationBase& vis, uint width, uint height, uint posHorz, uint posVert)
     : vis_(vis), visWindow_(vis.renderWindow_), width_(width), height_(height), posHorz_(posHorz), posVert_(posVert) {};  
 
-  Visualization& vis_;
+  VisualizationBase& vis_;
   sf::RenderWindow& visWindow_; // Like alias
   uint width_;
   uint height_;
@@ -34,3 +36,5 @@ public:
 };
 
 }
+
+} // namespace MyFem

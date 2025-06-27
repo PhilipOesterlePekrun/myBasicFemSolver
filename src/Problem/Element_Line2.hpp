@@ -5,6 +5,8 @@
 
 #include <LinAlg.hpp>
 
+namespace MyFem {
+
 namespace Element {
   
 using namespace LinAlg;
@@ -118,3 +120,5 @@ class Line2 {
 }; // class Line2
 
 } // namespace Element
+
+} // namespace MyFem

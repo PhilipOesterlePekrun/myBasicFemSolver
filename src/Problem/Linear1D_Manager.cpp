@@ -1,6 +1,6 @@
 #include "Linear1D_Manager.hpp"
 
-namespace Problem {
+namespace MyFem::Problem {
   
 void Linear1D::runNoInputExample() {
   //double nodeX_0[] = {0, 0.7, 1, 1.5, 1.9};

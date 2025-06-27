@@ -1,7 +1,7 @@
 #include "Linear2D_Manager.hpp"
 
 #include <SFML/Graphics.hpp> // TODO: delete
-namespace Problem {
+namespace MyFem::Problem {
   
 Vectord Linear2D::fullSolution() {
   Vectord v = Vectord(globalDofIds_.size());

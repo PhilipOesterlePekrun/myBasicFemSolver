@@ -5,6 +5,8 @@
 
 #include <LinAlg.hpp>
 
+namespace MyFem {
+
 namespace Element {
   
 using namespace LinAlg; // mTODO: consider removing this and replacing it by specific usings. Maybe with a good macro I can reuse in other files too; In any case, except for structures like matrix vector array, I will try to be explicit about LinAlg::
@@ -360,3 +362,5 @@ xi1 | |  \
 }; // class Tri3
 
 } // namespace Element
+
+} // namespace MyFem

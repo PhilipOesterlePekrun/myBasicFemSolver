@@ -5,6 +5,8 @@
 
 #include "Element_Tri3.hpp"
 
+namespace MyFem {
+
 namespace Problem {
   
 #include <LinAlg.hpp>
@@ -61,3 +63,5 @@ class Linear2D {
 }; // class Linear1D
 
 } // namespace Problem
+
+} // namespace MyFem

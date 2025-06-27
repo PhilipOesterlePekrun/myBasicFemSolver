@@ -4,7 +4,9 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-class Visualization {
+namespace MyFem {
+
+class VisualizationBase {
   // UTILITIES
  public:
 	inline sf::Vector2f Vector2fInXY(float posX, float posY){
@@ -25,9 +27,9 @@ class Visualization {
   
   // CONSTRUCTORS
  public:
-	inline Visualization(){} // default constructor
-	Visualization(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize);
-	Visualization(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize, int antiAliasingLevel); // (antiAliasingLevel = 0) == off
+	inline VisualizationBase(){} // default constructor
+	VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize);
+	VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize, int antiAliasingLevel); // (antiAliasingLevel = 0) == off
   
   // LOGICAL FUNCTIONS
 	bool activate();
@@ -83,3 +85,5 @@ class Visualization {
  protected:
 	sf::Time maxTime_; // or maxFrame idk; in any case, it is taken from simulation in the constructor for everything except the Visualization base class
 };
+
+} // namespace MyFem {

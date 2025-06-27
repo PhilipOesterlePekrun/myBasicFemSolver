@@ -1,6 +1,6 @@
 #include "Element_Line2.hpp"
 
-namespace Element {
+namespace MyFem::Element {
   /*
 Element_line2::Element_line2(arrayi<nnodee_> nodes, arrayd<ndof_> X_0)
   : nodeGlobalIds_(nodes), X_0_(X_0) {

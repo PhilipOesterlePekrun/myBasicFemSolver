@@ -2,6 +2,8 @@
 
 #include <LinAlg.hpp>
 
+using namespace MyFem;
+
 int main(int argCount, char** args) {
   using namespace LinAlg;
   

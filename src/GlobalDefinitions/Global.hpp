@@ -6,6 +6,7 @@
 // // MACRO DEFINITIONS
 #define FOR(i, n) for(int i = 0; i < (n); ++i)
 
+namespace MyFem {
 // // DEBUG FUNCTIONALITY AND UTILITIES
 namespace db {
 
@@ -40,4 +41,6 @@ inline void throwAndExit(std::string msg = "") {
   std::exit(1);
 }
 
-}
+} // namespace db
+
+} // namespace MyFem

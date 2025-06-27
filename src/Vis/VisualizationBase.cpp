@@ -1,9 +1,11 @@
-#include "Visualization.hpp"
+#include "VisualizationBase.hpp"
 
 #include "VisualizationElements.hpp"
-using namespace VisElements;
+using namespace MyFem::VisElements;
 
-void Visualization::drawBaseUI() {
+namespace MyFem {
+
+void VisualizationBase::drawBaseUI() {
 	// pause bar and symbol
 	{
 		sf::RectangleShape playPauseLoopBar(sf::Vector2f(400, 100));
@@ -48,7 +50,7 @@ void Visualization::drawBaseUI() {
 }
 
 // NOTE: Already in my XY coordinate system
-sf::Text Visualization::textConstructorXY(const std::string& textString, float posX, float posY, int fontSize, sf::Color fillColor, sf::Font* font) {
+sf::Text VisualizationBase::textConstructorXY(const std::string& textString, float posX, float posY, int fontSize, sf::Color fillColor, sf::Font* font) {
 	sf::Text textObj(*font);
 	textObj.setString(textString);
 	textObj.setCharacterSize(fontSize);
@@ -59,7 +61,7 @@ sf::Text Visualization::textConstructorXY(const std::string& textString, float p
 
 
 // CONSTRUCTORS
-Visualization::Visualization(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize) {
+VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize) {
   db::pr();
 	this->windowWidth_=windowWidth;
 	this->windowHeight_=windowHeight;
@@ -79,13 +81,13 @@ Visualization::Visualization(int windowWidth, int windowHeight, int framerate, s
 	//maxTime=sf::Time(sf::seconds(5));
   db::pr();
 }
-Visualization::Visualization(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
-  : Visualization(windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
+VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
+  : VisualizationBase(windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
 {
 	this->antiAliasingLevel_=antiAliasingLevel;
 }
 
-bool Visualization::activate() {
+bool VisualizationBase::activate() {
 	if(renderWindow_.isOpen())
     return 0;
     
@@ -97,13 +99,13 @@ bool Visualization::activate() {
 	return 1;
 }
 
-bool Visualization::deactivate() {
+bool VisualizationBase::deactivate() {
 	active_=false;
 	renderWindow_.close();
 	return 1;
 }
 
-bool Visualization::play() {
+bool VisualizationBase::play() {
 	if(!renderWindow_.isOpen())
     return 0;
 
@@ -111,7 +113,7 @@ bool Visualization::play() {
 	return 1;
 }
 
-bool Visualization::pause() {
+bool VisualizationBase::pause() {
 	if(!renderWindow_.isOpen())
     return 0;
 
@@ -120,7 +122,7 @@ bool Visualization::pause() {
 }
 
 // go to the nearest time
-bool Visualization::goToTime(double toTime) {
+bool VisualizationBase::goToTime(double toTime) {
 	if(!renderWindow_.isOpen()||toTime>maxTime_.asSeconds())
     return 0;
 
@@ -128,11 +130,11 @@ bool Visualization::goToTime(double toTime) {
 	return 1;
 }
 
-void Visualization::drawFrameImplementation() {
+void VisualizationBase::drawFrameImplementation() {
 	drawBaseUI();
 }
 
-void Visualization::drawFrame() {
+void VisualizationBase::drawFrame() {
 	if(renderWindow_.isOpen()) {
     while (const std::optional event = renderWindow_.pollEvent())
       if(event->is<sf::Event::Closed>())
@@ -154,3 +156,5 @@ void Visualization::drawFrame() {
 		renderWindow_.display();
 	}
 }
+
+} // namespace MyFem

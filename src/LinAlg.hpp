@@ -5,6 +5,7 @@
 
 #include <algorithm>
 
+namespace MyFem {
 
 template<typename T>
 class Array {
@@ -914,3 +915,5 @@ inline Vectord solveLxb(const Matrix2d& A, const Vectord& b) { // TODO: add chec
 }
 
 } //namespace LinAlg
+
+} // namespace MyFem

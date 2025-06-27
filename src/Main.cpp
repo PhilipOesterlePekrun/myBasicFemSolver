@@ -5,13 +5,15 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Vis/Visualization.hpp"
+#include "Vis/VisualizationBase.hpp"
+
+using namespace MyFem;
 
 int main1(int argCount, char** args) {
   db::pr("Test Global.hpp");
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   std::cout<<timesNewRoman->getInfo().family<<"\n";
-  Visualization v = Visualization(2000, 1000, 60, sf::Color(120,120,120), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12);
+  VisualizationBase v = VisualizationBase(2000, 1000, 60, sf::Color(120,120,120), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12);
   v.activate();
   while(v.active_) v.drawFrame();
   //Visualization v = Visualization();
@@ -43,7 +45,7 @@ int main(int argCount, char** args) {
   ///Problem::Linear1D p;
   ///p.runNoInputExample();
   
-  Problem::Linear2D p2;
+  MyFem::Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
   p2.runNoInputExample1();
   

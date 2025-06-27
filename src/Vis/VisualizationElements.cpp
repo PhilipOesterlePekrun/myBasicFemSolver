@@ -1,6 +1,6 @@
 #include "VisualizationElements.hpp"
 
-namespace VisElements {
+namespace MyFem::VisElements {
   
 void Graph::draw() {
   visWindow_.draw(vis_.textConstructorXY("X-axis", (float)width_/2, 1));
