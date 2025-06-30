@@ -16,11 +16,11 @@ void VisualizationBase::drawBaseUI() {
 		if(paused_)
 		{
 			sf::RectangleShape pauseL(sf::Vector2f(4, 40));
-			pauseL.setPosition(Vector2fInXY((float)windowWidth_/2-10, 40));
+			pauseL.setPosition(Vector2fInXY(40+(float)windowWidth_/2-10, 40));
 			pauseL.setFillColor(sf::Color(0,0,0));
 			renderWindow_.draw(pauseL);
 			sf::RectangleShape pauseR(sf::Vector2f(4, 40));
-			pauseR.setPosition(Vector2fInXY((float)windowWidth_/2+10, 40));
+			pauseR.setPosition(Vector2fInXY(40+(float)windowWidth_/2+10, 40));
 			pauseR.setFillColor(sf::Color(0,0,0));
 			renderWindow_.draw(pauseR); // TODO: make better
 		}
@@ -29,9 +29,9 @@ void VisualizationBase::drawBaseUI() {
 			sf::ConvexShape playTriangle;
 			playTriangle.setFillColor(sf::Color(0,0,0));
 			playTriangle.setPointCount(3);
-			playTriangle.setPoint(0, Vector2fInXY((float)windowWidth_/2+10, 25));
-			playTriangle.setPoint(1, Vector2fInXY((float)windowWidth_/2-10, 5));
-			playTriangle.setPoint(2, Vector2fInXY((float)windowWidth_/2-10, 50-5));
+			playTriangle.setPoint(0, Vector2fInXY(40+(float)windowWidth_/2+10, 25));
+			playTriangle.setPoint(1, Vector2fInXY(40+(float)windowWidth_/2-10, 5));
+			playTriangle.setPoint(2, Vector2fInXY(40+(float)windowWidth_/2-10, 50-5));
 			renderWindow_.draw(playTriangle);
 		}
 	}
@@ -41,9 +41,9 @@ void VisualizationBase::drawBaseUI() {
 		std::string descString="Window:";
 		std::string frameCountString="current frame = "+std::to_string(currentFrame_);
 		std::string timeString="t = "+std::to_string(currentTime().asSeconds())+"s";
-		sf::Text descText=textConstructorXY(descString, (float)windowWidth_/2-200, 200, 14);
-		sf::Text frameCountText=textConstructorXY(frameCountString, (float)windowWidth_/2-190, 200-12, 12);
-		sf::Text timeText=textConstructorXY(timeString, (float)windowWidth_/2-190, 200-24, 12);
+		sf::Text descText=textConstructorXY(descString, (float)windowWidth_/2-100, 50, 14);
+		sf::Text frameCountText=textConstructorXY(frameCountString, (float)windowWidth_/2-90, 50-12, 12);
+		sf::Text timeText=textConstructorXY(timeString, (float)windowWidth_/2-90, 50-25, 12);
 		renderWindow_.draw(descText);
 		renderWindow_.draw(frameCountText);
 		renderWindow_.draw(timeText);
@@ -63,7 +63,6 @@ sf::Text VisualizationBase::textConstructorXY(const std::string& textString, flo
 
 // CONSTRUCTORS
 VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize) {
-  db::pr();
 	this->windowWidth_=windowWidth;
 	this->windowHeight_=windowHeight;
 	this->framerate_=framerate;
@@ -77,10 +76,6 @@ VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int fram
 	this->defaultFont_=defaultFont;
   //this->defaultFont = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
 	this->defaultFontSize_=defaultFontSize;
-  db::pr();
-
-	//maxTime=sf::Time(sf::seconds(5));
-  db::pr();
 }
 VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
   : VisualizationBase(windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
@@ -96,7 +91,6 @@ bool VisualizationBase::activate() {
 	renderWindow_.setPosition(renderWindowPos_);
 	renderWindow_.setFramerateLimit(framerate_);
   active_=true;
-	std::cout<<"activate() traversed"<<"\n"; //#
 	return 1;
 }
 
@@ -114,11 +108,19 @@ bool VisualizationBase::play() {
 	return 1;
 }
 
-bool VisualizationBase::pause() {
+bool VisualizationBase::pause() { // TODO*: uhh do this toggle or something or add unpause() as well?
 	if(!renderWindow_.isOpen())
     return 0;
 
 	paused_=true;
+	return 1;
+}
+
+bool VisualizationBase::goToFrame(int toFrame) {
+	if(!renderWindow_.isOpen())
+    return 0;
+
+	currentFrame_=toFrame;
 	return 1;
 }
 
@@ -142,8 +144,11 @@ void VisualizationBase::drawFrame() {
         paused_=!paused_;
 			pDown=true;
 		}
-		else
+		else // TODO*: wtf is this? Does toggle not work without this else? Or with a new pause Toggle function that I can make....? Or how do I do this?s
       pDown=false;
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+			goToFrame(0);
+		}
 
 		if(!paused_)
       currentFrame_++;

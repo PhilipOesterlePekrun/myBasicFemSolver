@@ -38,6 +38,7 @@ class VisualizationBase {
 	bool deactivate();
 	bool play();
 	bool pause();
+  bool goToFrame(int toFrame);
 	bool goToTime(double toTime); // go to nearest time
 
   // DRAWING

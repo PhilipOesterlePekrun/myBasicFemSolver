@@ -1,11 +1,43 @@
+2D linear static works -> Overarching things to do now: {
+
+Features/capability:
+- Gaussian Quadrature instead of trapezoidal integration
+- Neumann BCs and body forces (and possibly even other BCs)
+- Nonlinear (Green Lagrange E, 2nd Piola Kirchoff S), for which I also need Newton-Raphson
+- A basic meshing algorithm for Tri3
+- Dynamic inertia terms (and damping, probably just Rayleigh for now or like always lol)
+- Other linear solvers like Conjugate Gradient (will help me learn those also)
+
+- Output files (store the solution and be able to read it to visualize again)
+- Input files (not super important for now)
+
+- In all honesty, just use Trilinos/Kokkos when the time comes, rather than make the two following features on your own
+  - LinAlg: CrsMatrix
+  - LinAlg: More efficient/raw vectors and matrices and Array. Also, possibly option for statically sized variants (ptr wrappers basically) for efficiency
+
+Visualization:
+- Cleaner visualization (for triangles for example)
+- Be able to switch time steps for static problems so from initial to deformed just like in paraview
+- Possibly maybe store the linear solver steps so you can basically actually play back the linear solver iterations in the visualization (because that is cool)
+
+- Discretized displacement, stress, strain, and property field options
+- Subareas of UI space
+- Mouse controls for zooming and panning and clicking buttons
+
+Organization:
+- Move linear solvers and integration schemes outside of the classes they are in right now
+- Clean debugging
+- Move things to .cpp when possible
+- General base class for elements
 
 
+Eventually:
+- *Eventually* 3D. Will probably require OpenGL or something. Also my code is just not efficient enough for it let's be honest (unless I use Trilinos, Kokkos)
+- Eventually simple topology optimization
+- Eventually fluid simulations (try FDM, also try FEM and FVM)
+- Eventually Other material models
 
-
-
-
-
-
+}
 
 
 

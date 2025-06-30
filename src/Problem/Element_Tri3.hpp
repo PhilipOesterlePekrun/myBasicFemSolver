@@ -343,8 +343,8 @@ xi1 | |  \
     Matrix2d result(ndof_, ndof_);
     
     // integration counts in xi0 and xi1 direction
-    int n0 = 20;
-    int n1 = 20;
+    int n0 = 5;
+    int n1 = 5;
     
     for(int i=0;i<ndof_; ++i)
       for(int j=0;j<ndof_; ++j) {

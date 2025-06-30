@@ -229,7 +229,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   FOR(j, ny)
     FOR(i, nx) {
       X_0_.push_back(i*lx/(nx-1));
-      X_0_.push_back(j*ly/(ny-1));
+      X_0_.push_back(0.7+j*ly/(ny-1));
     }
     
   auto eleNodes = Array<Array<int>>();
@@ -243,7 +243,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     elements_.push_back(new Element::Tri3(
     X_0_,
     eleNodes(e),
-    true));
+    false));
   }
   
   std::cout<<"Built elements\n\n";
@@ -260,16 +260,42 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
-  applyDirichlet(
+  auto dirichIds = Array<size_t>();
+  auto dirichVect = Vectord();
+  FOR(i, ny) {
+    // left side
+    dirichIds.push_back(ndofn_*nx*i+ 0);
+    dirichVect.push_back(0.0);
+    dirichIds.push_back(ndofn_*nx*i+ 1);
+    dirichVect.push_back(0.0);
+    
+    // right side
+    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
+    dirichVect.push_back(0.8);
+    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
+    dirichVect.push_back(0.0);
+  }
+  /*dirichIds.push_back(ndofn_*(int)std::floor(nx/2.0)+ 1);
+  dirichVect.push_back(-0.3);
+  dirichIds.push_back(ndofn_*((int)std::floor(nx/2.0)-1)+ 1);
+  dirichVect.push_back(-0.3);*/
+  
+  
+  
+  /*applyDirichlet(
     Array<size_t>({
       ndofn_*0+ 0, ndofn_*0+ 1,
       ndofn_*nx*(ny-1)+ 0, ndofn_*nx*(ny-1)+ 1,
-      ndofn_*(nx-1)+ 0, ndofn_*(nx-1)+ 1}),
+      ndofn_*(nx-1)+ 0, ndofn_*(nx-1)+ 1,
+      ndofn_*(nx*ny-1)+ 0, ndofn_*nx*ny-1+ 1}),
     Vectord({
       0.0, 0.0,
       0.0, 0.0,
-      0.0, 0.25}));
+      0.2, -0.1,
+    0.2, -0.1}));
+  */
   
+  applyDirichlet(dirichIds, dirichVect);
       
   
   std::cout<<"K_ after applyDirichlet():\n";
@@ -674,10 +700,10 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
     iter++;
     std::cout<<"Iter "<<iter<<"\n";
     std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
-    std::cout<<"residual = ";
-    residual(x_i).print(8);
-    std::cout<<"x_i = ";
-    x_i.print(8);
+    //std::cout<<"residual = ";
+    //residual(x_i).print(8);
+    //std::cout<<"x_i = ";
+    //x_i.print(8);
     std::cout<<"\n";
   }
   
