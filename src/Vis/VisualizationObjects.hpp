@@ -5,36 +5,57 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "VisualizationBase.hpp"
+#include <MyFem_Array.hpp>
 
-namespace MyFem {
+namespace MyFem::Vis {
+  
+class VisualizationBase; // forward decl
 
-namespace Vis::Objects {
+class Object {
+  friend class VisualizationBase;
+ protected:
+  Object() {};
+  Object(uint posX, uint posY)
+    : posX_(posX), posY_(posY) {};
+    
+  VisualizationBase* vis_;
+  sf::RenderWindow* visWindow_; // Like alias
+  uint posX_;
+  uint posY_;
+  
+ private:
+  bool attached_ = false; // == "activated"
+ protected:
+  void attach(VisualizationBase* vis);
+  void deattach();
+ public:
+  inline bool isAttached() {
+    return attached_;
+  }
+  void drawFrame() {
+    if(attached_)
+      draw();
+  }
+  
+ protected:
+  virtual void draw() const = 0;
+};
 
 // A graph object is more flexible than just a function. But the "Visualization" class is rather more like for a window with the whole UI, so graph will not derive from Visualization, instead it will reference the Visualization object; i.e., it is basically attached to a Visualization object but it controls itself so its like an autonomous object attached to the Visualization object.
-class Graph {
-public:
-  Graph() = delete;
-  Graph(VisualizationBase& vis)
-    : vis_(vis), visWindow_(vis.renderWindow_) {};
-  Graph(VisualizationBase& vis, uint width, uint height, uint posHorz, uint posVert)
-    : vis_(vis), visWindow_(vis.renderWindow_), width_(width), height_(height), posHorz_(posHorz), posVert_(posVert) {};  
+class Graph : public Object {
+ public:
+  Graph();
+  Graph(uint posX, uint posY, uint width, uint height, Array<Array<double>> graphDataXY)
+    : Object(posX, posY), width_(width), height_(height), graphDataXY_(graphDataXY) {};
 
-  VisualizationBase& vis_;
-  sf::RenderWindow& visWindow_; // Like alias
   uint width_;
   uint height_;
-  uint posHorz_;
-  uint posVert_;
   
-  std::vector<std::pair<double, double>> datXY;
+  Array<Array<double>> graphDataXY_; // inner array has size 2, so X, Y
   
-  ///void operator()() const {}
-  
-  void draw();
+ protected:
+  virtual void draw() const override;
   
 };
 
-} // namespace Vis::Objects
-
-} // namespace MyFem
+} // namespace MyFem::Vis

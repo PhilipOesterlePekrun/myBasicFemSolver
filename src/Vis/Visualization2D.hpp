@@ -7,8 +7,6 @@
 #include "VisualizationObjects.hpp"
 #include <Problem/Linear2D_Manager.hpp>
 
-using namespace MyFem::Vis::Objects;
-
 namespace MyFem {
   
 namespace Vis {
@@ -22,9 +20,9 @@ class Visualization2D : public VisualizationBase {
   Array<float> XYoffset_ = Array<float>({200, 200});
 
  public:
-  Visualization2D(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize,
+  Visualization2D(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize,
   double scaleFactor, std::shared_ptr<Problem::Linear2D> problem)
-  : VisualizationBase(windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize),
+  : VisualizationBase(title, windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize),
   scaleFactor_(scaleFactor), problem_(problem) {}
   
   void setProblem(std::shared_ptr<Problem::Linear2D> problem) {

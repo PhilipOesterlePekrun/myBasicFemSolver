@@ -4,13 +4,18 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
+#include <MyFem_Array.hpp>
+#include "VisualizationObjects.hpp"
+
 namespace MyFem {
 
 namespace Vis {
   
+///class Object; // forward decl
+  
 class VisualizationBase {
-  // UTILITIES
- protected:
+  // UTILITIES (public because can also be used by visuaalization objects and such)
+ public:
 	inline sf::Vector2f Vector2fInXY(float posX, float posY){
 		return sf::Vector2f(posX,windowHeight_-posY);
 	}
@@ -30,8 +35,8 @@ class VisualizationBase {
   // CONSTRUCTORS
  public:
 	inline VisualizationBase(){} // default constructor
-	VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize);
-	VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize, int antiAliasingLevel); // (antiAliasingLevel = 0) == off
+	VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize);
+	VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize, int antiAliasingLevel); // (antiAliasingLevel = 0) == off
   
   // LOGICAL FUNCTIONS
 	bool activate();
@@ -50,8 +55,27 @@ class VisualizationBase {
 	bool pDown=false;
  public:
 	void drawFrame(); // this just has all of the functions sequentially for drawing frame
+  
+  // VISUALIZATION OBJECTS
+ private: // public because zero reason to be private or protected. just edit it directly, no issue.
+  Array<Object*> objects_;
+ public:
+  // attaches additional objects, in addition to the ones already attached
+  void attachObjects(const Array<Object*>& objects) { // TODO: these functions could be better named
+    FOR(i, objects.size()) {
+      if(objects(i)->isAttached())
+        warn("Some objects were already attached/activated and have not been attached as desired");
+      else {
+        objects_.push_back(objects(i));
+        objects(i)->attach(this); // yeah its the param but the element is a pointer, so this works
+      }
+    }
+  }
+  void clearObjects() {
+    // TODO: this functions should empty objects_ and also deattach all of those elements
+  }
 
-// GETTERS
+  // GETTERS
  protected:
   inline unsigned int getMaxFrame() {
     return framerate_*maxTime_.asSeconds();
@@ -70,7 +94,7 @@ class VisualizationBase {
  public:
   sf::RenderWindow renderWindow_;
 	sf::Vector2i renderWindowPos_=sf::Vector2i(50, 50); // default, but you can change it from externally so you can open multiple simulation windows perfectly next to eachother
-	std::string windowName_="Visualization";
+	std::string windowName_;
 	uint windowWidth_;
 	uint windowHeight_;
 	uint framerate_;

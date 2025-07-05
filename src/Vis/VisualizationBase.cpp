@@ -1,9 +1,5 @@
 #include "VisualizationBase.hpp"
 
-#include "VisualizationObjects.hpp"
-
-using namespace MyFem::Vis::Objects;
-
 namespace MyFem::Vis {
 
 void VisualizationBase::drawBaseUI() {
@@ -62,13 +58,14 @@ sf::Text VisualizationBase::textConstructorXY(const std::string& textString, flo
 
 
 // CONSTRUCTORS
-VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize) {
+VisualizationBase::VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize)
+  : windowName_(title) {
 	this->windowWidth_=windowWidth;
 	this->windowHeight_=windowHeight;
 	this->framerate_=framerate;
 	this->baseColor_=baseColor;
 	this->secondaryColor_=secondaryColor;
-	this->defaultTextColor_=defaultTextColor;
+	this->defaultTextColor_=defaultTextColor; // TODO: use initializer list, idk why i did it with this-> first
   if(!defaultFont) {
     std::cerr << "ERROR: Null font pointer passed to Visualization\n";
     std::terminate();
@@ -77,8 +74,8 @@ VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int fram
   //this->defaultFont = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
 	this->defaultFontSize_=defaultFontSize;
 }
-VisualizationBase::VisualizationBase(int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
-  : VisualizationBase(windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
+VisualizationBase::VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
+  : VisualizationBase(title, windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
 {
 	this->antiAliasingLevel_=antiAliasingLevel;
 }
@@ -146,17 +143,25 @@ void VisualizationBase::drawFrame() {
 		}
 		else // TODO*: wtf is this? Does toggle not work without this else? Or with a new pause Toggle function that I can make....? Or how do I do this?s
       pDown=false;
+      
+    if(!paused_)
+      currentFrame_++;
+    
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
 			goToFrame(0);
 		}
 
-		if(!paused_)
-      currentFrame_++;
-
 		renderWindow_.clear(baseColor_);
     drawBaseUI();
+    FOR(i, objects_.size()) {
+      objects_(i)->draw();
+    }
 		drawFrameImplementation();
 		renderWindow_.display();
+    
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+			deactivate();
+		}
 	}
 }
 

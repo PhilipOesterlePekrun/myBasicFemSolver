@@ -229,7 +229,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   FOR(j, ny)
     FOR(i, nx) {
       X_0_.push_back(i*lx/(nx-1));
-      X_0_.push_back(0.7+j*ly/(ny-1));
+      X_0_.push_back(j*ly/(ny-1));
     }
     
   auto eleNodes = Array<Array<int>>();
@@ -270,11 +270,14 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     dirichVect.push_back(0.0);
     
     // right side
-    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
-    dirichVect.push_back(0.8);
+    //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
+    //dirichVect.push_back(0.0);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(0.0);
+    dirichVect.push_back(3.0);
   }
+  //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
+  //dirichVect.push_back(-2.0);
+  
   /*dirichIds.push_back(ndofn_*(int)std::floor(nx/2.0)+ 1);
   dirichVect.push_back(-0.3);
   dirichIds.push_back(ndofn_*((int)std::floor(nx/2.0)-1)+ 1);
