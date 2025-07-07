@@ -6,6 +6,9 @@
 // // MACRO DEFINITIONS
 #define FOR(i, n) for(int i = 0; i < (n); ++i)
 
+// // GLOBAL ALIASES
+///auto stdtostr = [](auto x) { return std::to_string(x); };
+
 namespace MyFem {
 
 // // STRING UTILITIES INTENDED FOR EVENTUAL OUTPUT

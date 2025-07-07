@@ -1,5 +1,7 @@
 #include "Linear2D_Manager.hpp"
 
+#include <Timer.hpp>
+
 #include <SFML/Graphics.hpp> // TODO: delete
 namespace MyFem::Problem {
   
@@ -30,7 +32,10 @@ Vectord Linear2D::getX_t() {
   return X_0;
 }
 
+// deprecated
 void Linear2D::visualize() {// TODO: delete
+  warn("visualize() is deprecated");
+  
   sf::RenderWindow rw;
   rw.create(sf::VideoMode({1600, 1000}), "tmp");
 	rw.setPosition(sf::Vector2i(200,200));
@@ -224,6 +229,7 @@ void Linear2D::runNoInputExample() {
 }
 
 void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
+  ScopedTimer timer("example_beam()");
   X_0_ = Vectord();
   
   FOR(j, ny)
@@ -273,7 +279,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
     //dirichVect.push_back(0.0);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(3.0);
+    dirichVect.push_back(1.0);
   }
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
@@ -504,6 +510,7 @@ void Linear2D::runNoInputExample2() {
 }
 
 Matrix2d Linear2D::assembleK() {
+  ScopedTimer timer("assembleK()");
   ndofn_ = elements_(0)->ndofn_;
   
   int globalNodeCount = 0;
@@ -580,6 +587,7 @@ void Linear2D::applyDirichlet(int dofId/*, dofIndex or localDofindex of the node
 }
 
 void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
+  ScopedTimer timer("applyDirichlet()");
   int n = K_.nRows();
   
   Array<size_t> solutionDofIds(globalDofIds_);
@@ -670,6 +678,7 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
 }
 
 Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
+  ScopedTimer timer("solveSystem_GaussSeidel()");
   db::pr("Solve start - Gauss Seidel");
   
   const int n = K_.nRows();

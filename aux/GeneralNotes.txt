@@ -29,6 +29,7 @@ Organization:
 - Clean debugging
 - Move things to .cpp when possible
 - General base class for elements
+- Turn all prints with std::cout into std::string functions which return string so it can then be printed and transformed in flexible ways later
 
 
 Eventually:

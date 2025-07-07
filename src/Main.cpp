@@ -7,6 +7,7 @@
 
 #include "Vis/VisualizationBase.hpp"
 #include "Vis/VisualizationObjects.hpp"
+#include <Timer.hpp>
 
 using namespace MyFem;
 
@@ -23,6 +24,14 @@ Array<Array<double>> getAsArr(std::map<int, double> map, bool inTermsOfN = false
   }
   return arr;
 }
+double InterpolatedShapeFactor(const std::map<int, double>& shapeFactors, int N)
+    {
+      double resolution = log2(N - 1);
+      int resfloor = (int)std::floor(resolution);
+      double sf_floor = shapeFactors.at(resfloor);
+      if (((N - 1) & (N - 2)) == 0) return sf_floor;
+      return sf_floor + (resolution - resfloor) * (shapeFactors.at(resfloor + 1) - sf_floor);
+    }
 int main1(int argCount, char** args) {
   std::cout<<"Main start\n";
   
@@ -61,6 +70,8 @@ int main1(int argCount, char** args) {
     auto shape_factors_force_XY = getAsArr(fp);
     auto shape_factors_force_XY_N = getAsArr(fp, true);
     
+    
+    
     visp = Vis::VisualizationBase("PRESSURE not N", 1200, 1400, 20, sf::Color(255, 255, 255), sf::Color(5, 5, 5), sf::Color(0, 0, 0), timesNewRoman, 12);
     Vis::Graph* g = new Vis::Graph(100, 100, 1000, 1200, shape_factors_force_XY);
     visp.attachObjects(Array<Vis::Object*>({g}));
@@ -90,6 +101,7 @@ int main1(int argCount, char** args) {
 #include "Vis/Visualization2D.hpp"
 
 int main(int argCount, char** args) {
+  TimerRegistry::globalInstance().start();
   std::cout<<"Main start\n";
   //Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
   //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
@@ -100,12 +112,15 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(5.0, 1.0, 35, 7);
+  //p2.example_beam(5.0, 1.0, 35, 7);
+  p2.example_beam(4.0, 1.0, 16, 4);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
-  std::cout<<timesNewRoman->getInfo().family<<"\n";
+  ///std::cout<<timesNewRoman->getInfo().family<<"\n";
   
   std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
+  
+  std::cout<<TimerRegistry::globalInstance().timingReportStr();
   
   
   p2.getX_t().print();

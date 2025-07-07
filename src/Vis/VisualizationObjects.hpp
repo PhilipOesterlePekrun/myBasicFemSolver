@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Global.hpp>
 
 #include <myUtils.hpp>
