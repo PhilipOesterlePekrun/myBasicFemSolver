@@ -26,11 +26,4 @@ std::string TimerRegistry::timingReportStr() const {
   return levelizeString(out, 1);
 }
 
-void TimerRegistry::reduceTimersByName() {
-  std::lock_guard<std::mutex> lock(mutex_);
-  FOR(i, timers_.size()) {
-    //TODO
-  }
-}
-
 }

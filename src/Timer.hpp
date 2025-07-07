@@ -32,9 +32,6 @@ class TimerRegistry {
   void addTimer(const Timer& timer);
 
   std::string timingReportStr() const;
-  
-  // This is a helper function (probably can get very efficient to even store all the timers separate in the first place; TODO: use unordered map or something)
-  void reduceTimersByName();
 
  private:
   std::string registryName_;
