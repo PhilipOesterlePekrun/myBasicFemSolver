@@ -6,15 +6,16 @@
 #include <mutex>
 #include <unordered_map>
 
-//#include <MyFem_Array.hpp>
+#define TIMERS_ON true
 
 namespace MyFem {
 
 class Timer; // fwd decl
+
+#if(TIMERS_ON)
   
 class TimerRegistry {
  public:
-  ///TimerRegistry() {};
   TimerRegistry(const std::string& registryName)
   : registryName_(registryName) {};
  public:
@@ -100,5 +101,57 @@ class StandardTimer : public Timer {
  private:
   std::chrono::high_resolution_clock::time_point lastStart_;
 };
+
+#else
+
+class TimerRegistry {
+ public:
+  TimerRegistry(const std::string& registryName) noexcept
+  : registryName_(registryName) {};
+ public:
+  static TimerRegistry& globalInstance() {
+    static TimerRegistry registry = TimerRegistry("Global Instance");
+    return registry;
+  }
+  
+  // for global tracking
+  void start() {
+    totalStart_ = std::chrono::high_resolution_clock::now();
+  }
+
+  void addTimer(const Timer&) noexcept {}
+  
+  std::string timingReportStr() const noexcept;
+  
+ private:
+  std::string registryName_;
+  std::chrono::high_resolution_clock::time_point totalStart_;
+};
+
+class Timer {
+ public:
+  Timer() noexcept {}
+  Timer(const std::string&) noexcept {}
+  ~Timer() noexcept = default;
+};
+
+class ScopedTimer {
+ public:
+  ScopedTimer(const std::string&) noexcept {}
+  ~ScopedTimer() noexcept = default;
+};
+
+class StandardTimer {
+ public:
+  StandardTimer(const std::string&) noexcept {}
+  ~StandardTimer() noexcept = default;
+  
+  void start() noexcept {}
+  void stop() noexcept {}
+  void pause() noexcept {}
+  void unpause() noexcept {}
+};
+
+#endif
 
 } // namespace MyFem
