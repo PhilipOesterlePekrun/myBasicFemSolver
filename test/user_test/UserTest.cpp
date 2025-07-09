@@ -1,6 +1,9 @@
+#include <Global.hpp>
+
 #include <myUtils.hpp>
 
 #include <LinAlg.hpp>
+#include <MyFem_Array_def.hpp>
 
 using namespace MyFem;
 
@@ -37,10 +40,23 @@ int main(int argCount, char** args) {
   {
     std::cout<<testDelimiter;
     std::cout<<"Testing LinAlg::Array\n";
-    Array<int> arr({0, 2, 4, 6, 8, 10});
+    Array<int> arr({0, 2, 4, 6, 8, 10, 12});
     arr.print();
     arr.deleteIndices(Array<size_t>({2, 0}));
     arr.print();
+    std::cout<<arr.toString();
+  }
+  
+  {
+    std::cout<<testDelimiter;
+    std::cout<<"Testing Global.hpp string utils\n";
+    Array<std::string> strArr({"0\n", "1"});
+    std::cout<<"strArrayToStr(strArr):\n"<<strArrayToStr(strArr);
+    std::cout<<"strToStrArray";
+    std::cout<<strToStrArray(strArrayToStr(strArr)).toString();
+    
+    std::string testStr = "01234 |q|\n 56 | 78 | ww";
+    std::cout<<alignStringAt(testStr, "|");
   }
   
   return 0;

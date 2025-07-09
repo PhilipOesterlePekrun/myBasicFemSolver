@@ -1,6 +1,7 @@
 #include "Linear2D_Manager.hpp"
 
 #include <Timer.hpp>
+#include <MyFem_Array_def.hpp>
 
 #include <SFML/Graphics.hpp> // TODO: delete
 namespace MyFem::Problem {

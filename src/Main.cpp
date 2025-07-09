@@ -113,14 +113,14 @@ int main(int argCount, char** args) {
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
   //p2.example_beam(5.0, 1.0, 35, 7);
-  p2.example_beam(4.0, 1.0, 16, 4);
+  p2.example_beam(4.0, 1.0, 4, 2);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   ///std::cout<<timesNewRoman->getInfo().family<<"\n";
   
   std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
   
-  std::cout<<TimerRegistry::globalInstance().timingReportStr();
+  std::cout<<TimerRegistry::globalInstance().timingReportStr(true);
   
   
   p2.getX_t().print();

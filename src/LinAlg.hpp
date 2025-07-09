@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-#include "MyFem_Array.hpp"
+#include "MyFem_Array_decl.hpp"
 
 namespace MyFem {
 

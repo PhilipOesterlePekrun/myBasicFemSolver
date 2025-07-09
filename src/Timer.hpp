@@ -6,6 +6,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <MyFem_Array_decl.hpp>
+
 #define TIMERS_ON true
 
 namespace MyFem {
@@ -32,7 +34,7 @@ class TimerRegistry {
   // Usually called by the Timers themselves (automatically for ScopedTimer)
   void addTimer(const Timer& timer);
 
-  std::string timingReportStr() const;
+  std::string timingReportStr(bool sortedByFinishElseStart = false);
 
  private:
   std::string registryName_;
@@ -40,6 +42,7 @@ class TimerRegistry {
   //Array<Timer> timers_;
   std::chrono::high_resolution_clock::time_point totalStart_;
   std::unordered_map<std::string, Timer> timers_;
+  Array<std::string> timersOrdered_;
 };
 
 class Timer { // TODOm: probably should all virtual destructor for memory stuff? so the destruction gets upcast? idk how it works honestly

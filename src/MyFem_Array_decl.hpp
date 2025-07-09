@@ -1,9 +1,6 @@
 #pragma once
-#include <Global.hpp>
 
 #include <myUtils.hpp> // TODO: specialize this to only the utils you need (that is why I split them up in lib)
-
-#include <algorithm>
 
 namespace MyFem {
 
@@ -27,7 +24,8 @@ class Array {
   // For literal
   Array(const std::vector<T>& raw)
     : size_(raw.size()), data_(raw) {}
-    
+  
+  std::vector<T>& raw() {return data_;}
   const std::vector<T>& raw() const {return data_;}
 
   // Access by (i, j)
@@ -94,33 +92,19 @@ class Array {
     data_ = std::move(newData);
   }
   
+  // extends if newRowCount > size_; else return and throw no errors
   void extend(size_t newRowCount) {
-    if (newRowCount < size_)
-      throw std::invalid_argument("New row count must be >= current row count");
+    if (newRowCount <= size_)
+      return;
 
-    data_.resize(newRowCount, 0.0);
+    // inefficient
+    for(int i=size_; i< newRowCount; ++i)
+      (*this).push_back(0.0);
     size_ = newRowCount;
   }
   
-  // TODO: instead of print(), all of these should in general just have a tostring() function so it can also be written to whatever you want, and you can do other operations on the string. print() is unnecessarily limiting
-  // TODO: Also this should be a better structure so it looks better
-  inline void print(int eleStrLen = 5) const { //# we make inline for now
-  std::cout<<"[";
-  for(int i=0; i<size_; ++i) {
-    std::string tmpStr = std::to_string((*this)(i));
-    std::string tmpStr2;
-    for(int s=0; s<eleStrLen; ++s) {
-      if(s >= tmpStr.length())
-        tmpStr2 += " ";
-      else
-        tmpStr2 +=tmpStr[s];
-    }
-    std::cout<<tmpStr2;
-    if(i<size_-1)
-      std::cout<<" ";
-  }
-  std::cout<<"]^T\n\n";
-}
+  void print(int eleStrLen = 5) const;
+  std::string toString(int eleStrLen = 5) const;
 };
 
 } // namespace MyFem

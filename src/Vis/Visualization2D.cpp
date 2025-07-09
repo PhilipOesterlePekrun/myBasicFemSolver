@@ -1,5 +1,7 @@
 #include "Visualization2D.hpp"
 
+#include <MyFem_Array_def.hpp>
+
 namespace MyFem::Vis {
   
 void Visualization2D::drawFrameImplementation() {

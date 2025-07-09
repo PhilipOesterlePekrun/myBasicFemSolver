@@ -1,5 +1,7 @@
 #include "Element_Line2.hpp"
 
+#include <MyFem_Array_def.hpp>
+
 namespace MyFem::Element {
   /*
 Element_line2::Element_line2(arrayi<nnodee_> nodes, arrayd<ndof_> X_0)

@@ -1,6 +1,7 @@
 #include "VisualizationObjects.hpp"
 
 #include "VisualizationBase.hpp"
+#include <MyFem_Array_def.hpp>
 
 #include <SFML/Graphics.hpp>
 

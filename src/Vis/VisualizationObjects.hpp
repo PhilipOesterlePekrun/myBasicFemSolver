@@ -4,7 +4,7 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <MyFem_Array.hpp>
+#include <MyFem_Array_decl.hpp>
 
 namespace MyFem::Vis {
   
