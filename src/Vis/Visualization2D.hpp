@@ -18,12 +18,13 @@ class Visualization2D : public VisualizationBase {
  public:
   double scaleFactor_;
   Array<float> XYoffset_ = Array<float>({200, 200});
+  float outlineThickness_;
 
  public:
   Visualization2D(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize,
-  double scaleFactor, std::shared_ptr<Problem::Linear2D> problem)
+  double scaleFactor, std::shared_ptr<Problem::Linear2D> problem, float outlineThickness)
   : VisualizationBase(title, windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize),
-  scaleFactor_(scaleFactor), problem_(problem) {}
+  scaleFactor_(scaleFactor), problem_(problem), outlineThickness_(outlineThickness) {}
   
   void setProblem(std::shared_ptr<Problem::Linear2D> problem) {
     problem_ = problem;

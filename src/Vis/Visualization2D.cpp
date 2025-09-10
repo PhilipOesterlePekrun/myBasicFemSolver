@@ -21,7 +21,7 @@ void Visualization2D::drawFrameImplementation() {
         tri_t.setPoint(1, offsetScaledVectXY(X_0(ele->getGlobalDofIds()(2)), X_0(ele->getGlobalDofIds()(3))));
         tri_t.setPoint(2, offsetScaledVectXY(X_0(ele->getGlobalDofIds()(4)), X_0(ele->getGlobalDofIds()(5))));
         
-        tri_t.setOutlineThickness(4.f);
+        tri_t.setOutlineThickness(outlineThickness_);
         tri_t.setOutlineColor(sf::Color(20,20,20));
         
         renderWindow_.draw(tri_t);
@@ -42,7 +42,7 @@ void Visualization2D::drawFrameImplementation() {
         tri_t.setPoint(1, offsetScaledVectXY(X_t(ele->getGlobalDofIds()(2)), X_t(ele->getGlobalDofIds()(3))));
         tri_t.setPoint(2, offsetScaledVectXY(X_t(ele->getGlobalDofIds()(4)), X_t(ele->getGlobalDofIds()(5))));
         
-        tri_t.setOutlineThickness(4.f);
+        tri_t.setOutlineThickness(outlineThickness_);
         tri_t.setOutlineColor(sf::Color(20,20,20));
         
         renderWindow_.draw(tri_t);

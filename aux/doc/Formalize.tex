@@ -518,7 +518,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{FEM Solver Implementation} \label{sec:intro}
 Full weak form:
-\begin{equation}
+\begin{equation} \label{eq:weakForm}
 	-\delta W = \underbrace{\int_{\Omega_0} \bm S : \delta \bm E \mathrm d V}_{-\delta W_{\text{int}}} \underbrace{- \int_{\Omega_0} \hat{\bm b}_0^T \delta \bm u \mathrm d V - \int_{\Gamma_{0; \bm \sigma}} \hat{\bm t}_0^T \delta \bm u \mathrm d A}_{-\delta W_{\text{ext}}} \overset{!}{=} 0 .
 \end{equation}
 %
@@ -623,6 +623,15 @@ as well as the parametric domain, and hence,
 \end{equation}
 %
 We assemble that to get the actual linear system.
+
+\subsubsection{With body forces and Neumann BCs}
+We recall (\ref{eq:weakForm}):
+\begin{equation}
+	-\delta W = \underbrace{\int_{\Omega_0} \bm S : \delta \bm E \mathrm d V}_{-\delta W_{\text{int}}} \underbrace{- \int_{\Omega_0} \hat{\bm b}_0^T \delta \bm u \mathrm d V - \int_{\Gamma_{0; \bm \sigma}} \hat{\bm t}_0^T \delta \bm u \mathrm d A}_{-\delta W_{\text{ext}}} \overset{!}{=} 0 .
+\end{equation}
+%
+
+\subsubsection{Exkurs: Gaussian quadrature}
 
 
 

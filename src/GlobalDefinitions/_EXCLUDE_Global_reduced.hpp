@@ -1,12 +1,5 @@
+// This is a reduced version of Global.hpp which includes as few headers as possible
 #pragma once
-//#include "Global_reduced.hpp"
-
-#include <myUtils.hpp>
-
-#include <string>
-#include <iostream>
-
-#include <MyFem_Array_decl.hpp>
 
 // // MACRO DEFINITIONS
 #define FOR(i, n) for(int i = 0; i < (n); ++i)

@@ -65,22 +65,6 @@ xi1 | |  \
   Array<int> dof2nodeldof(int m) {
     return Array<int>({m/ndofn_, m%ndofn_});
   }
-  
-  
-  void test() { // TODOe: move to end or something when everythings done
-    std::string outString = "--------------- Element ";
-    FOR(i, globalNodeIds_.size()-1)
-      outString += std::to_string(globalNodeIds_(i)) + "-";
-    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
-    outString += " test() ---------------\n";
-    
-    std::cout<<outString;
-    
-    std::cout<<Kmat().toString(8)<<"\n";
-    //gradL_shFct_wrtx_xi(-1, -1).print();
-    
-    //x_xi(0, 0.5).print();
-  }
 
 // Constitutive
  public:
@@ -370,6 +354,21 @@ xi1 | |  \
 
       }
     return result;
+  }
+  
+  void test() {
+    std::string outString = "--------------- Element ";
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_(i)) + "-";
+    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
+    outString += " test() ---------------\n";
+    
+    std::cout<<outString;
+    
+    std::cout<<Kmat().toString(8)<<"\n";
+    //gradL_shFct_wrtx_xi(-1, -1).print();
+    
+    //x_xi(0, 0.5).print();
   }
 }; // class Tri3
 

@@ -2,8 +2,10 @@
 
 #include <Timer.hpp>
 #include <MyFem_Array_def.hpp>
+#include <Polynomial.hpp>
 
 #include <SFML/Graphics.hpp> // TODO: delete
+
 namespace MyFem::Problem {
   
 Vectord Linear2D::fullSolution() {
@@ -231,12 +233,35 @@ void Linear2D::runNoInputExample() {
 
 void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   ScopedTimer timer("example_beam()");
+  
+  StandardTimer timer2("Example meshing");
+  timer2.start();
+  
   X_0_ = Vectord();
   
   FOR(j, ny)
     FOR(i, nx) {
-      X_0_.push_back(i*lx/(nx-1));
-      X_0_.push_back(j*ly/(ny-1));
+      double xNom = i*lx/(nx-1);
+      double yNom = j*ly/(ny-1);
+      double x = xNom;
+      double y = yNom;
+      /*{
+        double tf = 2.5*yNom;
+        y = yNom+xNom*(tf-yNom)/lx; // asymmetric linear tapering
+      }
+      {
+        db::pr("yNom="+std::to_string(yNom));
+        double tExtremum = 0.5*yNom;
+        double tf = 0.9*yNom;
+        double c = yNom;
+        double b = NumMethods::solveScalarQuadraticEq(1, 4/lx*(yNom-tExtremum), -4/(lx*lx)*(tf-yNom)*(yNom-tExtremum))(1);
+        db::pr("b="+std::to_string(b));
+        double a = (tf-yNom)/(lx*lx) - b/lx;
+        double unitParabola = (a*(xNom*xNom)+b*xNom+c)/yNom;
+        //y = yNom*unitParabola; // asymmetric parabola
+      }*/
+      X_0_.push_back(x);
+      X_0_.push_back(y);
     }
     
   auto eleNodes = Array<Array<int>>();
@@ -248,11 +273,13 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     
   FOR(e, eleNodes.size()) {
     elements_.push_back(new Element::Tri3(
-    X_0_,
-    eleNodes(e),
-    false));
+      X_0_,
+      eleNodes(e),
+      false)
+    );
   }
   
+  timer2.stop();
   std::cout<<"Built elements\n\n";
   
   /*FOR(i, elements_.size()) {
@@ -262,8 +289,8 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   
   
   assembleK();
-  std::cout<<"K_ after assembly:\n";
-  std::cout<<K_.toString(8)<<"n";
+  //std::cout<<"K_ after assembly:\n";
+  //std::cout<<K_.toString(8)<<"n";
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
@@ -277,10 +304,10 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     dirichVect.push_back(0.0);
     
     // right side
-    //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
-    //dirichVect.push_back(0.0);
+    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
+    dirichVect.push_back(2.0);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(1.0);
+    dirichVect.push_back(1.5);
   }
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
@@ -308,8 +335,8 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   applyDirichlet(dirichIds, dirichVect);
       
   
-  std::cout<<"K_ after applyDirichlet():\n";
-  K_.print();
+  //std::cout<<"K_ after applyDirichlet():\n";
+  //K_.print();
   
   std::cout<<"rhs_ after applyDirichlet():\n";
   rhs_.print();
@@ -700,10 +727,10 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
   Vectord x_i = x_0;
   int iter = 0;
   
-  db::pr("K_ L U");
-  K_.print();
-  L.print();
-  U.print();
+  //db::pr("K_ L U");
+  //K_.print();
+  //L.print();
+  //U.print();
 
   while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = LinAlg::solveLxb(L,

@@ -21,6 +21,7 @@ endforeach()
 # --- Self-include ---
 include_directories(
   "src/GlobalDefinitions"
+  "src/Methods"
   "src"
   )
 

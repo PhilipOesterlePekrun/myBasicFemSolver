@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.23)  24 JUN 2025 14:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.23)  9 JUL 2025 14:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1656,16 +1656,16 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2020/03/25>
  ***********
 Package rerunfilecheck Info: File `Formalize.out' has not changed.
-(rerunfilecheck)             Checksum: 2CB8C3108176CE45229E182C08EF2D97;405.
+(rerunfilecheck)             Checksum: 438E2C481F4CF2FDFE029C89A4855039;563.
 Package logreq Info: Writing requests to 'Formalize.run.xml'.
 \openout1 = `Formalize.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 36117 strings out of 474486
- 678662 string characters out of 5743755
+ 36121 strings out of 474486
+ 678728 string characters out of 5743755
  1947542 words of memory out of 5000000
- 57754 multiletter control sequences out of 15000+600000
+ 57756 multiletter control sequences out of 15000+600000
  596406 words of font info for 121 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,13n,131p,684b,852s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1680,9 +1680,9 @@ type1/public/newtx/txmiaX.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/fon
 ts/type1/public/newtx/txsys.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/f
 onts/type1/public/newtx/ztmb.pfb><C:/Users/phili/AppData/Local/Programs/MiKTeX/
 fonts/type1/public/newtx/ztmr.pfb>
-Output written on Formalize.pdf (3 pages, 155599 bytes).
+Output written on Formalize.pdf (3 pages, 157646 bytes).
 PDF statistics:
- 143 PDF objects out of 1000 (max. 8388607)
- 28 named destinations out of 1000 (max. 500000)
- 125 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 149 PDF objects out of 1000 (max. 8388607)
+ 30 named destinations out of 1000 (max. 500000)
+ 133 words of extra memory for PDF output out of 10000 (max. 10000000)
 

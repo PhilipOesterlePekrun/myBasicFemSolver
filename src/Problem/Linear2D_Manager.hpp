@@ -2,14 +2,13 @@
 #include <Global.hpp>
 
 #include <myUtils.hpp>
+#include <LinAlg.hpp>
 
 #include "Element_Tri3.hpp"
 
 namespace MyFem {
 
 namespace Problem {
-  
-#include <LinAlg.hpp>
 
 using namespace LinAlg;
 
