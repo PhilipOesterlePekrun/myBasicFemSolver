@@ -50,7 +50,7 @@ class Vectord {
   }
   ///void resize(size_t newSize, double val) {data_.resize(newSize);} //# I think unecessary
   void push_back(double ele) {
-    size_++;
+    ++size_;
     data_.push_back(ele);
   };
   

@@ -18,7 +18,7 @@ class Array {
   // Standard constructor
   Array(size_t size)
     : size_(size), data_(size) {}
-  // This constructor basically makes a zero vector with the same dimensions as other
+  // This constructor basically makes itself a copy of the input arg
   Array(const Array& other)
     : size_(other.size()), data_(other.raw()) {}
   // For literal
@@ -55,7 +55,7 @@ class Array {
   }
   ///void resize(size_t newSize, double val) {data_.resize(newSize);} //# I think unecessary
   void push_back(T ele) {
-    size_++;
+    ++size_;
     data_.push_back(ele);
   };
   
@@ -99,7 +99,7 @@ class Array {
 
     // inefficient
     for(int i=size_; i< newRowCount; ++i)
-      (*this).push_back(0.0);
+      (*this).push_back(T{});
     size_ = newRowCount;
   }
   

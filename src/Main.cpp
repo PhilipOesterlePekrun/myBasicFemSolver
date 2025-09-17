@@ -96,9 +96,9 @@ int main1(int argCount, char** args) {
 }
 
 
-#include "Problem/Linear1D_Manager.hpp"
-#include "Problem/Linear2D_Manager.hpp"
-#include "Vis/Visualization2D.hpp"
+#include "Problem/SolidFem/Linear1D_Manager.hpp"
+#include "Problem/SolidFem/Linear2D_Manager.hpp"
+#include "Vis/Visualization_SolidFem2D.hpp"
 
 int main(int argCount, char** args) {
   TimerRegistry::globalInstance().start();

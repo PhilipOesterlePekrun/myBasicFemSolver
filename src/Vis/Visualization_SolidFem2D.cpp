@@ -1,4 +1,4 @@
-#include "Visualization2D.hpp"
+#include "Visualization_SolidFem2D.hpp"
 
 #include <MyFem_Array_def.hpp>
 

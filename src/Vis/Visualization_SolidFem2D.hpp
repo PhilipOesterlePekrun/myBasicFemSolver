@@ -5,7 +5,7 @@
 
 #include "VisualizationBase.hpp"
 #include "VisualizationObjects.hpp"
-#include <Problem/Linear2D_Manager.hpp>
+#include <Problem/SolidFem/Linear2D_Manager.hpp>
 
 namespace MyFem {
   

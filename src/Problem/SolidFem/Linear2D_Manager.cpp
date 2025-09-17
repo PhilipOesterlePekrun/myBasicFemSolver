@@ -304,10 +304,10 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     dirichVect.push_back(0.0);
     
     // right side
-    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
-    dirichVect.push_back(2.0);
+    //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
+    //dirichVect.push_back(0.0);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(1.5);
+    dirichVect.push_back(2.0);
   }
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
