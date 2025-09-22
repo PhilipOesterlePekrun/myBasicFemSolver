@@ -9,6 +9,9 @@ void Visualization2D::drawFrameImplementation() {
     auto elements = problem_->getElements();
     int ndofn = problem_->get_ndofn();
     
+    bool showNodeIdLabels = true;
+    auto nodeIdLabels = Array<sf::Text>(0, sf::Text(*defaultFont_, "", defaultFontSize_));
+    
     if(currentFrame_==0) {
       auto X_0 = problem_->getX_0();
       
@@ -17,9 +20,24 @@ void Visualization2D::drawFrameImplementation() {
         sf::ConvexShape tri_t;
         tri_t.setFillColor(sf::Color(100,100,100));
         tri_t.setPointCount(3);
-        tri_t.setPoint(0, offsetScaledVectXY(X_0(ele->getGlobalDofIds()(0)), X_0(ele->getGlobalDofIds()(1))));
-        tri_t.setPoint(1, offsetScaledVectXY(X_0(ele->getGlobalDofIds()(2)), X_0(ele->getGlobalDofIds()(3))));
-        tri_t.setPoint(2, offsetScaledVectXY(X_0(ele->getGlobalDofIds()(4)), X_0(ele->getGlobalDofIds()(5))));
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_0(ele->getGlobalDofIds()(0)), X_0(ele->getGlobalDofIds()(1)));
+          tri_t.setPoint(0, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(0)/2), tmpPt.x, tmpPt.y));
+        }
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_0(ele->getGlobalDofIds()(2)), X_0(ele->getGlobalDofIds()(3)));
+          tri_t.setPoint(1, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(2)/2), tmpPt.x, tmpPt.y));
+        }
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_0(ele->getGlobalDofIds()(4)), X_0(ele->getGlobalDofIds()(5)));
+          tri_t.setPoint(2, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(4)/2), tmpPt.x, tmpPt.y));
+        }
         
         tri_t.setOutlineThickness(outlineThickness_);
         tri_t.setOutlineColor(sf::Color(20,20,20));
@@ -38,9 +56,24 @@ void Visualization2D::drawFrameImplementation() {
         sf::ConvexShape tri_t;
         tri_t.setFillColor(sf::Color(100,100,100));
         tri_t.setPointCount(3);
-        tri_t.setPoint(0, offsetScaledVectXY(X_t(ele->getGlobalDofIds()(0)), X_t(ele->getGlobalDofIds()(1))));
-        tri_t.setPoint(1, offsetScaledVectXY(X_t(ele->getGlobalDofIds()(2)), X_t(ele->getGlobalDofIds()(3))));
-        tri_t.setPoint(2, offsetScaledVectXY(X_t(ele->getGlobalDofIds()(4)), X_t(ele->getGlobalDofIds()(5))));
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_t(ele->getGlobalDofIds()(0)), X_t(ele->getGlobalDofIds()(1)));
+          tri_t.setPoint(0, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(0)/2), tmpPt.x, tmpPt.y));
+        }
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_t(ele->getGlobalDofIds()(2)), X_t(ele->getGlobalDofIds()(3)));
+          tri_t.setPoint(1, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(2)/2), tmpPt.x, tmpPt.y));
+        }
+        
+        {
+          auto tmpPt = offsetScaledVectXY(X_t(ele->getGlobalDofIds()(4)), X_t(ele->getGlobalDofIds()(5)));
+          tri_t.setPoint(2, Vector2fInXY(tmpPt.x, tmpPt.y));
+          nodeIdLabels.push_back(textConstructorXY(std::to_string(ele->getGlobalDofIds()(4)/2), tmpPt.x, tmpPt.y));
+        }
         
         tri_t.setOutlineThickness(outlineThickness_);
         tri_t.setOutlineColor(sf::Color(20,20,20));
@@ -56,7 +89,9 @@ void Visualization2D::drawFrameImplementation() {
         renderWindow_.draw(pt);
       }*/
     }
-  
+    if(showNodeIdLabels)
+      FOR(i, nodeIdLabels.size())
+        renderWindow_.draw(nodeIdLabels(i));
 }
   
 }

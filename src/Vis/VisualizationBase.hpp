@@ -98,7 +98,7 @@ class VisualizationBase {
 	uint windowWidth_;
 	uint windowHeight_;
 	uint framerate_;
-	uint antiAliasingLevel_=0;
+	uint antiAliasingLevel_ = 0;
 	sf::Color baseColor_; // == background color
 	sf::Color secondaryColor_;
 	sf::Color defaultTextColor_;

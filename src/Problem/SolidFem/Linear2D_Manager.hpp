@@ -19,6 +19,10 @@ class Linear2D {
   
   void example_beam(double lx, double ly, int nx, int ny);
   
+  // nc = n circumferential; nr = n radial
+  // n = number of nodes, not eles
+  void example_torus(double x0, double y0, double ri, double ro, int nc, int nr);
+  
   void runNoInputExample();
   void runNoInputExample1();
   void runNoInputExample2();

@@ -27,6 +27,20 @@ void MeshTri3InConvexPolygon::create_myAlgo_convexPolygonToTri3(Geo2D::ConvexPol
     nodeCoords_.push_back(p(0));
     boundaryNodes_.push_back(nodeId++);
   }
+  
+  Array<int> virtualBoundaryNodes = boundaryNodes_; // the nodes on the "virtual boundary" within which meshing must still happen; starts same as actual boundary
+  auto virtualBoundaryCoords
+  
+  // condition for mesh complete/finished (no more meshing possible); assume true and get set false//#? or opposite?//#
+  bool meshComplete = true;
+  
+  while(1) {
+    FOR(i, virtualBoundaryNodes.size()) {
+      int nodeId = virtualBoundaryNodes(i);
+      auto coords = nodeC
+    }
+  }
+  
   // the first contiguous part of the nodeIDs are all boundary nodes, so we simply copy before putting the inner nodes
 }
 

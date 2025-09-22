@@ -62,24 +62,24 @@ sf::Text VisualizationBase::textConstructorXY(const std::string& textString, flo
 // CONSTRUCTORS
 VisualizationBase::VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font* defaultFont, int defaultFontSize)
   : windowName_(title) {
-	this->windowWidth_=windowWidth;
-	this->windowHeight_=windowHeight;
-	this->framerate_=framerate;
-	this->baseColor_=baseColor;
-	this->secondaryColor_=secondaryColor;
-	this->defaultTextColor_=defaultTextColor; // TODO: use initializer list, idk why i did it with this-> first
+	windowWidth_=windowWidth;
+	windowHeight_=windowHeight;
+	framerate_=framerate;
+	baseColor_=baseColor;
+	secondaryColor_=secondaryColor;
+	defaultTextColor_=defaultTextColor; // TODO: use initializer list, idk why i did it with  first
   if(!defaultFont) {
     std::cerr << "ERROR: Null font pointer passed to Visualization\n";
     std::terminate();
   }
-	this->defaultFont_=defaultFont;
-  //this->defaultFont = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
-	this->defaultFontSize_=defaultFontSize;
+	defaultFont_=defaultFont;
+  //defaultFont = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
+	defaultFontSize_=defaultFontSize;
 }
 VisualizationBase::VisualizationBase(std::string title, int windowWidth, int windowHeight, int framerate, sf::Color baseColor, sf::Color secondaryColor, sf::Color defaultTextColor, sf::Font *defaultFont, int defaultFontSize, int antiAliasingLevel)
   : VisualizationBase(title, windowWidth, windowHeight, framerate, baseColor, secondaryColor, defaultTextColor, defaultFont, defaultFontSize)
 {
-	this->antiAliasingLevel_=antiAliasingLevel;
+	antiAliasingLevel_=antiAliasingLevel;
 }
 
 bool VisualizationBase::activate() {

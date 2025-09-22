@@ -8,8 +8,6 @@
 
 #include <MyFem_Array_decl.hpp>
 
-#define TIMERS_ON true
-
 namespace MyFem {
 
 class Timer; // fwd decl

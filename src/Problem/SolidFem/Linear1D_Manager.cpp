@@ -18,7 +18,7 @@ void Linear1D::runNoInputExample() {
   };*/
   db::pr("line 15");
   for(int i=0; i<nodeX_0.size()-1; ++i)
-    elements_.push_back(new Element::Line2(Array<int>({i, i+1}), Vectord({nodeX_0(i), nodeX_0(i+1)})));
+    elements_.push_back(new Element::Line2(Array<int>{{i, i+1}}, Vectord{{nodeX_0(i), nodeX_0(i+1)}}));
   
   
   assembleK();

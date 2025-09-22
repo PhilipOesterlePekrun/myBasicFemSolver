@@ -63,7 +63,7 @@ xi1 | |  \
   }
   // element-global dof to node and node-local dof
   Array<int> dof2nodeldof(int m) {
-    return Array<int>({m/ndofn_, m%ndofn_});
+    return Array<int>{{m/ndofn_, m%ndofn_}};
   }
 
 // Constitutive

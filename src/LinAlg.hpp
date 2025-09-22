@@ -151,7 +151,7 @@ class Matrix2d {
   size_t nCols() const {return nCols_;}
   
   Array<size_t> dims() const {
-    return Array<size_t>({nRows_, nCols_});
+    return Array<size_t>{{nRows_, nCols_}};
   }
   
   Vectord rowAt(size_t i) {
@@ -367,7 +367,7 @@ class Matrix3d {
   size_t nK() const {return nK_;}
   
   Array<size_t> dims() const {
-    return Array<size_t>({nI_, nJ_, nK_});
+    return Array<size_t>{{nI_, nJ_, nK_}};
   }
   
   /*TODO
@@ -537,7 +537,7 @@ class Matrix4d {
   size_t nL() const {return nL_;}
   
   Array<size_t> dims() const {
-    return Array<size_t>({nI_, nJ_, nK_, nL_});
+    return Array<size_t>{{nI_, nJ_, nK_, nL_}};
   }
   
   /*TODO

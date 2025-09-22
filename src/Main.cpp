@@ -17,10 +17,10 @@ Array<Array<double>> getAsArr(std::map<int, double> map, bool inTermsOfN = false
   for (const auto& [key, value] : map) {
     if(inTermsOfN) {
       int N = (1 << static_cast<int>(key)) + 1;
-      arr.push_back(Array<double>({(double)N, value}));
+      arr.push_back(Array<double>{{(double)N, value}});
     }
     else
-      arr.push_back(Array<double>({static_cast<double>(key), value}));
+      arr.push_back(Array<double>{{static_cast<double>(key), value}});
   }
   return arr;
 }
@@ -53,12 +53,12 @@ int main1(int argCount, char** args) {
     
     visf = Vis::VisualizationBase("FORCE not N", 1200, 1400, 20, sf::Color(255, 255, 255), sf::Color(5, 5, 5), sf::Color(0, 0, 0), timesNewRoman, 12);
     Vis::Graph* g = new Vis::Graph(100, 100, 1000, 1200, shape_factors_force_XY);
-    visf.attachObjects(Array<Vis::Object*>({g}));
+    visf.attachObjects(Array<Vis::Object*>{{g}});
     visf.activate();
     
     visfn = Vis::VisualizationBase("FORCE N", 1200, 1400, 20, sf::Color(255, 255, 255), sf::Color(5, 5, 5), sf::Color(0, 0, 0), timesNewRoman, 12);
     Vis::Graph* g2 = new Vis::Graph(100, 100, 1000, 1200, shape_factors_force_XY_N);
-    visfn.attachObjects(Array<Vis::Object*>({g2}));
+    visfn.attachObjects(Array<Vis::Object*>{{g2}});
     visfn.activate();
     
     //while(visf.active_){visf.drawFrame();visfn.drawFrame();}
@@ -74,12 +74,12 @@ int main1(int argCount, char** args) {
     
     visp = Vis::VisualizationBase("PRESSURE not N", 1200, 1400, 20, sf::Color(255, 255, 255), sf::Color(5, 5, 5), sf::Color(0, 0, 0), timesNewRoman, 12);
     Vis::Graph* g = new Vis::Graph(100, 100, 1000, 1200, shape_factors_force_XY);
-    visp.attachObjects(Array<Vis::Object*>({g}));
+    visp.attachObjects(Array<Vis::Object*>{{g}});
     visp.activate();
     
     vispn = Vis::VisualizationBase("PRESSURE N", 1200, 1400, 20, sf::Color(255, 255, 255), sf::Color(5, 5, 5), sf::Color(0, 0, 0), timesNewRoman, 12);
     Vis::Graph* g2 = new Vis::Graph(100, 100, 1000, 1200, shape_factors_force_XY_N);
-    vispn.attachObjects(Array<Vis::Object*>({g2}));
+    vispn.attachObjects(Array<Vis::Object*>{{g2}});
     vispn.activate();
     
     
@@ -112,8 +112,9 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(5.0, 0.6, 40, 4);
+  //p2.example_beam(5.0, 0.6, 40, 4);
   //p2.example_beam(4.0, 1.0, 4, 2);
+  p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   ///std::cout<<timesNewRoman->getInfo().family<<"\n";
@@ -126,7 +127,7 @@ int main(int argCount, char** args) {
   p2.getX_t().print();
   
   Vis::Visualization2D vis("2D vis", 2000, 1500, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  150, p2Shared, 2);
+  400, p2Shared, 2);
   
   vis.activate();
   while(vis.active_) vis.drawFrame();

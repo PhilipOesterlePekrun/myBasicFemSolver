@@ -18,12 +18,21 @@ class Array {
   // Standard constructor
   Array(size_t size)
     : size_(size), data_(size) {}
+  // Fill with some default element value
+  Array(size_t size, T value)
+    : size_(size), data_(size, value) {}
   // This constructor basically makes itself a copy of the input arg
   Array(const Array& other)
     : size_(other.size()), data_(other.raw()) {}
   // For literal
   Array(const std::vector<T>& raw)
     : size_(raw.size()), data_(raw) {}
+    
+  Array& operator=(const Array& other) {
+    size_ = other.size();
+    data_ = other.raw();
+    return *this;
+  }
   
   std::vector<T>& raw() {return data_;}
   const std::vector<T>& raw() const {return data_;}

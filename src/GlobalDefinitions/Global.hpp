@@ -8,8 +8,11 @@
 
 #include <MyFem_Array_decl.hpp>
 
-// // MACRO DEFINITIONS
+// // HELPER MACROS
 #define FOR(i, n) for(int i = 0; i < (n); ++i)
+
+// // GLOBAL DEFINITIONS
+#define TIMERS_ON true
 
 // // GLOBAL ALIASES
 ///auto stdtostr = [](auto x) { return std::to_string(x); };
