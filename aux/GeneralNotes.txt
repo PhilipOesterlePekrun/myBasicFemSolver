@@ -15,6 +15,8 @@ Features/capability:
   - LinAlg: CrsMatrix
   - LinAlg: More efficient/raw vectors and matrices and Array. Also, possibly option for statically sized variants (ptr wrappers basically) for efficiency
   
+LinAlg: derive Vectord and Matrix2d and others from Array<double>. Then I only have to change the core implementations (which can still be overriden) in Array<T>. We can also have the print and whatever like if(T is printable) print, else throw("T is not printable")
+  
 Timers:
 - Make it less retarded in general
 - Instead of just addin the times up if its multiple timers with same name (due to multiple calls of that function), do it in a less retarded way and also simply store and be able to say how often it was called (like MueLu with "time (callCount)")
@@ -29,7 +31,7 @@ Visualization:
 - Mouse controls for zooming and panning and clicking buttons
 
 Organization:
-- Fix CMakeLists.txt
+- Fix CMakeLists.txt for modular targets or whatever
 - Make a macro or something for Timers on or off and if they are off, they will super efficiently not do anything
 - Move linear solvers and integration schemes outside of the classes they are in right now
 - Clean debugging (print matrices and such through db::pr unless they should always be printed)
