@@ -1,4 +1,4 @@
-#include <Global.hpp>
+#include "GlobalDefinitions/Global.hpp"
 
 #include <iostream>
 
@@ -7,7 +7,7 @@
 
 #include "Vis/VisualizationBase.hpp"
 #include "Vis/VisualizationObjects.hpp"
-#include <Timer.hpp>
+#include "Timer.hpp"
 
 using namespace MyFem;
 
@@ -127,7 +127,7 @@ int main(int argCount, char** args) {
   p2.getX_t().print();
   
   Vis::Visualization2D vis("2D vis", 2000, 1500, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  400, p2Shared, 2);
+  200, p2Shared, 2);
   
   vis.activate();
   while(vis.active_) vis.drawFrame();

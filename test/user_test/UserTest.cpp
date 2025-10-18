@@ -1,4 +1,4 @@
-#include <Global.hpp>
+#include <GlobalDefinitions/Global.hpp>
 
 #include <myUtils.hpp>
 

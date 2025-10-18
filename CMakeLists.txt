@@ -4,6 +4,8 @@ project(myBasicFemSolver)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # --- Source Collection ---
 file(GLOB_RECURSE ALL_SRC_FILES "src/*.cpp" "src/*.hpp")
 file(GLOB_RECURSE ALL_TEST_FILES "test/*.cpp" "test/*.hpp")
@@ -20,13 +22,12 @@ endforeach()
 
 # --- Self-include ---
 include_directories(
-  "src/GlobalDefinitions"
-  "src/Methods"
   "src"
-  )
+  "src/GlobalDefinitions"
+)
 
 # --- SFML ---
-get_filename_component(SFML_ROOT "$ENV{HOME}/misc/tpl/SFML_base/install_SFML" ABSOLUTE)
+get_filename_component(SFML_ROOT "$ENV{HOME}/misc/tpl/SFML_base/install" ABSOLUTE)
 set(CMAKE_PREFIX_PATH "${SFML_ROOT}" CACHE PATH "SFML install prefix" FORCE)
 include_directories("${SFML_ROOT}/include")
 link_directories("${SFML_ROOT}/lib")
@@ -39,9 +40,9 @@ add_executable(myBasicFemSolver ${SRC_FILES})
 add_executable(UserTest test/user_test/UserTest.cpp)
 
 # --- myUtils ---
-set(MYUTILS_DIR "$ENV{HOME}/util/myUtils_Base/install_myUtils")
+set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install")
 target_include_directories(myBasicFemSolver PRIVATE ${MYUTILS_DIR}/include)
-target_include_directories(UserTest PRIVATE ${MYUTILS_DIR}/include)
+target_include_directories(UserTest PRIVATE ${MYUTILS_DIR}/include "src")
 
 
 

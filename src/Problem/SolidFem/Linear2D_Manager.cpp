@@ -2,7 +2,7 @@
 
 #include <Timer.hpp>
 #include <MyFem_Array_def.hpp>
-#include <Polynomial.hpp>
+#include <Methods/Polynomial.hpp>
 
 #include <SFML/Graphics.hpp> // TODO: delete
 
@@ -390,12 +390,10 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
       if(x<x0-0.95 && ir==nr-1) {
         dirichLeftIds.push_back(dofId);
         dirichLeftIds.push_back(dofId+1);
-        db::pr("line393");
       }
       else if(x>x0+1.0 && ir==nr-1) {
         dirichRightIds.push_back(dofId);
         dirichRightIds.push_back(dofId+1);
-        db::pr("line397");
       }
       
       dofId+=2;
@@ -453,7 +451,7 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
   for(int i = 0; i < dirichRightIds.size(); i+=2) {
     // left side
     dirichIds.push_back(dirichRightIds(i));
-    dirichVect.push_back(-0.5);
+    dirichVect.push_back(-0.1);
     //dirichIds.push_back(dirichRightIds(i+1));
     //dirichVect.push_back(0.5);
   }
