@@ -1,14 +1,14 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 
-#include <LinAlg.hpp>
+#include "mu_core_LinAlg.hpp"
 
 namespace MyFem {
 
 namespace Element {
   
+using namespace MyUtils;
 using namespace LinAlg; // mTODO: consider removing this and replacing it by specific usings. Maybe with a good macro I can reuse in other files too; In any case, except for structures like matrix vector array, I will try to be explicit about LinAlg::
 
 class Tri3 {
@@ -39,14 +39,14 @@ xi1 | |  \
 
  public:
   // This is the local (pos) to global (val) mapping
-  Array<int> globalNodeIds_;
+  std::vector<int> globalNodeIds_;
   Vectord X_0_;
   
-  Array<int> getGlobalDofIds() {
-    Array<int> arr = Array<int>();
+  std::vector<int> getGlobalDofIds() {
+    std::vector<int> arr = std::vector<int>();
     FOR(i, nnode_) {
-      arr.push_back(2*globalNodeIds_(i));
-      arr.push_back(2*globalNodeIds_(i) + 1);
+      arr.push_back(2*globalNodeIds_[i]);
+      arr.push_back(2*globalNodeIds_[i] + 1);
     }
     return arr;
   }
@@ -57,12 +57,12 @@ xi1 | |  \
   int nodeldof2dof(int n, int i) {
     return n*ndofn_ + i;
   }
-  int nodeldof2dof(Array<int> ni) {
-    return ni(0)*ndofn_ + ni(1);
+  int nodeldof2dof(std::vector<int> ni) {
+    return ni[0]*ndofn_ + ni[1];
   }
   // element-global dof to node and node-local dof
-  Array<int> dof2nodeldof(int m) {
-    return Array<int>{{m/ndofn_, m%ndofn_}};
+  std::vector<int> dof2nodeldof(int m) {
+    return std::vector<int>{{m/ndofn_, m%ndofn_}};
   }
 
 // Constitutive
@@ -145,15 +145,15 @@ xi1 | |  \
 
 // ctor(s)
  public:
-  Tri3(Array<int> nodes, Vectord X_0, bool planeStressElsePlaneStrain)
+  Tri3(std::vector<int> nodes, Vectord X_0, bool planeStressElsePlaneStrain)
   : globalNodeIds_(nodes), X_0_(X_0), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {}
   
-  Tri3(Vectord globalX_0, Array<int> nodes, bool planeStressElsePlaneStrain)
+  Tri3(Vectord globalX_0, std::vector<int> nodes, bool planeStressElsePlaneStrain)
   : globalNodeIds_(nodes), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {
     X_0_ = Vectord();
     FOR(i, nodes.size()) {
-      X_0_.push_back(globalX_0(nodes(i)*ndofn_));
-      X_0_.push_back(globalX_0(nodes(i)*ndofn_+1));
+      X_0_.push_back(globalX_0(nodes[i]*ndofn_));
+      X_0_.push_back(globalX_0(nodes[i]*ndofn_+1));
     }
   }
   
@@ -232,7 +232,7 @@ xi1 | |  \
       for(int j=0; j<ndofn_; ++j) {
         for(int m=0; m<ndof_; ++m) {
           auto vectm = dof2nodeldof(m);
-          mat(i,j,m) = 0.5 * (Ntilde(vectm(0),j)*diracDelta(vectm(1),i) + Ntilde(vectm(0),i)*diracDelta(vectm(1),j));
+          mat(i,j,m) = 0.5 * (Ntilde(vectm[0],j)*diracDelta(vectm[1],i) + Ntilde(vectm[0],i)*diracDelta(vectm[1],j));
         }
       }
     }
@@ -262,7 +262,7 @@ xi1 | |  \
     double result = 0;
     for(int i=0; i<n-1; ++i) {
       result += (f(i*h) + f((i+1)*h))/2.0 * h;
-      //db::pr("result ="+std::to_string(result));
+      //MyUtils::Db::pr("result ="+std::to_string(result));
     }
     return result;
   }
@@ -296,8 +296,8 @@ xi1 | |  \
   Matrix2d integrandKmat_xi(double xi0, double xi1) {
     Matrix2d mat(ndof_, ndof_);
     double detJ = detMat2d(jacobian_xi(xi0, xi1));
-    if(detJ<0) db::pr("detJ is negative! It is "+std::to_string(detJ));
-    //db::pr("detJ="+std::to_string(detJ));
+    if(detJ<0) MyUtils::Db::pr("detJ is negative! It is "+std::to_string(detJ));
+    //MyUtils::Db::pr("detJ="+std::to_string(detJ));
     auto CVK = C_VK_xi(xi0, xi1);
     auto B = BOp_xi(xi0, xi1);
     // TODO: inefficient as fuck
@@ -322,8 +322,8 @@ xi1 | |  \
   Matrix2d Kmat() {
     std::string outString = "Element ";
     FOR(i, globalNodeIds_.size()-1)
-      outString += std::to_string(globalNodeIds_(i)) + "-";
-    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
+      outString += std::to_string(globalNodeIds_[i]) + "-";
+    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += ": getting Kmat()\n";
     std::cout<<outString;
     
@@ -352,14 +352,15 @@ xi1 | |  \
         result(i, j) = integrateTrapzTemplated(g, 0.0, 1.0, n0);
 
       }
+      
     return result;
   }
   
   void test() {
     std::string outString = "--------------- Element ";
     FOR(i, globalNodeIds_.size()-1)
-      outString += std::to_string(globalNodeIds_(i)) + "-";
-    outString += std::to_string(globalNodeIds_(globalNodeIds_.size()-1));
+      outString += std::to_string(globalNodeIds_[i]) + "-";
+    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += " test() ---------------\n";
     
     std::cout<<outString;

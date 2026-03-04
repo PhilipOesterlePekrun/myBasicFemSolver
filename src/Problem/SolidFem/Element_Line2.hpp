@@ -1,14 +1,14 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 
-#include <LinAlg.hpp>
+#include "mu_core_LinAlg.hpp"
 
 namespace MyFem {
 
 namespace Element {
   
+using namespace MyUtils;
 using namespace LinAlg;
 // for now, how we do it is we give element the info of both the reference config and the displacement/current config. This is probably necessary; if not, whatever
 // most of this class is actually general enough to be the 1D element base class. But not for dim>1
@@ -28,13 +28,11 @@ class Line2 {
     return 2.0+1.5*x;
   }
  private:
-  double Cvk_xi(double xi) {
-    return Cvk_x(vect2dDotVect2d(shFct_xi(xi), X_0_));
-  }
+  double Cvk_xi(double xi);
 
 // ctor(s)
  public:
-  Line2(Array<int> nodes, Vectord X_0)
+  Line2(std::vector<int> nodes, Vectord X_0)
   : globalNodeIds_(nodes), X_0_(X_0) {}
   
  private:
@@ -64,7 +62,7 @@ class Line2 {
     double result = 0;
     for(int i=0; i<n-1; ++i) {
       result += (f(i*h) + f((i+1)*h))/2.0 * h;
-      //db::pr("result ="+std::to_string(result));
+      //MyUtils::Db::pr("result ="+std::to_string(result));
     }
     return result;
   }
@@ -115,7 +113,7 @@ class Line2 {
 
  public:
   // This is the local (pos) to global (val) mapping
-  Array<int> globalNodeIds_;
+  std::vector<int> globalNodeIds_;
   Vectord X_0_;
 }; // class Line2
 

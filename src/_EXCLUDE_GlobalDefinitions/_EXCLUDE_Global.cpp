@@ -2,8 +2,8 @@
 
 namespace MyFem {
   
-Array<std::string> strToStrArray(const std::string& s) {
-  auto out = Array<std::string>();
+std::vector<std::string> strToStrArray(const std::string& s) {
+  auto out = std::vector<std::string>();
   if(s == "") return out;
   out.push_back("");
   size_t sLength = s.length();
@@ -15,7 +15,7 @@ Array<std::string> strToStrArray(const std::string& s) {
   }
   return out;
 }
-std::string strArrayToStr(const Array<std::string>& a) {
+std::string strArrayToStr(const std::vector<std::string>& a) {
   std::string out = "";
   FOR(i, a.size())
     out += a(i) + "\n";
@@ -23,7 +23,7 @@ std::string strArrayToStr(const Array<std::string>& a) {
 }
 
 std::string alignStringAt(const std::string& s, std::string& alignerKey) {
-  auto keyPositionsInLine = Array<Array<size_t>>();
+  auto keyPositionsInLine = std::vector<std::vector<size_t>>();
   FOR(i, s.length()) {
     if(s[i] == '\n')
     ;

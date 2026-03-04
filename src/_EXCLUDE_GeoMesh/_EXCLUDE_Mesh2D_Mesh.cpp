@@ -17,12 +17,12 @@ void MeshTri3InConvexPolygon::create_myAlgo_convexPolygonToTri3(Geo2D::ConvexPol
     nodeCoords_.push_back(p(0));
     boundaryNodes_.push_back(nodeId++);
     
-    const double distPoly = Geo2D::Utils::dist(p(i), p(i+1));
+    const double distPoly = Geo2D::MyUtils::dist(p(i), p(i+1));
     const int numSegments = std::ceil(distPoly/minBoundarySpacing);
     const double actualBoundarySpacing = distPoly/numSegments;
     actualBoundarySpacings.push_back(actualBoundarySpacing);
     FOR(j, numSegments-1) {
-      nodeCoords_.push_back(Geo2D::Utils::lInterp(p(i), p(i+1), actualBoundarySpacing*(j+1)));
+      nodeCoords_.push_back(Geo2D::MyUtils::lInterp(p(i), p(i+1), actualBoundarySpacing*(j+1)));
       boundaryNodes_.push_back(nodeId++);
     }
     
@@ -30,7 +30,7 @@ void MeshTri3InConvexPolygon::create_myAlgo_convexPolygonToTri3(Geo2D::ConvexPol
     boundaryNodes_.push_back(nodeId++);
   }
   
-  Array<int> virtualBoundaryNodes = boundaryNodes_; // the nodes on the "virtual boundary" within which meshing must still happen; starts same as actual boundary
+  std::vector<int> virtualBoundaryNodes = boundaryNodes_; // the nodes on the "virtual boundary" within which meshing must still happen; starts same as actual boundary
   
   // condition for mesh complete/finished (no more meshing possible); assume true and get set false//#? or opposite?//#
   bool meshComplete = true;
@@ -39,12 +39,12 @@ void MeshTri3InConvexPolygon::create_myAlgo_convexPolygonToTri3(Geo2D::ConvexPol
   while(1) {
     for(i=1; i<virtualBoundaryNodes.size(); ++i) {
       int nodeId = virtualBoundaryNodes(i);
-      Array<Vectord> threePointsCoords;
+      std::vector<Vectord> threePointsCoords;
 
       for(j=-1; j<3; ++j) {
         threePointsCoords.push_back(nodeCoords_(nodeId(i+j)));
       }
-      double cornerAngle = Geo2D::Utils::lAngle(threePointsCoords);
+      double cornerAngle = Geo2D::MyUtils::lAngle(threePointsCoords);
 
       // very inefficient, but for now maybe the strat for inexact points on top of eachother is to do a full search and compare dist of all nodes. If there is a chance of the points ending up not super close but fairly close, we might need another parameter for this idk. Can be made more efficient later I'm sure
     }

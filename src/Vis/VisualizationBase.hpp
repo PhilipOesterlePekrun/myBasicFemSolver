@@ -1,12 +1,14 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
+
+#include "mu.hpp"
 
 #include "VisualizationObjects.hpp"
 
 namespace MyFem {
+  
+  using namespace MyUtils;
 
 namespace Vis {
   
@@ -57,16 +59,16 @@ class VisualizationBase {
   
   // VISUALIZATION OBJECTS
  private: // public because zero reason to be private or protected. just edit it directly, no issue.
-  Array<Object*> objects_;
+  std::vector<Object*> objects_;
  public:
   // attaches additional objects, in addition to the ones already attached
-  void attachObjects(const Array<Object*>& objects) { // TODO: these functions could be better named
+  void attachObjects(const std::vector<Object*>& objects) { // TODO: these functions could be better named
     FOR(i, objects.size()) {
-      if(objects(i)->isAttached())
-        warn("Some objects were already attached/activated and have not been attached as desired");
+      if(objects[i]->isAttached())
+        MyUtils::Db::warn("Some objects were already attached/activated and have not been attached as desired");
       else {
-        objects_.push_back(objects(i));
-        objects(i)->attach(this); // yeah its the param but the element is a pointer, so this works
+        objects_.push_back(objects[i]);
+        objects[i]->attach(this); // yeah its the param but the element is a pointer, so this works
       }
     }
   }

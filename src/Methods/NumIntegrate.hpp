@@ -1,5 +1,4 @@
 #pragma once
-#include <Global.hpp>
 
 // basic numerical methods
 namespace MyFem::NumMethods {

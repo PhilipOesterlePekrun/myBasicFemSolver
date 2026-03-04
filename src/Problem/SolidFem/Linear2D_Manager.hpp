@@ -1,8 +1,7 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
-#include <LinAlg.hpp>
+#include "mu.hpp"
+#include "mu_core_LinAlg.hpp"
 
 #include "Element_Tri3.hpp"
 
@@ -10,6 +9,7 @@ namespace MyFem {
 
 namespace Problem {
 
+using namespace MyUtils;
 using namespace LinAlg;
 
 class Linear2D {
@@ -33,12 +33,12 @@ class Linear2D {
   size_t ndofn_;// = 2;
   ///std::size_t nele_;
   
-  Array<Element::Tri3*> elements_;
+  std::vector<Element::Tri3*> elements_;
   Matrix2d K_;
   Vectord rhs_;
   
-  Array<size_t> globalDofIds_; // The actual global dofs including dirichlet and solution. Shouldn't change after assembly gets that info from the elements. (in any case it should just be contiguous with size ndofn*nnode)
-  Array<size_t> dirichletDofIds_;
+  std::vector<size_t> globalDofIds_; // The actual global dofs including dirichlet and solution. Shouldn't change after assembly gets that info from the elements. (in any case it should just be contiguous with size ndofn*nnode)
+  std::vector<size_t> dirichletDofIds_;
   Vectord dirichletVect_;
   Vectord solutionVect_;
   
@@ -55,7 +55,7 @@ class Linear2D {
   int get_nnode() {return nnode_;}
   int get_ndofn() {return ndofn_;}
   
-  Array<Element::Tri3*> getElements() {
+  std::vector<Element::Tri3*> getElements() {
     return elements_;
   }
   
@@ -66,7 +66,7 @@ class Linear2D {
   //dynArrayd assembleRhs();// later when we have Wext
   
   void applyDirichlet(int globalNodeId/*, dofIndex or localDofindex of the node, needed for higher dim*/, double val);
-  void applyDirichlet(const Array<size_t>& ids, const Vectord& vals);
+  void applyDirichlet(const std::vector<size_t>& ids, const Vectord& vals);
   
   // TODO we will eventually put all the solver methods into a different class. This class is just a manager which also does the assembly.
   ///Vectord solveSystem_gaussSeidel();

@@ -1,8 +1,7 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
-#include <LinAlg.hpp>
+#include "mu.hpp"
+#include "mu_core_LinAlg.hpp"
 
 #include "RadsymRigidBody.hpp"
 
@@ -10,7 +9,8 @@ namespace MyFem {
 
 // Rigid Body
 namespace RB {
-  
+
+using namespace MyUtils;
 using namespace LinAlg;
 
 class RigidBody {
@@ -18,7 +18,7 @@ class RigidBody {
   RigidBody() {};
   
  public:
-  Array<Vectord> positionXY_t;
+  std::vector<Vectord> positionXY_t;
  public:
   updateWithForce(double Fx, double Fy) {
     positionXY_t;

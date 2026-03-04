@@ -1,7 +1,7 @@
 #pragma once
 //#include "Global_reduced.hpp"
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 
 #include <string>
 #include <iostream>
@@ -45,8 +45,8 @@ inline std::string levelizeString(const std::string& s, int level) {
   return tmpS;
 }
 
-inline Array<std::string> strToStrArray(const std::string& s) {
-  auto out = Array<std::string>();
+inline std::vector<std::string> strToStrArray(const std::string& s) {
+  auto out = std::vector<std::string>();
   if(s == "") return out;
   out.push_back("");
   size_t sLength = s.length();
@@ -58,15 +58,15 @@ inline Array<std::string> strToStrArray(const std::string& s) {
   }
   return out;
 }
-inline std::string strArrayToStr(const Array<std::string>& a) {
+inline std::string strArrayToStr(const std::vector<std::string>& a) {
   std::string out = "";
   FOR(i, a.size())
     out += a(i) + "\n";
   return out;
 }
 
-inline Array<int> checkForIn(const std::string& checkFor, const std::string& checkIn) { // TODOi: you have to move Array into myUtils so that you can also move this back into myUtils
-  auto out = Array<int>();
+inline std::vector<int> checkForIn(const std::string& checkFor, const std::string& checkIn) { // TODOi: you have to move Array into myUtils so that you can also move this back into myUtils
+  auto out = std::vector<int>();
   std::string checkInTemp = checkIn;
   if (checkFor.length() <= checkIn.length()) {
     for (int i = 0; i <= checkIn.length()-checkFor.length(); ++i) {
@@ -82,12 +82,12 @@ inline Array<int> checkForIn(const std::string& checkFor, const std::string& che
   return out;
 }
 
-// aligns the string rows at certain keys, like e.g. "|"" will be vertically aligned according to count (TODOm: make an overload for Array<std::string> where each ele is a row)
+// aligns the string rows at certain keys, like e.g. "|"" will be vertically aligned according to count (TODOm: make an overload for std::vector<std::string> where each ele is a row)
 inline std::string alignStringAt(const std::string& s, const std::string& alignerKey) {
   auto a = strToStrArray(s);
   const int aSize = a.size();
-  auto maxSpacing = Array<int>();
-  Array<Array<int>> CFIs(aSize); // store for efficiency
+  auto maxSpacing = std::vector<int>();
+  std::vector<std::vector<int>> CFIs(aSize); // store for efficiency
   FOR(i, aSize) {
     auto cfi = checkForIn(alignerKey, a(i));
     CFIs(i) = cfi;
@@ -100,7 +100,7 @@ inline std::string alignStringAt(const std::string& s, const std::string& aligne
       if(cfi(j+1)-cfi(j) > maxSpacing(j+1))
         maxSpacing(j+1) = cfi(j+1)-cfi(j);
   }
-  auto aOut = Array<std::string>(aSize);
+  auto aOut = std::vector<std::string>(aSize);
   FOR(i, aSize) {
     auto& cfi = CFIs(i);
     int dist = 0;

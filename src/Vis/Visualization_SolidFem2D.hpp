@@ -1,7 +1,6 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 
 #include "VisualizationBase.hpp"
 #include "VisualizationObjects.hpp"
@@ -17,7 +16,7 @@ class Visualization2D : public VisualizationBase {
   std::shared_ptr<Problem::Linear2D> problem_;
  public:
   double scaleFactor_;
-  Array<float> XYoffset_ = Array<float>{{200, 200}};
+  std::vector<float> XYoffset_ = std::vector<float>{{200, 200}};
   float outlineThickness_;
 
  public:
@@ -32,7 +31,7 @@ class Visualization2D : public VisualizationBase {
   
  private:
   inline sf::Vector2f offsetScaledVectXY(float posX, float posY){
-		return sf::Vector2f(XYoffset_(0)+scaleFactor_*posX, XYoffset_(1)+scaleFactor_*posY);
+		return sf::Vector2f(XYoffset_[0]+scaleFactor_*posX, XYoffset_[1]+scaleFactor_*posY);
 	}
   void drawFrameImplementation() override;
 };

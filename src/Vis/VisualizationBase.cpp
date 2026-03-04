@@ -154,7 +154,7 @@ void VisualizationBase::drawFrame() {
 		renderWindow_.clear(baseColor_);
     drawBaseUI();
     FOR(i, objects_.size()) {
-      objects_(i)->draw();
+      objects_[i]->draw();
     }
 		drawFrameImplementation();
 		renderWindow_.display();

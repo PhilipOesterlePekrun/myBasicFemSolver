@@ -1,17 +1,16 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 
 #include "Element_Line2.hpp"
+
+#include "mu_core_LinAlg.hpp"
 
 namespace MyFem {
 
 namespace Problem {
-  
-#include "LinAlg.hpp"
 
-using namespace LinAlg;
+using namespace MyUtils::LinAlg;
 
 class Linear1D {
  public:
@@ -20,7 +19,7 @@ class Linear1D {
   void runNoInputExample();
   
  private:
-  Array<Element::Line2*> elements_;
+  std::vector<Element::Line2*> elements_;
   Matrix2d K_;
   Vectord rhs_;
   

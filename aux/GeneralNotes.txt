@@ -34,7 +34,7 @@ Organization:
 - Fix CMakeLists.txt for modular targets or whatever
 - Make a macro or something for Timers on or off and if they are off, they will super efficiently not do anything
 - Move linear solvers and integration schemes outside of the classes they are in right now
-- Clean debugging (print matrices and such through db::pr unless they should always be printed)
+- Clean debugging (print matrices and such through MyUtils::Db::pr unless they should always be printed)
 - ^ Relatedly, instead of pure debug on or off, maybe also do verbosity levels like Trilinos and such do
 - Move things to .cpp when possible
 - General base class for elements

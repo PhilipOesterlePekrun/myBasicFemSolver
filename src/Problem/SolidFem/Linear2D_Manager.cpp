@@ -9,16 +9,16 @@ namespace MyFem::Problem {
 Vectord Linear2D::fullSolution() {
   Vectord v = Vectord(globalDofIds_.size());
   
-  Array<size_t> solutionDofIds(globalDofIds_);
-  solutionDofIds.deleteIndices(dirichletDofIds_);
-  //db::pr("solutionDofIds.print();line11");
-  //solutionDofIds.print();
+  std::vector<size_t> solutionDofIds(globalDofIds_);
+  StdVectorUtils::deleteIndices(solutionDofIds, dirichletDofIds_);
+  //std::cout<<"solutionDofIds.print();line11\n";
+  //StdVectorUtils::print(solutionDofIds);
   FOR(i, solutionDofIds.size()) {
-    v(solutionDofIds(i)) = solutionVect_(i);
+    v(solutionDofIds[i]) = solutionVect_(i);
   }
   
   FOR(i, dirichletDofIds_.size()) {
-    v(dirichletDofIds_(i)) = dirichletVect_(i);
+    v(dirichletDofIds_[i]) = dirichletVect_(i);
   }
   
   return v;
@@ -35,7 +35,7 @@ Vectord Linear2D::getX_t() {
 
 // deprecated
 void Linear2D::visualize() {// TODO: delete
-  warn("visualize() is deprecated");
+  Db::warn("visualize() is deprecated");
   
   sf::RenderWindow rw;
   rw.create(sf::VideoMode({1600, 1000}), "tmp");
@@ -88,14 +88,14 @@ void Linear2D::runNoInputExample_SingleEle() {
   
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{0, 1, 2}},
+    std::vector<int>{{0, 1, 2}},
     true
   ));
   
   
   FOR(i, elements_.size()) {
     std::cout<<"================\nEle"<<i<<"\n";
-    elements_(i)->test();
+    elements_[i]->test();
   }
   
   
@@ -110,14 +110,14 @@ void Linear2D::runNoInputExample_SingleEle() {
   
   applyDirichlet(2*2+0, 0.0);
   applyDirichlet(2*2+1, 0.0);
-  db::pr("rhs_ after2");
+  MyUtils::Db::pr("rhs_ after2");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
   applyDirichlet(2*1+0, 0.2);
   
   applyDirichlet(2*0+1, 0.0);
-  db::pr("rhs_ after3");
+  MyUtils::Db::pr("rhs_ after3");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
@@ -126,10 +126,10 @@ void Linear2D::runNoInputExample_SingleEle() {
   
   solveSystem_Jacobi(500, 0.00001);
   
-  db::pr("line117");
+  MyUtils::Db::pr("line117");
   solutionVect_.print();
   dirichletVect_.print();
-  dirichletDofIds_.print();
+  StdVectorUtils::print(dirichletDofIds_);
   
   fullSolution().print();
   //solutionDofIds_.print();
@@ -140,7 +140,7 @@ void Linear2D::runNoInputExample_SingleEle() {
   /**/
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
-      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
+      MyUtils::Db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
       std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
     }
     
@@ -158,19 +158,19 @@ void Linear2D::runNoInputExample() {
   
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{0, 1, 2}},
+    std::vector<int>{{0, 1, 2}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{1, 3, 2}},
+    std::vector<int>{{1, 3, 2}},
     true
   ));
   
   
   FOR(i, elements_.size()) {
     std::cout<<"================\nEle"<<i<<"\n";
-    elements_(i)->test();
+    elements_[i]->test();
   }
   
   
@@ -184,21 +184,21 @@ void Linear2D::runNoInputExample() {
   
   applyDirichlet(2*3+1, -0.4);
   applyDirichlet(2*3+0, 0.4);
-  db::pr("rhs_ after1");
+  MyUtils::Db::pr("rhs_ after1");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
   
   
   applyDirichlet(2*2+0, 0.0);
-  db::pr("rhs_ after2");
+  MyUtils::Db::pr("rhs_ after2");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
   
   applyDirichlet(2*0+1, 0.0);
   applyDirichlet(2*0+0, 0.0);
-  db::pr("rhs_ after3");
+  MyUtils::Db::pr("rhs_ after3");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
@@ -207,10 +207,10 @@ void Linear2D::runNoInputExample() {
   
   solveSystem_Jacobi(500, 0.00001);
   
-  db::pr("line117");
+  MyUtils::Db::pr("line117");
   solutionVect_.print();
   dirichletVect_.print();
-  dirichletDofIds_.print();
+  StdVectorUtils::print(dirichletDofIds_);
   
   fullSolution().print();
   //solutionDofIds_.print();
@@ -221,7 +221,7 @@ void Linear2D::runNoInputExample() {
   /**/
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
-      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
+      MyUtils::Db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
       std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
     }
     
@@ -248,12 +248,12 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
         y = yNom+xNom*(tf-yNom)/lx; // asymmetric linear tapering
       }
       {
-        db::pr("yNom="+std::to_string(yNom));
+        MyUtils::Db::pr("yNom="+std::to_string(yNom));
         double tExtremum = 0.5*yNom;
         double tf = 0.9*yNom;
         double c = yNom;
         double b = NumMethods::solveScalarQuadraticEq(1, 4/lx*(yNom-tExtremum), -4/(lx*lx)*(tf-yNom)*(yNom-tExtremum))(1);
-        db::pr("b="+std::to_string(b));
+        MyUtils::Db::pr("b="+std::to_string(b));
         double a = (tf-yNom)/(lx*lx) - b/lx;
         double unitParabola = (a*(xNom*xNom)+b*xNom+c)/yNom;
         //y = yNom*unitParabola; // asymmetric parabola
@@ -262,17 +262,17 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
       X_0_.push_back(y);
     }
     
-  auto eleNodes = Array<Array<int>>();
+  auto eleNodes = std::vector<std::vector<int>>();
   FOR(i, nx-1)
     FOR(j, ny-1) {
-      eleNodes.push_back(Array<int>{{j*nx+ i, j*nx+ i+1, (j+1)*nx+ i}});
-      eleNodes.push_back(Array<int>{{j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i}});
+      eleNodes.push_back(std::vector<int>{{j*nx+ i, j*nx+ i+1, (j+1)*nx+ i}});
+      eleNodes.push_back(std::vector<int>{{j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i}});
     }
     
   FOR(e, eleNodes.size()) {
     elements_.push_back(new Element::Tri3(
       X_0_,
-      eleNodes(e),
+      eleNodes[e],
       false)
     );
   }
@@ -292,7 +292,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
-  auto dirichIds = Array<size_t>();
+  auto dirichIds = std::vector<size_t>();
   auto dirichVect = Vectord();
   FOR(i, ny) {
     // left side
@@ -305,7 +305,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
     //dirichVect.push_back(-0.5);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(2.0);
+    dirichVect.push_back(0.5);
   }
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
@@ -318,7 +318,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   
   
   /*applyDirichlet(
-    Array<size_t>{{
+    std::vector<size_t>{{
       ndofn_*0+ 0, ndofn_*0+ 1,
       ndofn_*nx*(ny-1)+ 0, ndofn_*nx*(ny-1)+ 1,
       ndofn_*(nx-1)+ 0, ndofn_*(nx-1)+ 1,
@@ -346,36 +346,36 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   
   std::cout<<"\nComputation finished.\n\n";
   
-  db::pr("globalDofIds_:\n");
-  globalDofIds_.print(8);
+  MyUtils::Db::pr("globalDofIds_:\n");
+  StdVectorUtils::print(globalDofIds_);
   
-  db::pr("solutionVect_:\n");
+  MyUtils::Db::pr("solutionVect_:\n");
   solutionVect_.print(8);
-  db::pr("dirichletDofIds_:\n");
-  dirichletDofIds_.print(8);
-  db::pr("dirichletVect_:\n");
+  MyUtils::Db::pr("dirichletDofIds_:\n");
+  StdVectorUtils::print(dirichletDofIds_);
+  MyUtils::Db::pr("dirichletVect_:\n");
   dirichletVect_.print(8);
-  db::pr("fullSolution():\n");
+  MyUtils::Db::pr("fullSolution():\n");
   fullSolution().print(8);
   
-  db::pr("\nX_0_:\n");
+  MyUtils::Db::pr("\nX_0_:\n");
   X_0_.print(8);
-  db::pr("getX_t():\n");
+  MyUtils::Db::pr("getX_t():\n");
   getX_t().print(8);
 }
 
 void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc, int nr) {
-  ScopedTimer timer("example_torus()");
+  MyUtils::Timers::ScopedTimer timer("example_torus()");
   
-  StandardTimer timer2("Example meshing");
+  MyUtils::Timers::StandardTimer timer2("Example meshing");
   timer2.start();
   
-  Array<int> dirichLeftIds = Array<int>();
-  Array<int> dirichRightIds = Array<int>();
+  std::vector<int> dirichLeftIds = std::vector<int>();
+  std::vector<int> dirichRightIds = std::vector<int>();
   int dofId = 0;
   X_0_ = Vectord();
   FOR(ic, nc) {
-    double angleRad = ic*(2.0*Utils::Constants::pi/(nc-1));
+    double angleRad = ic*(2.0*MyUtils::Constants::pi/(nc-1));
     double sinAngle = sin(angleRad);
     double cosAngle = cos(angleRad);
     FOR(ir, nr) {
@@ -398,26 +398,26 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
     }
   }
     
-  auto eleNodes = Array<Array<int>>();
+  auto eleNodes = std::vector<std::vector<int>>();
   FOR(ir, nr-1)
     FOR(ic, nc-2) {
-      eleNodes.push_back(Array<int>{{ic*nr+ ir, ic*nr+ ir+1, (ic+1)*nr+ ir}});
-      eleNodes.push_back(Array<int>{{ic*nr+ ir+1, (ic+1)*nr+ ir+1, (ic+1)*nr+ ir}});
+      eleNodes.push_back(std::vector<int>{{ic*nr+ ir, ic*nr+ ir+1, (ic+1)*nr+ ir}});
+      eleNodes.push_back(std::vector<int>{{ic*nr+ ir+1, (ic+1)*nr+ ir+1, (ic+1)*nr+ ir}});
     }
   FOR(ir, nr-1) {
     int ic = nc-2;
-    eleNodes.push_back(Array<int>{{ic*nr+ ir, ic*nr+ ir+1, ir}});
-    eleNodes.push_back(Array<int>{{ic*nr+ ir+1, ir+1, ir}});
+    eleNodes.push_back(std::vector<int>{{ic*nr+ ir, ic*nr+ ir+1, ir}});
+    eleNodes.push_back(std::vector<int>{{ic*nr+ ir+1, ir+1, ir}});
     
-    db::pr("eleNodes.print();");
-    Array<int>{{ic*nr+ ir, ic*nr+ ir+1, (0)*nr+ ir}}.print();
-    Array<int>{{ic*nr+ ir+1, (0)*nr+ ir+1, (0)*nr+ ir}}.print();
+    MyUtils::Db::pr("eleNodes.print();");
+    StdVectorUtils::print<int>({ic*nr+ ir, ic*nr+ ir+1, (0)*nr+ ir});
+    StdVectorUtils::print<int>({ic*nr+ ir+1, (0)*nr+ ir+1, (0)*nr+ ir});
   }
     
   FOR(e, eleNodes.size()) {
     elements_.push_back(new Element::Tri3(
       X_0_,
-      eleNodes(e),
+      eleNodes[e],
       false)
     );
   }
@@ -437,28 +437,28 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
-  auto dirichIds = Array<size_t>();
+  auto dirichIds = std::vector<size_t>();
   auto dirichVect = Vectord();
   for(int i = 0; i < dirichLeftIds.size(); i+=2) {
     // left side
-    dirichIds.push_back(dirichLeftIds(i));
+    dirichIds.push_back(dirichLeftIds[i]);
     dirichVect.push_back(0.0);
-    dirichIds.push_back(dirichLeftIds(i+1));
+    dirichIds.push_back(dirichLeftIds[i+1]);
     dirichVect.push_back(0.0);
   }
   for(int i = 0; i < dirichRightIds.size(); i+=2) {
     // left side
-    dirichIds.push_back(dirichRightIds(i));
+    dirichIds.push_back(dirichRightIds[i]);
     dirichVect.push_back(-0.1);
     //dirichIds.push_back(dirichRightIds(i+1));
     //dirichVect.push_back(0.5);
   }
   
-  db::pr("dirichRightIds.print();");
-  dirichRightIds.print();
+  MyUtils::Db::pr("dirichRightIds.print();");
+  StdVectorUtils::print(dirichRightIds);
   
-  db::pr("dirichLeftIds.print();");
-  dirichLeftIds.print();
+  MyUtils::Db::pr("dirichLeftIds.print();");
+  StdVectorUtils::print(dirichLeftIds);
   
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
@@ -471,7 +471,7 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
   
   
   /*applyDirichlet(
-    Array<size_t>{{
+    std::vector<size_t>{{
       ndofn_*0+ 0, ndofn_*0+ 1,
       ndofn_*nx*(ny-1)+ 0, ndofn_*nx*(ny-1)+ 1,
       ndofn_*(nx-1)+ 0, ndofn_*(nx-1)+ 1,
@@ -499,21 +499,21 @@ void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc,
   
   std::cout<<"\nComputation finished.\n\n";
   
-  db::pr("globalDofIds_:\n");
-  globalDofIds_.print(8);
+  MyUtils::Db::pr("globalDofIds_:\n");
+  StdVectorUtils::print(globalDofIds_);
   
-  db::pr("solutionVect_:\n");
+  MyUtils::Db::pr("solutionVect_:\n");
   solutionVect_.print(8);
-  db::pr("dirichletDofIds_:\n");
-  dirichletDofIds_.print(8);
-  db::pr("dirichletVect_:\n");
+  MyUtils::Db::pr("dirichletDofIds_:\n");
+  StdVectorUtils::print(dirichletDofIds_);
+  MyUtils::Db::pr("dirichletVect_:\n");
   dirichletVect_.print(8);
-  db::pr("fullSolution():\n");
+  MyUtils::Db::pr("fullSolution():\n");
   fullSolution().print(8);
   
-  db::pr("\nX_0_:\n");
+  MyUtils::Db::pr("\nX_0_:\n");
   X_0_.print(8);
-  db::pr("getX_t():\n");
+  MyUtils::Db::pr("getX_t():\n");
   getX_t().print(8);
 }
 
@@ -529,22 +529,22 @@ void Linear2D::runNoInputExample1() {
   
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{0, 1, 3}},
+    std::vector<int>{{0, 1, 3}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{1, 4, 3}},
+    std::vector<int>{{1, 4, 3}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{1, 2, 4}},
+    std::vector<int>{{1, 2, 4}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{2, 5, 4}},
+    std::vector<int>{{2, 5, 4}},
     true
   ));
   
@@ -562,7 +562,7 @@ void Linear2D::runNoInputExample1() {
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
   applyDirichlet(
-    Array<size_t>{{2*0+0, 2*2+1, 2*3+0, 2*3+1,
+    std::vector<size_t>{{2*0+0, 2*2+1, 2*3+0, 2*3+1,
       2*2+1, 5*2+1}},
     Vectord{{0.0, 0.0, 0.0, 0.0,
       -0.2, -0.2}});
@@ -582,21 +582,21 @@ void Linear2D::runNoInputExample1() {
   
   std::cout<<"\nComputation finished.\n\n";
   
-  db::pr("globalDofIds_:\n");
-  globalDofIds_.print(8);
+  MyUtils::Db::pr("globalDofIds_:\n");
+  StdVectorUtils::print(globalDofIds_);
   
-  db::pr("solutionVect_:\n");
+  MyUtils::Db::pr("solutionVect_:\n");
   solutionVect_.print(8);
-  db::pr("dirichletDofIds_:\n");
-  dirichletDofIds_.print(8);
-  db::pr("dirichletVect_:\n");
+  MyUtils::Db::pr("dirichletDofIds_:\n");
+  StdVectorUtils::print(dirichletDofIds_);
+  MyUtils::Db::pr("dirichletVect_:\n");
   dirichletVect_.print(8);
-  db::pr("fullSolution():\n");
+  MyUtils::Db::pr("fullSolution():\n");
   fullSolution().print(8);
   
-  db::pr("\nX_0_:\n");
+  MyUtils::Db::pr("\nX_0_:\n");
   X_0_.print(8);
-  db::pr("getX_t():\n");
+  MyUtils::Db::pr("getX_t():\n");
   getX_t().print(8);
 }
 
@@ -612,22 +612,22 @@ void Linear2D::runNoInputExample2() {
   
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{0, 1, 3}},
+    std::vector<int>{{0, 1, 3}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{1, 2, 4}},
+    std::vector<int>{{1, 2, 4}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{1, 4, 3}},
+    std::vector<int>{{1, 4, 3}},
     true
   ));
   elements_.push_back(new Element::Tri3(
     X_0_,
-    Array<int>{{5, 4, 2}},
+    std::vector<int>{{5, 4, 2}},
     true
   ));
   
@@ -643,7 +643,7 @@ void Linear2D::runNoInputExample2() {
   
   rhs_ = Vectord(K_.nRows()); // zero vect for now
   
-  db::pr("rhs_ after1");
+  MyUtils::Db::pr("rhs_ after1");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
@@ -653,13 +653,13 @@ void Linear2D::runNoInputExample2() {
   
   applyDirichlet(2*0+1, 0.0);
   applyDirichlet(2*0+0, 0.0);
-  db::pr("rhs_ after2");
+  MyUtils::Db::pr("rhs_ after2");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
   
   
-  db::pr("rhs_ after3");
+  MyUtils::Db::pr("rhs_ after3");
   rhs_.print();
   std::cout<<"globalDofs_\n";
   //solutionDofIds_.print();
@@ -667,7 +667,7 @@ void Linear2D::runNoInputExample2() {
   K_.print(8);
   
   std::cout<<"line193\n";
-  dirichletDofIds_.print();
+  StdVectorUtils::print(dirichletDofIds_);
   dirichletVect_.print();
   //solutionDofIds_.print(); // with removed ids after applying dirichlet
   solutionVect_.print();
@@ -680,7 +680,7 @@ void Linear2D::runNoInputExample2() {
   
   /*for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j) {
-      db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
+      MyUtils::Db::pr("line 19, i="+std::to_string(i)+", j="+std::to_string(j));
       std::cout<<"elements[0]->Kmat()(i, j) = "<<elements[0]->Kmat()(i, j)<<"\n";
     }
     
@@ -689,34 +689,44 @@ void Linear2D::runNoInputExample2() {
 }
 
 Matrix2d Linear2D::assembleK() {
-  ScopedTimer timer("assembleK()");
-  ndofn_ = elements_(0)->ndofn_;
+  MyUtils::Timers::ScopedTimer timer("assembleK()");
+  ndofn_ = elements_[0]->ndofn_;
   
   int globalNodeCount = 0;
   for(int e=0; e<elements_.size(); ++e) {
-    auto eleGlobalNodeIds = elements_(e)->globalNodeIds_;
+    auto eleGlobalNodeIds = elements_[e]->globalNodeIds_;
+    std::cout<<"line698 globalDofIds_:\n";
+    StdVectorUtils::print(globalDofIds_);
     for(int locId=0; locId<eleGlobalNodeIds.size(); ++locId)
-      if(globalDofIds_.find(ndofn_*eleGlobalNodeIds(locId)).size()==0)
-        if(eleGlobalNodeIds(locId)+1 > globalNodeCount)
-          globalNodeCount = eleGlobalNodeIds(locId)+1;
+      if(StdVectorUtils::find(globalDofIds_, ndofn_*eleGlobalNodeIds[locId]).size()==0)
+        if(eleGlobalNodeIds[locId]+1 > globalNodeCount)
+          globalNodeCount = eleGlobalNodeIds[locId]+1;
   }
   FOR(i, globalNodeCount) {
         globalDofIds_.push_back(ndofn_*i);
         globalDofIds_.push_back(ndofn_*i + 1);
   }
+  
+  std::cout<<"line710 globalDofIds_:\n";
+    StdVectorUtils::print(globalDofIds_);
+  
   nnode_ = globalNodeCount;
   Matrix2d assembledK(globalNodeCount*ndofn_, globalNodeCount*ndofn_); // TODO: we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
   
   std::cout<<"Starting Assembly\n\n";
   for(int e=0; e<elements_.size(); ++e) {
-    const auto& eleGlobalDofIds = elements_(e)->getGlobalDofIds();
-    const auto locK = elements_(e)->Kmat();
+    const auto& eleGlobalDofIds = elements_[e]->getGlobalDofIds();
+    const auto locK = elements_[e]->Kmat();
     for(int i=0; i<locK.nRows(); ++i)
       for(int j=0; j<locK.nCols(); ++j)
-        assembledK(eleGlobalDofIds(i),eleGlobalDofIds(j)) += locK(i, j);
+        assembledK(eleGlobalDofIds[i],eleGlobalDofIds[j]) += locK(i, j);
   }
   
   K_ = assembledK;
+  
+  Db::pr("assembledK:");
+  assembledK.print();
+  
   return assembledK;
 }
 
@@ -730,7 +740,7 @@ void Linear2D::applyDirichlet(int dofId/*, dofIndex or localDofindex of the node
   dirichletVect_.push_back(val);
   /*FOR(i, solutionDofIds_.size()) {
     if(solutionDofIds_(i) == globalDofId)
-      solutionDofIds_.deleteIndices(Array<size_t>{{(size_t)i}});
+      solutionDofIds_.deleteIndices(std::vector<size_t>{{(size_t)i}});
   }*/
   
   for(int i=0; i<n; ++i) {
@@ -765,29 +775,33 @@ void Linear2D::applyDirichlet(int dofId/*, dofIndex or localDofindex of the node
   rhs_ = rhs2;
 }
 
-void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
-  ScopedTimer timer("applyDirichlet()");
+void Linear2D::applyDirichlet(const std::vector<size_t>& ids, const Vectord& vals) {
+  MyUtils::Timers::ScopedTimer timer("applyDirichlet()");
   int n = K_.nRows();
   
-  Array<size_t> solutionDofIds(globalDofIds_);
-  solutionDofIds.deleteIndices(ids); // or technically deleteIndices(...find(...)) but it will be the same
+  vector<size_t> solutionDofIds = globalDofIds_;
+  StdVectorUtils::deleteIndices(solutionDofIds, ids); // or technically deleteIndices(...find(...)) but it will be the same
+  
+  std::cout<<"applyDirichlet(); print globalDofIds_ and solutionDofIds:\n";
+  StdVectorUtils::print(globalDofIds_);
+  StdVectorUtils::print(solutionDofIds);
   
   int n_reduced = solutionDofIds.size();
   Matrix2d K_reduced(n_reduced, n_reduced);
   Vectord rhs_reduced(n_reduced);
   
   FOR(v, n_reduced) {
-    int idS = solutionDofIds(v);
+    int idS = solutionDofIds[v];
     
     double rhs_i = rhs_(idS);
     
     FOR(v2, n_reduced) {
-      int id2 = solutionDofIds(v2);
+      int id2 = solutionDofIds[v2];
       K_reduced(v, v2) = K_(idS, id2);
     }
     
     FOR(i, ids.size()) {
-      int dId = ids(i);
+      int dId = ids[i];
       rhs_i -= K_(idS, dId) * vals(i);
     }
     rhs_reduced(v) = rhs_i;
@@ -801,7 +815,7 @@ void Linear2D::applyDirichlet(const Array<size_t>& ids, const Vectord& vals) {
 }
 
 Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
-  db::pr("Solve start");
+  MyUtils::Db::pr("Solve start");
   
   const int n = K_.nRows();
   auto L = K_;
@@ -824,7 +838,7 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   Vectord x_i = x_0;
   int iter = 0;
   
-  db::pr("K_ L U D");
+  MyUtils::Db::pr("K_ L U D");
   K_.print();
   L.print();
   U.print();
@@ -857,8 +871,8 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
 }
 
 Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
-  ScopedTimer timer("solveSystem_GaussSeidel()");
-  db::pr("Solve start - Gauss Seidel");
+  MyUtils::Timers::ScopedTimer timer("solveSystem_GaussSeidel()");
+  MyUtils::Db::pr("Solve start - Gauss Seidel");
   
   const int n = K_.nRows();
   auto L = K_;
@@ -878,10 +892,10 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
   Vectord x_i = x_0;
   int iter = 0;
   
-  //db::pr("K_ L U");
-  //K_.print();
-  //L.print();
-  //U.print();
+  MyUtils::Db::pr("K_ L U");
+  K_.print();
+  L.print();
+  U.print();
 
   while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = LinAlg::solveLxb(L,
@@ -903,34 +917,34 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
 }
 
 void Linear2D::readMeshTxt(std::string inputFilePath) {
-  std::vector<std::string>* fileData = new std::vector<std::string>();
-  Utils::IO::readFileLines(inputFilePath, fileData, 5000);
-  db::pr("11111");
+  std::vector<std::string> fileData;
+  MyUtils::IO::readFileLines(inputFilePath, fileData);
+  MyUtils::Db::pr("11111");
   
-  for(int i = 0; i<fileData->size(); i++) {
-    std::string current = fileData->at(i);
-    int* cFI = Utils::Strings::checkForIn("//", current, 1);
+  for(int i = 0; i<fileData.size(); i++) {
+    std::string current = fileData.at(i);
+    int* cFI = MyUtils::Strings::checkForIn("//", current, 1);
     if(cFI[0]==0) {
-      fileData->erase(fileData->begin() + i);
+      fileData.erase(fileData.begin() + i);
       i--;
     }
     
     free(cFI);
   }
-  for(int i = 0; i<fileData->size(); i++) {
-    std::string current = fileData->at(i);
+  for(int i = 0; i<fileData.size(); i++) {
+    std::string current = fileData.at(i);
     // The level is how many tabs to the right does the line text start (one tab = 2 spaces; actual '\t' characters are not supported)
-    int whiteSpaceEndPos = Utils::Strings::getEndOfWhitespace(current);
+    int whiteSpaceEndPos = MyUtils::Strings::getEndOfWhitespace(current);
     int numSpacesPerTab = 2; // But we can also make this an argument if we need to
     int level = whiteSpaceEndPos / numSpacesPerTab;
-    db::pr("line"+std::to_string(i)+",level="+std::to_string(level));
+    MyUtils::Db::pr("line"+std::to_string(i)+",level="+std::to_string(level));
     if(current.length()==whiteSpaceEndPos) { // i.e. there is only white space in this line
-      fileData->erase(fileData->begin() + i);
+      fileData.erase(fileData.begin() + i);
       i--;
     }
-    //else if(Utils::Strings::keepInterval(current,))
+    //else if(MyUtils::Strings::keepInterval(current,))
   }
-  Utils::IO::writeFileLines("test", fileData);
+  MyUtils::IO::writeFileLines("test", fileData);
   
   //delete(fileData);
 }

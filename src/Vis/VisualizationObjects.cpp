@@ -31,17 +31,17 @@ void Graph::draw() const {
   
   int n = graphDataXY_.size()-1;
   
-  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_(0)(0)), posX_, posY_-10)); // x bottom
-  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_(n)(0)), posX_+width_, posY_-10)); // x top
+  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_[0][0]), posX_, posY_-10)); // x bottom
+  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_[n][0]), posX_+width_, posY_-10)); // x top
   
-  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_(0)(1)), posX_-50, posY_)); // y bottom
-  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_(n)(1)), posX_-50, posY_+height_)); // y top
+  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_[0][1]), posX_-50, posY_)); // y bottom
+  visWindow_->draw(vis_->textConstructorXY(std::to_string(graphDataXY_[n][1]), posX_-50, posY_+height_)); // y top
   
   sf::VertexArray lines(sf::PrimitiveType::LineStrip, graphDataXY_.size());
   FOR(i, graphDataXY_.size()) {
     lines[i].position = vis_->Vector2fInXY(
-      posX_+2+(double)width_*((graphDataXY_(i)(0)-graphDataXY_(0)(0))/(graphDataXY_(n)(0)-graphDataXY_(0)(0))),
-      posY_+2+(double)height_*((graphDataXY_(i)(1)-graphDataXY_(0)(1))/(graphDataXY_(n)(1)-graphDataXY_(0)(1)))
+      posX_+2+(double)width_*((graphDataXY_[i][0]-graphDataXY_[0][0])/(graphDataXY_[n][0]-graphDataXY_[0][0])),
+      posY_+2+(double)height_*((graphDataXY_[i][1]-graphDataXY_[0][1])/(graphDataXY_[n][1]-graphDataXY_[0][1]))
     );
     lines[i].color = vis_->secondaryColor_;
   }

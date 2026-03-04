@@ -7,16 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- Source Collection ---
-file(GLOB_RECURSE ALL_SRC_FILES "src/*.cpp" "src/*.hpp")
-file(GLOB_RECURSE ALL_TEST_FILES "test/*.cpp" "test/*.hpp")
-
-set(SRC_FILES "")
-foreach(file ${ALL_SRC_FILES})
-    get_filename_component(fname ${file} NAME)
-    if(NOT fname MATCHES "^_EXCLUDE.*")
-        list(APPEND SRC_FILES ${file})
-    endif()
-endforeach()
+file(GLOB_RECURSE SRC_FILES "src/*.cpp" "src/*.hpp")
+file(GLOB_RECURSE TEST_FILES "test/*.cpp" "test/*.hpp")
+list(FILTER SRC_FILES EXCLUDE REGEX ".*/_EXCLUDE_.*")
+list(FILTER TEST_FILES EXCLUDE REGEX ".*/_EXCLUDE_.*")
 
 
 
@@ -40,10 +34,14 @@ add_executable(myBasicFemSolver ${SRC_FILES})
 add_executable(UserTest test/user_test/UserTest.cpp)
 
 # --- myUtils ---
-set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install")
+set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install_2")
 option(myUtils_ENABLE_TIMERS "Enable timers" ON)
 add_compile_definitions(
   myUtils_ENABLE_TIMERS=$<IF:$<BOOL:${myUtils_ENABLE_TIMERS}>,1,0>
+)
+option(myUtils_DbPr_ON "Enable timers" ON)
+add_compile_definitions(
+  myUtils_DbPr_ON=$<IF:$<BOOL:${myUtils_DbPr_ON}>,1,0>
 )
 
 target_include_directories(myBasicFemSolver PRIVATE ${MYUTILS_DIR}/include)

@@ -1,8 +1,7 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
-#include <LinAlg.hpp>
+#include "mu.hpp"
+#include "mu_core_LinAlg.hpp"
 
 #include "RadsymRigidBody.hpp"
 
@@ -10,7 +9,8 @@ namespace MyFem {
 
 // Rigid Body
 namespace RB {
-  
+
+using namespace MyUtils;
 using namespace LinAlg;
 
 class Manager2D {
@@ -22,7 +22,7 @@ class Manager2D {
   bool wallsEnabled_ = false;
   double x0_, x1_, y0_, y1_;
   
-  Array<RigidBody*> rigidBodies_;
+  std::vector<RigidBody*> rigidBodies_;
   
  public:
   // i.e. rectangular boundary

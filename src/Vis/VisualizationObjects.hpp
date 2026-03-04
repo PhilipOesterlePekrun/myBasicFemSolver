@@ -1,7 +1,6 @@
 #pragma once
-#include <Global.hpp>
 
-#include <myUtils.hpp>
+#include "mu.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace MyFem::Vis {
@@ -42,13 +41,13 @@ class Object {
 class Graph : public Object {
  public:
   Graph();
-  Graph(uint posX, uint posY, uint width, uint height, Array<Array<double>> graphDataXY)
+  Graph(uint posX, uint posY, uint width, uint height, std::vector<std::vector<double>> graphDataXY)
     : Object(posX, posY), width_(width), height_(height), graphDataXY_(graphDataXY) {};
 
   uint width_;
   uint height_;
   
-  Array<Array<double>> graphDataXY_; // inner array has size 2, so X, Y
+  std::vector<std::vector<double>> graphDataXY_; // inner array has size 2, so X, Y
   
  protected:
   virtual void draw() const override;
