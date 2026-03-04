@@ -9,7 +9,7 @@ namespace MyFem {
 
 namespace Problem {
   
-#include <LinAlg.hpp>
+#include "LinAlg.hpp"
 
 using namespace LinAlg;
 

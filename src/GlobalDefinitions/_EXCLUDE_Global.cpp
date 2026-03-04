@@ -1,7 +1,5 @@
 #include "Global.hpp"
 
-#include <MyFem_Array_decl.hpp>
-
 namespace MyFem {
   
 Array<std::string> strToStrArray(const std::string& s) {

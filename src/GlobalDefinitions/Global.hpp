@@ -6,18 +6,19 @@
 #include <string>
 #include <iostream>
 
-#include "../MyFem_Array_decl.hpp"
-
-// // HELPER MACROS
+// // GLOBAL HELPER MACROS
 #define FOR(i, n) for(int i = 0; i < (n); ++i)
 
 // // GLOBAL DEFINITIONS
-#define TIMERS_ON true
-
-// // GLOBAL ALIASES
-///auto stdtostr = [](auto x) { return std::to_string(x); };
 
 namespace MyFem {
+  
+// // PROJECT GLOBAL ALIASES
+///auto stdtostr = [](auto x) { return std::to_string(x); };
+  
+// // PROJECT GLOBAL USINGS
+using namespace MyUtils::MyArray;
+using namespace Timers = MyUtils::Timers;
 
 // // STRING UTILITIES INTENDED FOR EVENTUAL OUTPUT (TODOi: put these in myUtils eventually, but probably need to put Array and such in myUtils as well, which I should do anyways)
 inline std::string repeatStr(const std::string& s, int count) {

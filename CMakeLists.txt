@@ -41,6 +41,11 @@ add_executable(UserTest test/user_test/UserTest.cpp)
 
 # --- myUtils ---
 set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install")
+option(myUtils_ENABLE_TIMERS "Enable timers" ON)
+add_compile_definitions(
+  myUtils_ENABLE_TIMERS=$<IF:$<BOOL:${myUtils_ENABLE_TIMERS}>,1,0>
+)
+
 target_include_directories(myBasicFemSolver PRIVATE ${MYUTILS_DIR}/include)
 target_include_directories(UserTest PRIVATE ${MYUTILS_DIR}/include "src")
 

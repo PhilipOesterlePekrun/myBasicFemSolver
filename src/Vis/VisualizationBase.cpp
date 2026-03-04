@@ -1,7 +1,5 @@
 #include "VisualizationBase.hpp"
 
-#include <MyFem_Array_def.hpp>
-
 namespace MyFem::Vis {
 
 void VisualizationBase::drawBaseUI() {

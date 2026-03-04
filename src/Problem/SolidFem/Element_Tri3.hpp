@@ -4,7 +4,6 @@
 #include <myUtils.hpp>
 
 #include <LinAlg.hpp>
-#include <Timer.hpp>
 
 namespace MyFem {
 
@@ -29,12 +28,12 @@ xi1 | |  \
       --->
        xi0 (and first dof)
        
-   N2    
-    |\
-    | \
-    |  \
-    |___\
-   N0   N1
+    N2    
+      |\
+      | \
+      |  \
+      |___\
+    N0   N1
   
   */
 
@@ -225,7 +224,7 @@ xi1 | |  \
   
   // B operator, a 2x2x6 matrix B_{ijm}
   inline Matrix3d BOp_xi(double xi0, double xi1) {
-    StandardTimer timer("BOp_xi()");
+    MyUtils::Timers::StandardTimer timer("BOp_xi()");
     timer.start();
     Matrix3d mat(ndofn_, ndofn_, ndof_);
     auto Ntilde = gradL_shFct_wrtx_xi(xi0, xi1);

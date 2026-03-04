@@ -4,8 +4,6 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <MyFem_Array_decl.hpp>
-
 namespace MyFem::Vis {
   
 class VisualizationBase; // forward decl

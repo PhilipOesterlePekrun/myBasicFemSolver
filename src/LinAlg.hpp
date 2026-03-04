@@ -5,8 +5,6 @@
 
 #include <algorithm>
 
-#include "MyFem_Array_decl.hpp"
-
 namespace MyFem {
 
 namespace LinAlg {

@@ -1,7 +1,5 @@
 #include "Linear2D_Manager.hpp"
 
-#include <Timer.hpp>
-#include <MyFem_Array_def.hpp>
 #include <Methods/Polynomial.hpp>
 
 #include <SFML/Graphics.hpp> // TODO: delete
@@ -232,9 +230,9 @@ void Linear2D::runNoInputExample() {
 }
 
 void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
-  ScopedTimer timer("example_beam()");
+  MyUtils::Timers::ScopedTimer timer("example_beam()");
   
-  StandardTimer timer2("Example meshing");
+  MyUtils::Timers::StandardTimer timer2("Example meshing");
   timer2.start();
   
   X_0_ = Vectord();
@@ -305,7 +303,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     
     // right side
     //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
-    //dirichVect.push_back(0.0);
+    //dirichVect.push_back(-0.5);
     dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
     dirichVect.push_back(2.0);
   }

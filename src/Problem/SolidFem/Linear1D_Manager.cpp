@@ -1,7 +1,5 @@
 #include "Linear1D_Manager.hpp"
 
-#include <MyFem_Array_def.hpp>
-
 namespace MyFem::Problem {
   
 void Linear1D::runNoInputExample() {

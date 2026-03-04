@@ -4,7 +4,6 @@
 #include <myUtils.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <MyFem_Array_decl.hpp>
 #include "VisualizationObjects.hpp"
 
 namespace MyFem {

@@ -7,7 +7,8 @@
 
 #include "Vis/VisualizationBase.hpp"
 #include "Vis/VisualizationObjects.hpp"
-#include "Timer.hpp"
+
+using namespace MyUtils;
 
 using namespace MyFem;
 
@@ -101,7 +102,7 @@ int main1(int argCount, char** args) {
 #include "Vis/Visualization_SolidFem2D.hpp"
 
 int main(int argCount, char** args) {
-  TimerRegistry::globalInstance().start();
+  Timers::TimerRegistry::globalInstance().start();
   std::cout<<"Main start\n";
   //Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
   //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
@@ -112,16 +113,16 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  //p2.example_beam(5.0, 0.6, 40, 4);
+  p2.example_beam(5.0, 0.6, 40, 4);
   //p2.example_beam(4.0, 1.0, 4, 2);
-  p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
+  //p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   ///std::cout<<timesNewRoman->getInfo().family<<"\n";
   
   std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
   
-  std::cout<<TimerRegistry::globalInstance().timingReportStr(true);
+  std::cout<<Timers::TimerRegistry::globalInstance().timingReportStr(true);
   
   
   p2.getX_t().print();
