@@ -112,7 +112,7 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(5.0, 0.6, 40, 4);
+  p2.example_beam(1.0, 1.0, 12, 12);
   //p2.example_beam(4.0, 0.5, 8, 2);
   //p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   
@@ -127,7 +127,7 @@ int main(int argCount, char** args) {
   p2.getX_t().print();
   
   Vis::Visualization2D vis("2D vis", 1600, 1000, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  200, p2Shared, 2);
+  400, p2Shared, 2);
   
   vis.activate();
   while(vis.active_) vis.drawFrame();

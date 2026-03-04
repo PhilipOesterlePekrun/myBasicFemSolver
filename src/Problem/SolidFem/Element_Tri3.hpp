@@ -71,7 +71,7 @@ xi1 | |  \
   
   // {E, \nu}
   Vectord YoungPoisson_x(double x0, double x1) const {
-    return Vectord({200, 0.2});
+    return Vectord({1, 0.2});
   }
   
   // {\lambda, \mu}

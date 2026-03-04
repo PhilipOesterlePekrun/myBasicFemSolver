@@ -265,8 +265,14 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   auto eleNodes = std::vector<std::vector<int>>();
   FOR(i, nx-1)
     FOR(j, ny-1) {
-      eleNodes.push_back(std::vector<int>{{j*nx+ i, j*nx+ i+1, (j+1)*nx+ i}});
-      eleNodes.push_back(std::vector<int>{{j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i}});
+      vector<int> firstTri = {j*nx+ i, j*nx+ i+1, (j+1)*nx+ i};
+      vector<int> secondTri = {j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i};
+      
+      //if(X_0_[2*firstTri[0]]<0.1&&)
+      if(!(i>0&&i<nx-2 && j==1)) {
+        eleNodes.push_back(firstTri);
+        eleNodes.push_back(secondTri);
+      }
     }
     
   FOR(e, eleNodes.size()) {
@@ -290,23 +296,73 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   //std::cout<<"K_ after assembly:\n";
   //std::cout<<K_.toString(8)<<"n";
   
-  rhs_ = Vectord(K_.nRows()); // zero vect for now
+  int numDofs = K_.nRows();
   
+  rhs_ = Vectord(numDofs); // zeros
+  
+  // //Neumann BC
+  auto neumannIds = std::vector<size_t>();
+  auto neumannVect = Vectord();
+  
+  FOR(j, ny) {
+    // from 0 to 1
+    double yFrac = (double)j/(ny-1);
+    // right side
+    neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
+    neumannVect.push_back(4*0.05*yFrac*(1-yFrac)); // second coeff is maximum
+    neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
+    neumannVect.push_back(4*0.05*yFrac*(1-yFrac));
+  }
+  
+  FOR(i, nx) {
+    if(i==0||i==nx-1) continue;
+    // from 0 to 1
+    double yFrac = (double)i/(ny-1);
+    // upper side
+    //neumannIds.push_back(ndofn_*nx*(i+1)-1)+ 1);
+    //neumannVect.push_back(4*0.05*yFrac*(1-yFrac));
+  }
+  
+  // K x = F
+  FOR(i, neumannIds.size()) // if there are duplicates, later overrides earlier
+    rhs_(neumannIds[i]) = neumannVect(i);
+    
+  std::cout<<"rhs_ after Neumann():\n";
+  rhs_.print();
+  
+  
+  // // Dirichlet BC
   auto dirichIds = std::vector<size_t>();
   auto dirichVect = Vectord();
-  FOR(i, ny) {
+  FOR(j, ny) {
     // left side
-    dirichIds.push_back(ndofn_*nx*i+ 0);
+    dirichIds.push_back(ndofn_*nx*j+ 0);
     dirichVect.push_back(0.0);
-    dirichIds.push_back(ndofn_*nx*i+ 1);
+    dirichIds.push_back(ndofn_*nx*j+ 1);
     dirichVect.push_back(0.0);
+    
+    
+    /*dirichIds.push_back(ndofn_*nx*i+ 3);
+    dirichVect.push_back(0.0);
+    dirichIds.push_back(ndofn_*nx*i+ 4);
+    dirichVect.push_back(0.0);*/
+    
     
     // right side
     //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 0);
-    //dirichVect.push_back(-0.5);
-    dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
-    dirichVect.push_back(0.5);
+    //dirichVect.push_back(1.0);
+    //dirichIds.push_back(ndofn_*(nx*(i+1)-1)+ 1);
+    //dirichVect.push_back(0.0);
   }
+  
+  FOR(i, nx) {
+    // lower side
+    dirichIds.push_back(ndofn_*i+ 0);
+    dirichVect.push_back(0.0);
+    dirichIds.push_back(ndofn_*i+ 1);
+    dirichVect.push_back(0.0);
+  }
+  
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
   //dirichVect.push_back(-2.0);
   
@@ -329,6 +385,15 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
       0.2, -0.1,
     0.2, -0.1}});
   */
+  
+  // remove duplicates
+  for(size_t i=dirichIds.size()-1; i>0; --i) {
+    if(StdVectorUtils::find(dirichIds, dirichIds[i]).size()>1) {
+      std::cout<<"i="<<i<<"\n";
+      StdVectorUtils::deleteIndices(dirichIds, {i});
+      dirichVect.deleteIndices({i});
+    }
+  }
   
   applyDirichlet(dirichIds, dirichVect);
       
@@ -695,7 +760,7 @@ Matrix2d Linear2D::assembleK() {
   int globalNodeCount = 0;
   for(int e=0; e<elements_.size(); ++e) {
     auto eleGlobalNodeIds = elements_[e]->globalNodeIds_;
-    std::cout<<"line698 globalDofIds_:\n";
+    //std::cout<<"line698 globalDofIds_:\n";
     StdVectorUtils::print(globalDofIds_);
     for(int locId=0; locId<eleGlobalNodeIds.size(); ++locId)
       if(StdVectorUtils::find(globalDofIds_, ndofn_*eleGlobalNodeIds[locId]).size()==0)
@@ -707,8 +772,8 @@ Matrix2d Linear2D::assembleK() {
         globalDofIds_.push_back(ndofn_*i + 1);
   }
   
-  std::cout<<"line710 globalDofIds_:\n";
-    StdVectorUtils::print(globalDofIds_);
+  //std::cout<<"line710 globalDofIds_:\n";
+    //StdVectorUtils::print(globalDofIds_);
   
   nnode_ = globalNodeCount;
   Matrix2d assembledK(globalNodeCount*ndofn_, globalNodeCount*ndofn_); // TODO: we use a dyn matrix because we want to get rid of the first loop and just have one loop later, but I have to see how I can do that
@@ -724,8 +789,8 @@ Matrix2d Linear2D::assembleK() {
   
   K_ = assembledK;
   
-  Db::pr("assembledK:");
-  assembledK.print();
+  //Db::pr("assembledK:");
+  //assembledK.print();
   
   return assembledK;
 }
@@ -838,11 +903,11 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   Vectord x_i = x_0;
   int iter = 0;
   
-  MyUtils::Db::pr("K_ L U D");
+  /*MyUtils::Db::pr("K_ L U D");
   K_.print();
   L.print();
   U.print();
-  D.print();
+  D.print();*/
   
   auto invD = D;
   for(int i=0; i<n; ++i)
@@ -892,10 +957,10 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
   Vectord x_i = x_0;
   int iter = 0;
   
-  MyUtils::Db::pr("K_ L U");
+  /*MyUtils::Db::pr("K_ L U");
   K_.print();
   L.print();
-  U.print();
+  U.print();*/
 
   while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = LinAlg::solveLxb(L,
@@ -903,7 +968,7 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
         scaleVect2d(-1.0,
           mat2dTimesVectd(U, x_i))));
     iter++;
-    std::cout<<"Iter "<<iter<<"\n";
+    std::cout<<"Iter "<<iter<<"\t";
     std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
     //std::cout<<"residual = ";
     //residual(x_i).print(8);
