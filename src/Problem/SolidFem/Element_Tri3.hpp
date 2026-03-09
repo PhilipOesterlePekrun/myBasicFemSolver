@@ -3,6 +3,7 @@
 #include "mu.hpp"
 
 #include "mu_core_LinAlg.hpp"
+#include "mu_nummethods_NumIntegration.hpp"
 
 namespace MyFem {
 
@@ -256,32 +257,6 @@ xi1 | |  \
   
   ///inline static double deriv(double (*f)(double), double xix, double h) {return (f(xix+h)-f(xix-h))/2.0;}
   
-  
-  static double integrateTrapz(double (*f)(double), double l, double r, double n) {
-    double h = (r - l) / n;
-    double result = 0;
-    for(int i=0; i<n-1; ++i) {
-      result += (f(i*h) + f((i+1)*h))/2.0 * h;
-      //MyUtils::Db::pr("result ="+std::to_string(result));
-    }
-    return result;
-  }
-  template<typename Fct>
-  static double integrateTrapzTemplated(Fct f, double l, double r, double n) {
-    double h = (r - l) / n;
-    double result = 0;
-    for(int i=0; i<n-1; ++i) {
-      result += (f(i*h) + f((i+1)*h))/2.0 * h;
-    }
-    return result;
-  }
-  template<typename Fct>
-  static double integrateGaussianQuadratureTemplated(Fct f, double l, double r, double n) {
-    double result = 0;
-    // TODO
-    return result;
-  }
-  
   //\del E : S | For engineering/infinitesimal/linear strains: E = (\Grad u + (\Grad u)^T)/2 == makeMatSymmetric(\Grad u)
   //\del (1+F) : S(E)
   //(\del du/dx)*Cvk*(du/dx) | u = ND, N is a horizontally-long matrix, D is a vertical vector
@@ -345,11 +320,11 @@ xi1 | |  \
           };
           
           // inner integration
-          return integrateTrapzTemplated(f, 0.0, 1.0 - xi0, n1);
+          return MyUtils::NumIntegration::gaussianQuadrature(f, 2);
         };
         
         // outer integration
-        result(i, j) = integrateTrapzTemplated(g, 0.0, 1.0, n0);
+        result(i, j) = MyUtils::NumIntegration::gaussianQuadrature(g, 2);
 
       }
       
