@@ -3,7 +3,7 @@
 namespace MyFem::Element {
   
   double Line2::Cvk_xi(double xi) {
-    return Cvk_x(vect2dDotVect2d(shFct_xi(xi), X_0_));
+    return Cvk_x(vectdDotVectd(shFct_xi(xi), X_0_));
   }
   /*
 Element_line2::Element_line2(arrayi<nnodee_> nodes, arrayd<ndof_> X_0)

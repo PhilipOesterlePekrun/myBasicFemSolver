@@ -112,26 +112,27 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(1.0, 0.5, 100, 20, 100, 1e-5);
+  p2.example_beam(1.0, 0.5, 10, 10, 500, 1e-7);
   //p2.example_beam(4.0, 0.5, 8, 2);
   //p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   
   sf::Font* timesNewRoman = new sf::Font("/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data//fonts/times.ttf");
   ///std::cout<<timesNewRoman->getInfo().family<<"\n";
   
-  std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
+  //std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
+  auto p2Shared = std::make_shared<Problem::Linear2D>(p2);
   
   std::cout<<Timers::TimerRegistry::globalInstance().timingReportStr(true);
   
   
-  p2.getX_t().print();
+  //p2.getX_t().print();
   
   Vis::Visualization2D vis("2D vis", 1600, 1000, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  400, p2Shared, 2);
+  800, p2Shared, 2);
   
   vis.activate();
   while(vis.active_) vis.drawFrame();
   
-  std::cout<<"Main end\n";
+  std::cout<<"\nMain end\n";
   return 0;
 }

@@ -320,11 +320,11 @@ xi1 | |  \
           };
           
           // inner integration
-          return MyUtils::NumIntegration::gaussianQuadrature(f, 2);
+          return MyUtils::NumIntegration::gaussianQuadrature(f, 1);
         };
         
         // outer integration
-        result(i, j) = MyUtils::NumIntegration::gaussianQuadrature(g, 2);
+        result(i, j) = MyUtils::NumIntegration::gaussianQuadrature(g, 1);
 
       }
       

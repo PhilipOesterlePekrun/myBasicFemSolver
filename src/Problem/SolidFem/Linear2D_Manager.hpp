@@ -70,8 +70,8 @@ class Linear2D {
   
   // TODO we will eventually put all the solver methods into a different class. This class is just a manager which also does the assembly.
   ///Vectord solveSystem_gaussSeidel();
-  Vectord solveSystem_Jacobi(int maxiter, double maxResNorm = -1.0);
-  Vectord solveSystem_GaussSeidel(int maxiter, double maxResNorm = -1.0);
+  Vectord solveSystem_Jacobi(int maxiter, double maxRelResNorm = -1.0);
+  Vectord solveSystem_GaussSeidel(int maxiter, double maxRelResNorm = -1.0, int printEvery = 10);
   
   
   // TODO: we move this suff outside later I suppose

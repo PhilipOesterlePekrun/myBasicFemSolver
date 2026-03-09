@@ -114,3 +114,41 @@ target_link_libraries(myBasicFemSolver
 
 
 
+
+
+
+
+
+Same problem with...
+- Trapezoidal integration:
+        ==== Timing Report ====
+        Timer name                | Timer value [s] | Share of registry total [%] | Start of timer [s]
+        *StaticRegistryInstance   | 8.295940        | 100                         | 0 by definition
+        Example meshing           | 0.000154        | 0.001856                    | 0.000020
+        BOp_xi()                  | 1.646824        | 19.850967                   | 0.000412
+        assembleK()               | 8.055362        | 97.100046                   | 0.000182
+        applyDirichlet()          | 0.000357        | 0.004301                    | 8.055716
+        solveSystem_GaussSeidel() | 0.233604        | 2.815880                    | 8.056117
+        example_beam()            | 8.290104        | 99.929653                   | 0.000020
+- Gaussian quadrature with numgp=2:
+    Iter 100        relResNorm=0.00417501
+        ==== Timing Report ====
+        Timer name                | Timer value [s] | Share of registry total [%] | Start of timer [s]
+        *StaticRegistryInstance   | 0.740736        | 100                         | 0 by definition
+        Example meshing           | 0.000228        | 0.030831                    | 0.000016
+        BOp_xi()                  | 0.103448        | 13.965592                   | 0.000555
+        assembleK()               | 0.512882        | 69.239556                   | 0.000255
+        applyDirichlet()          | 0.000354        | 0.047746                    | 0.513276
+        solveSystem_GaussSeidel() | 0.226515        | 30.579685                   | 0.513673
+        example_beam()            | 0.740566        | 99.977004                   | 0.000016
+- Gaussian quadrature with numgp=1:
+    Iter 100        relResNorm=0.00417501
+        ==== Timing Report ====
+        Timer name                | Timer value [s] | Share of registry total [%] | Start of timer [s]
+        *StaticRegistryInstance   | 0.735464        | 100                         | 0 by definition
+        Example meshing           | 0.000207        | 0.028170                    | 0.000018
+        BOp_xi()                  | 0.102880        | 13.988497                   | 0.000499
+        assembleK()               | 0.501594        | 68.201005                   | 0.000235
+        applyDirichlet()          | 0.000383        | 0.052024                    | 0.502001
+        solveSystem_GaussSeidel() | 0.232393        | 31.598153                   | 0.502427
+        example_beam()            | 0.735208        | 99.965245                   | 0.000018

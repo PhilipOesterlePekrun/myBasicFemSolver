@@ -123,8 +123,8 @@ Vectord Linear1D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
         D(i, j) = 0;
     }
     
-  auto residual = [&](Vectord x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
-  auto residualNorm = [=](Vectord x){auto res = residual(x); return vect2dDotVect2d(res, res);};
+  auto residual = [&](Vectord x){return vectdPlusVectd(mat2dTimesVectd(K_, x), scaleVectd(-1.0, rhs_));};
+  auto residualNorm = [=](Vectord x){auto res = residual(x); return vectdDotVectd(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
   auto relativeResidualNorm = [=, &x_0](Vectord x){return residualNorm(x)/residualNorm(x_0);};
   Vectord x_i = x_0;
@@ -146,8 +146,8 @@ Vectord Linear1D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   else std::cout<<"false\n";
   while(iter < maxiter || [=](){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_i) > maxRelResNorm;}()) {
     x_i = mat2dTimesVectd(invD,
-      vect2dPlusVect2d(rhs_,
-        scaleVect2d(-1.0,
+      vectdPlusVectd(rhs_,
+        scaleVectd(-1.0,
           mat2dTimesVectd(mat2dPlusMat2d(L, U),
             x_i))));
     iter++;

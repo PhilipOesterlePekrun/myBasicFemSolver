@@ -403,11 +403,11 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny, int maxIter, d
   std::cout<<"rhs_ after applyDirichlet():\n";
   rhs_.print();
   
-  solveSystem_GaussSeidel(maxIter, tol);
+  solveSystem_GaussSeidel(maxIter, tol, 5);
   
   
   //solutionVect_.print(8);
-  
+  /*
   std::cout<<"\nComputation finished.\n\n";
   
   MyUtils::Db::pr("globalDofIds_:\n");
@@ -426,6 +426,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny, int maxIter, d
   X_0_.print(8);
   MyUtils::Db::pr("getX_t():\n");
   getX_t().print(8);
+  */
 }
 
 void Linear2D::example_torus(double x0, double y0, double ri, double ro, int nc, int nr) {
@@ -895,8 +896,8 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
         D(i, j) = 0;
     }
     
-  auto residual = [&](Vectord& x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
-  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vect2dDotVect2d(res, res);};
+  auto residual = [&](Vectord& x){return vectdPlusVectd(mat2dTimesVectd(K_, x), scaleVectd(-1.0, rhs_));};
+  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vectdDotVectd(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
   auto relativeResidualNorm = [&](Vectord& x){return residualNorm(x)/residualNorm(x_0);};
   Vectord x_i = x_0;
@@ -916,8 +917,8 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
 
   while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = mat2dTimesVectd(invD,
-      vect2dPlusVect2d(rhs_,
-        scaleVect2d(-1.0,
+      vectdPlusVectd(rhs_,
+        scaleVectd(-1.0,
           mat2dTimesVectd(mat2dPlusMat2d(L, U),
             x_i))));
     iter++;
@@ -934,7 +935,7 @@ Vectord Linear2D::solveSystem_Jacobi(int maxiter, double maxRelResNorm) {
   return x_i;
 }
 
-Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
+Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm, int printEvery) {
   MyUtils::Timers::ScopedTimer timer("solveSystem_GaussSeidel()");
   MyUtils::Db::pr("Solve start - Gauss Seidel");
   
@@ -949,8 +950,8 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
         U(i, j) = 0;
     }
     
-  auto residual = [&](Vectord& x){return vect2dPlusVect2d(mat2dTimesVectd(K_, x), scaleVect2d(-1.0, rhs_));};
-  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vect2dDotVect2d(res, res);};
+  auto residual = [&](Vectord& x){return vectdPlusVectd(mat2dTimesVectd(K_, x), scaleVectd(-1.0, rhs_));};
+  auto residualNorm = [&](Vectord& x){auto res = residual(x); return vectdDotVectd(res, res);};
   Vectord x_0(n); // Initial guess, zeros here
   auto relativeResidualNorm = [&](Vectord& x){return residualNorm(x)/residualNorm(x_0);};
   Vectord x_i = x_0;
@@ -963,17 +964,23 @@ Vectord Linear2D::solveSystem_GaussSeidel(int maxiter, double maxRelResNorm) {
 
   while(iter < maxiter && [&](Vectord& x_iIn){if(maxRelResNorm==-1.0) return true; else return relativeResidualNorm(x_iIn) > maxRelResNorm;}(x_i)) {
     x_i = LinAlg::solveLxb(L,
-      vect2dPlusVect2d(rhs_,
-        scaleVect2d(-1.0,
+      vectdPlusVectd(rhs_,
+        scaleVectd(-1.0,
           mat2dTimesVectd(U, x_i))));
+    
+    if(iter%printEvery==0) {
+      constexpr int baseSpaceCount = 5;
+      std::string msg = "Iter "+std::to_string(iter)+Strings::repeatStr(" ", 5+std::to_string(maxiter).length()-std::to_string(iter).length());
+      msg+="relResNorm="+std::format("{:.10e}", relativeResidualNorm(x_i))+"\n";
+      //std::cout<<"residual = ";
+      //residual(x_i).print(8);
+      //std::cout<<"x_i = ";
+      //x_i.print(8);
+      msg+="\n";
+      std::cout<<msg;
+    }
+    
     iter++;
-    std::cout<<"Iter "<<iter<<"\t";
-    std::cout<<"relResNorm="<<relativeResidualNorm(x_i)<<"\n";
-    //std::cout<<"residual = ";
-    //residual(x_i).print(8);
-    //std::cout<<"x_i = ";
-    //x_i.print(8);
-    std::cout<<"\n";
   }
   
   solutionVect_ = x_i; // we do both return and set member variable why not
