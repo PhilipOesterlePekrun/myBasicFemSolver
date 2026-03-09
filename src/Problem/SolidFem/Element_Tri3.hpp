@@ -1,4 +1,5 @@
 #pragma once
+#include "Global.hpp"
 
 #include "mu.hpp"
 
@@ -271,7 +272,7 @@ xi1 | |  \
   Matrix2d integrandKmat_xi(double xi0, double xi1) {
     Matrix2d mat(ndof_, ndof_);
     double detJ = detMat2d(jacobian_xi(xi0, xi1));
-    if(detJ<0) MyUtils::Db::pr("detJ is negative! It is "+std::to_string(detJ));
+    if(detJ<0) MyUtils::Db::warn("detJ is negative! It is "+std::to_string(detJ));
     //MyUtils::Db::pr("detJ="+std::to_string(detJ));
     auto CVK = C_VK_xi(xi0, xi1);
     auto B = BOp_xi(xi0, xi1);
@@ -300,7 +301,7 @@ xi1 | |  \
       outString += std::to_string(globalNodeIds_[i]) + "-";
     outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += ": getting Kmat()\n";
-    std::cout<<outString;
+    MyUtils::Db::pr(outString);
     
     Matrix2d result(ndof_, ndof_);
     

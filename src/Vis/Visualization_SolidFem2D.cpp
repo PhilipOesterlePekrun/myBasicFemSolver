@@ -7,7 +7,6 @@ void Visualization2D::drawFrameImplementation() {
     auto elements = problem_->getElements();
     int ndofn = problem_->get_ndofn();
     
-    bool showNodeIdLabels = true;
     auto nodeIdLabels = std::vector<sf::Text>(0, sf::Text(*defaultFont_, "", defaultFontSize_));
     
     if(currentFrame_==0) {
@@ -87,9 +86,9 @@ void Visualization2D::drawFrameImplementation() {
         renderWindow_.draw(pt);
       }*/
     }
-    if(showNodeIdLabels)
+    if(showNodeIdLabels_)
       FOR(i, nodeIdLabels.size())
         renderWindow_.draw(nodeIdLabels[i]);
 }
   
-}
+} // namespace MyFem::Vis

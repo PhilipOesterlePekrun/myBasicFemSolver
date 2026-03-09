@@ -102,7 +102,7 @@ int main1(int argCount, char** args) {
 
 int main(int argCount, char** args) {
   Timers::TimerRegistry::globalInstance().start();
-  std::cout<<"Main start\n";
+  STATUS("Main start");
   //Linear1D::Linear1DProblem linProb = Linear1D::Linear1DProblem();
   //std::string dataDirPathAbs = "/home/oesterle/misc/myBasicFemSolver_Base/myBasicFemSolver/data/";
   //linProb.readMeshTxt(dataDirPathAbs+"Mesh/Linear1D/SimpleBar_linA_linC_3nodes.txt");
@@ -112,7 +112,7 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(1.0, 0.5, 10, 10, 500, 1e-7);
+  p2.example_beam(1.0, 0.5, 10, 5, 500, 1e-8);
   //p2.example_beam(4.0, 0.5, 8, 2);
   //p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   
@@ -122,7 +122,7 @@ int main(int argCount, char** args) {
   //std::shared_ptr<Problem::Linear2D> p2Shared(&p2);
   auto p2Shared = std::make_shared<Problem::Linear2D>(p2);
   
-  std::cout<<Timers::TimerRegistry::globalInstance().timingReportStr(true);
+  std::cout<<Timers::TimerRegistry::globalInstance().timingReportStr()<<"\n";
   
   
   //p2.getX_t().print();
@@ -133,6 +133,6 @@ int main(int argCount, char** args) {
   vis.activate();
   while(vis.active_) vis.drawFrame();
   
-  std::cout<<"\nMain end\n";
+  STATUS("Main end");
   return 0;
 }

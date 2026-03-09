@@ -1,4 +1,5 @@
 #pragma once
+#include "Global.hpp"
 
 #include "mu.hpp"
 #include <SFML/Graphics.hpp>
