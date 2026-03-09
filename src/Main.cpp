@@ -112,7 +112,7 @@ int main(int argCount, char** args) {
   
   Problem::Linear2D p2;
   //p2.runNoInputExample_SingleEle();
-  p2.example_beam(1.0, 1.0, 12, 12);
+  p2.example_beam(1.0, 0.5, 100, 20, 100, 1e-5);
   //p2.example_beam(4.0, 0.5, 8, 2);
   //p2.example_torus(1, 1, 0.9, 1.1, 20, 2);
   

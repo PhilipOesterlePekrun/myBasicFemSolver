@@ -17,7 +17,7 @@ class Linear2D {
  public:
   Linear2D() {};
   
-  void example_beam(double lx, double ly, int nx, int ny);
+  void example_beam(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
   
   // nc = n circumferential; nr = n radial
   // n = number of nodes, not eles

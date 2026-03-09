@@ -34,7 +34,7 @@ add_executable(myBasicFemSolver ${SRC_FILES})
 add_executable(UserTest test/user_test/UserTest.cpp)
 
 # --- myUtils ---
-set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install_2")
+set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install")
 option(myUtils_ENABLE_TIMERS "Enable timers" ON)
 add_compile_definitions(
   myUtils_ENABLE_TIMERS=$<IF:$<BOOL:${myUtils_ENABLE_TIMERS}>,1,0>

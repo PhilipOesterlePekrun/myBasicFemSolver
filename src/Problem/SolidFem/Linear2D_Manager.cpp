@@ -229,7 +229,7 @@ void Linear2D::runNoInputExample() {
   */
 }
 
-void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
+void Linear2D::example_beam(double lx, double ly, int nx, int ny, int maxIter, double tol) {
   MyUtils::Timers::ScopedTimer timer("example_beam()");
   
   MyUtils::Timers::StandardTimer timer2("Example meshing");
@@ -268,12 +268,11 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
       vector<int> firstTri = {j*nx+ i, j*nx+ i+1, (j+1)*nx+ i};
       vector<int> secondTri = {j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i};
       
-      //if(X_0_[2*firstTri[0]]<0.1&&)
-      if(!(i>0&&i<nx-2 && j==1)) {
+      //if(!(i>0&&i<nx-2 && j==1)) {
         eleNodes.push_back(firstTri);
         eleNodes.push_back(secondTri);
       }
-    }
+    //}
     
   FOR(e, eleNodes.size()) {
     elements_.push_back(new Element::Tri3(
@@ -309,9 +308,9 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
     double yFrac = (double)j/(ny-1);
     // right side
     neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
-    neumannVect.push_back(4*0.05*yFrac*(1-yFrac)); // second coeff is maximum
+    neumannVect.push_back(4*0.1*yFrac*(1-yFrac)); // second coeff is maximum
     neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
-    neumannVect.push_back(4*0.05*yFrac*(1-yFrac));
+    neumannVect.push_back(4*0.1*yFrac*(1-yFrac));
   }
   
   FOR(i, nx) {
@@ -404,7 +403,7 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny) {
   std::cout<<"rhs_ after applyDirichlet():\n";
   rhs_.print();
   
-  solveSystem_GaussSeidel(500, 0.0000005);
+  solveSystem_GaussSeidel(maxIter, tol);
   
   
   //solutionVect_.print(8);

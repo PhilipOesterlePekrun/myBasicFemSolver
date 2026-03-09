@@ -1,6 +1,23 @@
 {
   "version": 5,
-  "include": [
-    "MyCMakePresets.json"
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 1,
+    "patch": 2
+  },
+  "configurePresets": [
+    {
+    "name": "debug",
+    "hidden": false,
+    "generator": "Ninja",
+    "cacheVariables": {
+      "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+      "CMAKE_BUILD_TYPE": "DEBUG",
+      "CMAKE_CXX_COMPILER": "g++",
+      "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+      "CMAKE_C_COMPILER": "gcc",
+      "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+    }
+    }
   ]
 }
