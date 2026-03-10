@@ -1,17 +1,17 @@
 #pragma once
 #include "Global.hpp"
 
-#include "mu.hpp"
+#include "mu_core.hpp"
+#include "mu_db.hpp"
+#include "mu_vis.hpp"
 
-#include "VisualizationBase.hpp"
-#include "VisualizationObjects.hpp"
 #include <Problem/SolidFem/Linear2D_Manager.hpp>
 
 namespace MyFem {
   
 namespace Vis {
   
-class Visualization2D : public VisualizationBase {
+class Visualization2D : public MyUtils::Vis::VisualizationBase {
 
  private:
   std::shared_ptr<Problem::Linear2D> problem_;

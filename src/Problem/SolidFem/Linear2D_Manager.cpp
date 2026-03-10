@@ -110,10 +110,10 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny, int maxIter, d
     // from 0 to 1
     double yFrac = (double)j/(ny-1);
     // right side
-    neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
-    neumannVect.push_back(4*0.1*yFrac*(1-yFrac)); // second coeff is maximum
+    //neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
+    //neumannVect.push_back(4*0.1*yFrac*(1-yFrac)); // second coeff is maximum
     neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
-    neumannVect.push_back(4*0.1*yFrac*(1-yFrac));
+    neumannVect.push_back(1*0.1*yFrac*(1-yFrac));
   }
   
   FOR(i, nx) {
@@ -159,10 +159,10 @@ void Linear2D::example_beam(double lx, double ly, int nx, int ny, int maxIter, d
   
   FOR(i, nx) {
     // lower side
-    dirichIds.push_back(ndofn_*i+ 0);
+    /*dirichIds.push_back(ndofn_*i+ 0);
     dirichVect.push_back(0.0);
     dirichIds.push_back(ndofn_*i+ 1);
-    dirichVect.push_back(0.0);
+    dirichVect.push_back(0.0);*/
   }
   
   //dirichIds.push_back(ndofn_*(nx*(ny)-1)+ 0);
