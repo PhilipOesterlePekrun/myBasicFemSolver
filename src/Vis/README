@@ -1,1 +1,5 @@
 Desc: Visualization base classes and specializations for problems and tools
+
+- I actually feel like I should maybe add back Visualization_Base. It is fine to have it in MyUtils also (though maybe in a more general form), but how the window UI looks should fundamentally be up to this project.
+--> Ok, maybe have a very very general Visualization_Base in MyUtils but without any actual UI definition or constraint--the play pause bar should be defined here in this project. But basic utilities, as well as Visualization_Objects are fine to have in MyUtils. Sort of a wrapper of the SFML stuff that I use.
+--> Move UI design into Visualization_SolidFem2D.cpp, or another intermediate class like MyFem::Vis::Base
