@@ -43,10 +43,10 @@ class Line2 {
   
  private:
   static inline Vectord shFct_xi(double xi) {
-    return Vectord({lagrangePolynomialLin_xi(xi, 0), lagrangePolynomialLin_xi(xi, 1)});
+    return Vectord(vector<double>{lagrangePolynomialLin_xi(xi, 0), lagrangePolynomialLin_xi(xi, 1)});
   }
   static inline Vectord deriv_shFct_xi(double xi = -2) {
-    return Vectord({-0.5, 0.5});
+    return Vectord(vector<double>{-0.5, 0.5});
   }
   
   

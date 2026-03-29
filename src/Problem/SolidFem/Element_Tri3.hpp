@@ -2,9 +2,10 @@
 #include "Global.hpp"
 
 #include "mu.hpp"
-
 #include "mu_core_LinAlg.hpp"
 #include "mu_nummethods_NumIntegration.hpp"
+
+#include <functional>
 
 namespace MyFem {
 
@@ -14,7 +15,7 @@ using namespace MyUtils;
 using namespace LinAlg; // mTODO: consider removing this and replacing it by specific usings. Maybe with a good macro I can reuse in other files too; In any case, except for structures like matrix vector array, I will try to be explicit about LinAlg::
 
 class Tri3 {
-// Characteristic of the element type
+// // Characteristic of the element type
  public:
   static constexpr int nnode_ = 3;
   static constexpr int ndofn_ = 2;
@@ -41,19 +42,19 @@ xi1 | |  \
 
  public:
   // This is the local (pos) to global (val) mapping
-  std::vector<int> globalNodeIds_;
-  Vectord X_0_;
+  std::vector<int> globalNodeIds;
+  Vectord X_0;
   
   std::vector<int> getGlobalDofIds() {
     std::vector<int> arr = std::vector<int>();
     FOR(i, nnode_) {
-      arr.push_back(2*globalNodeIds_[i]);
-      arr.push_back(2*globalNodeIds_[i] + 1);
+      arr.push_back(2*globalNodeIds[i]);
+      arr.push_back(2*globalNodeIds[i] + 1);
     }
     return arr;
   }
 
-// Node/dof mappings
+// // Node/dof mappings
  public:
   // node and node-local dof to element-global dof
   int nodeldof2dof(int n, int i) {
@@ -67,22 +68,26 @@ xi1 | |  \
     return std::vector<int>{{m/ndofn_, m%ndofn_}};
   }
 
-// Constitutive
+// // Constitutive
  public:
-  bool planeStressElsePlaneStrain_;
+  bool planeStressElsePlaneStrain;
   
   // {E, \nu}
+  std::function<Vectord(double, double)> youngPoisson_x;
+  
+  /*DEPRECATED
+  // {E, \nu}
   Vectord YoungPoisson_x(double x0, double x1) const {
-    return Vectord({1, 0.2});
-  }
+    return Vectord(vector<double>{1, 0.2});
+  }*/
   
   // {\lambda, \mu}
   Vectord lameConsts_x(double x0, double x1) const {
-    auto yp = YoungPoisson_x(x0, x1);
-    if(planeStressElsePlaneStrain_) // plane stress
-      return Vectord({yp(0)*yp(1) / (1.0 - yp(1)*yp(1)), yp(0) / (2*(1.0 + yp(1)))});
+    auto yp = youngPoisson_x(x0, x1);
+    if(planeStressElsePlaneStrain) // plane stress
+      return Vectord(vector<double>{yp(0)*yp(1) / (1.0 - yp(1)*yp(1)), yp(0) / (2*(1.0 + yp(1)))});
     else // plane strain
-      return Vectord({yp(0)*yp(1) / ((1.0 + yp(1))*(1.0 - 2.0*yp(1))), yp(0) / (2.0*(1.0 + yp(1)))});
+      return Vectord(vector<double>{yp(0)*yp(1) / ((1.0 + yp(1))*(1.0 - 2.0*yp(1))), yp(0) / (2.0*(1.0 + yp(1)))});
   }
  private:
   // St. Venant-Kirchoff
@@ -115,7 +120,11 @@ xi1 | |  \
     return C_VK_x(xVect(0), xVect(1));
   }
   
-// Kinematic
+// // Dynamics
+ public:
+  std::function<double(double, double)> density_x;
+  
+// // Kinematics
  public:
   enum strainMeasure {
     LINEAR,
@@ -124,7 +133,7 @@ xi1 | |  \
     LOGARITHMIC
   };
   
-  strainMeasure strainMeasure_ = LINEAR; // support linear first, then others
+  strainMeasure strainMeasure = LINEAR; // support linear first, then others
   
  private:
   // J_lj = \frac{\del x_j}{\del \xi_l}
@@ -135,7 +144,7 @@ xi1 | |  \
       for(int j=0; j<ndofn_; ++j) {
         double sumK = 0;
         for(int k=0; k<nnode_; ++k)
-          sumK += gradL_shFct_wrtxi_xi(xi0, xi1)(k,l) * X_0_(nodeldof2dof(k, j));//#j or l in last l?
+          sumK += gradL_shFct_wrtxi_xi(xi0, xi1)(k,l) * X_0(nodeldof2dof(k, j));//#j or l in last l?
         J(l,j) = sumK;
       }
     return J;
@@ -145,28 +154,28 @@ xi1 | |  \
     return LinAlg::invertMat2d(jacobian_xi(xi0, xi1));
   }
 
-// ctor(s)
+// // ctor(s)
  public:
-  Tri3(std::vector<int> nodes, Vectord X_0, bool planeStressElsePlaneStrain)
-  : globalNodeIds_(nodes), X_0_(X_0), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {}
+  Tri3(const std::vector<int>& globalNodeIds_, const Vectord& X_0_, bool planeStressElsePlaneStrain_, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
+  : globalNodeIds(globalNodeIds_), planeStressElsePlaneStrain(planeStressElsePlaneStrain_), youngPoisson_x(youngPoisson_x_), density_x(density_x_), X_0(X_0_) {}
   
-  Tri3(Vectord globalX_0, std::vector<int> nodes, bool planeStressElsePlaneStrain)
-  : globalNodeIds_(nodes), planeStressElsePlaneStrain_(planeStressElsePlaneStrain) {
-    X_0_ = Vectord();
-    FOR(i, nodes.size()) {
-      X_0_.push_back(globalX_0(nodes[i]*ndofn_));
-      X_0_.push_back(globalX_0(nodes[i]*ndofn_+1));
+  Tri3(const Vectord& globalX_0, const std::vector<int>& globalNodeIds_, bool planeStressElsePlaneStrain_, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
+  : globalNodeIds(globalNodeIds_), planeStressElsePlaneStrain(planeStressElsePlaneStrain_), youngPoisson_x(youngPoisson_x_), density_x(density_x_) {
+    X_0 = Vectord();
+    FOR(i, globalNodeIds_.size()) {
+      X_0.push_back(globalX_0(globalNodeIds_[i]*ndofn_));
+      X_0.push_back(globalX_0(globalNodeIds_[i]*ndofn_+1));
     }
   }
   
-// Shape functions
+// // Shape functions
  private:
   ///static double lagrangePolynomialLin_xi(double xi, int i/*, int j for dim>1*/) {return (1.0/2) * (1.0 + Xi_[i]*xi);}
   
  private:
   static constexpr int shFct_xi_size_ = nnode_; // this and similar are ultimately unnecessary but I keep for now
   static inline Vectord shFct_xi(double xi0, double xi1) {
-    return Vectord({1 - xi0 - xi1, xi0, xi1});
+    return Vectord(vector<double>{1 - xi0 - xi1, xi0, xi1});
   }
   static constexpr int shFctMatrixForm_nRows_ = ndofn_;
   static constexpr int shFctMatrixForm_nCols_ = ndof_;
@@ -250,7 +259,7 @@ xi1 | |  \
     FOR(i, ndofn_) {
       double tmpSum = 0;
       FOR(k, nnode_)
-        tmpSum += shFct_xi(xi0, xi1)(k) * X_0_(nodeldof2dof(k,i));
+        tmpSum += shFct_xi(xi0, xi1)(k) * X_0(nodeldof2dof(k,i));
       x(i) = tmpSum;
     }
     return x;
@@ -273,10 +282,9 @@ xi1 | |  \
     Matrix2d mat(ndof_, ndof_);
     double detJ = detMat2d(jacobian_xi(xi0, xi1));
     if(detJ<0) MyUtils::Db::warn("detJ is negative! It is "+std::to_string(detJ));
-    //MyUtils::Db::pr("detJ="+std::to_string(detJ));
     auto CVK = C_VK_xi(xi0, xi1);
     auto B = BOp_xi(xi0, xi1);
-    // TODO: inefficient as fuck
+    // TODO: inefficient as fuck?
     FOR(mLeft, ndof_) {
       FOR(mRight, ndof_) {
         double tmpSum = 0;
@@ -294,26 +302,23 @@ xi1 | |  \
     }
     return mat;
   }
- public: //tmp
+ public:
+  // Get the K matrix
   Matrix2d Kmat() {
     std::string outString = "Element ";
-    FOR(i, globalNodeIds_.size()-1)
-      outString += std::to_string(globalNodeIds_[i]) + "-";
-    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
+    FOR(i, globalNodeIds.size()-1)
+      outString += std::to_string(globalNodeIds[i]) + "-";
+    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
     outString += ": getting Kmat()\n";
     MyUtils::Db::pr(outString);
     
     Matrix2d result(ndof_, ndof_);
     
-    // integration counts in xi0 and xi1 direction
-    int n0 = 5;
-    int n1 = 5;
-    
     for(int i=0;i<ndof_; ++i)
       for(int j=0;j<ndof_; ++j) {
         ///auto integrandKmat_xi_ij = [this, i, j](double xi0, double xi1) {return integrandKmat_xi(xi0, xi1)(i, j);};
         
-        auto g = [&, i, j, n1](double xi0)
+        auto g = [&, i, j](double xi0)
         {
           auto f = [&, i, j, xi0](double xi1)
           {
@@ -332,11 +337,128 @@ xi1 | |  \
     return result;
   }
   
+// // Dynamics
+ private:
+  Matrix2d integrandMmat_xi(double xi0, double xi1) {
+    Matrix2d mat(ndof_, ndof_);
+    double detJ = detMat2d(jacobian_xi(xi0, xi1));
+    if(detJ<0) MyUtils::Db::warn("detJ is negative! It is "+std::to_string(detJ));
+    Vectord N({1.0 - xi0 - xi1, xi0, xi1});
+
+    // physical position of this quadrature point
+    double x0 = 0.0;
+    double x1 = 0.0;
+    FOR(a, globalNodeIds.size()) {
+      x0 += N(a) * X_0(ndofn_ * a + 0);
+      x1 += N(a) * X_0(ndofn_ * a + 1);
+    }
+
+    double rho = density_x(x0, x1);
+
+    FOR(mLeft, ndof_) {
+      int a = mLeft / ndofn_;   // node index
+      int i = mLeft % ndofn_;   // component index
+
+      FOR(mRight, ndof_) {
+        int b = mRight / ndofn_;
+        int j = mRight % ndofn_;
+
+        mat(mLeft, mRight) = (i == j ? rho * N(a) * N(b) * detJ : 0.0);
+      }
+    }
+
+    return mat;
+  }
+  
+  Vectord integrandFGravity_xi(double xi0, double xi1, double gravityAccel) {
+    Vectord vec(ndof_);
+
+    double detJ = detMat2d(jacobian_xi(xi0, xi1));
+    if(detJ < 0) MyUtils::Db::warn("detJ is negative! It is " + std::to_string(detJ));
+
+    // Tri3 shape functions
+    Vectord N({1.0 - xi0 - xi1, xi0, xi1});
+
+    // physical position of this quadrature point
+    double x0 = 0.0;
+    double x1 = 0.0;
+    FOR(a, globalNodeIds.size()) {
+      x0 += N(a) * X_0(ndofn_ * a + 0);
+      x1 += N(a) * X_0(ndofn_ * a + 1);
+    }
+
+    double rho = density_x(x0, x1);
+
+    FOR(a, globalNodeIds.size()) {
+      vec(ndofn_ * a + 0) = 0.0;
+      vec(ndofn_ * a + 1) = N(a) * (-rho * gravityAccel) * detJ;
+    }
+
+    return vec;
+  }
+  
+ public:
+  // Get the mass matrix
+  Matrix2d Mmat() {
+    std::string outString = "Element ";
+    FOR(i, globalNodeIds.size()-1)
+      outString += std::to_string(globalNodeIds[i]) + "-";
+    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
+    outString += ": getting Mmat()\n";
+    MyUtils::Db::pr(outString);
+    
+    Matrix2d result(ndof_, ndof_);
+    
+    for(int i=0;i<ndof_; ++i)
+      for(int j=0;j<ndof_; ++j) {
+        auto g = [&, i, j](double xi0)
+        {
+          auto f = [&, i, j, xi0](double xi1)
+          {
+            return integrandMmat_xi(xi0, xi1)(i, j);
+          };
+          
+          // inner integration
+          return MyUtils::NumIntegration::gaussianQuadrature(f, 1);
+        };
+        
+        // outer integration
+        result(i, j) = MyUtils::NumIntegration::gaussianQuadrature(g, 1);
+
+      }
+      
+    return result;
+  }
+  
+  // Get the force vector due to gravity (body force)
+  Vectord getFGravity(double gravityAccel = 9.81) {
+    Vectord result(ndof_);
+    
+    if(gravityAccel==0.0) return result;
+    
+    // else
+    
+    for(int i = 0; i < ndof_; ++i) {
+      auto g = [&, i](double xi0) {
+        auto f = [&, i, xi0](double xi1) {
+          return integrandFGravity_xi(xi0, xi1, gravityAccel)(i);
+        };
+
+        return MyUtils::NumIntegration::gaussianQuadrature(f, 1);
+      };
+
+      result(i) = MyUtils::NumIntegration::gaussianQuadrature(g, 1);
+    }
+
+    return result;
+  }
+  
+// // Misc
   void test() {
     std::string outString = "--------------- Element ";
-    FOR(i, globalNodeIds_.size()-1)
-      outString += std::to_string(globalNodeIds_[i]) + "-";
-    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
+    FOR(i, globalNodeIds.size()-1)
+      outString += std::to_string(globalNodeIds[i]) + "-";
+    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
     outString += " test() ---------------\n";
     
     std::cout<<outString;

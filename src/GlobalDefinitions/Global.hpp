@@ -1,9 +1,11 @@
 #pragma once
+#include "mu_core_GlobalCore.hpp"
 
 // // PROJECT GLOBAL MACROS
 #define STATUS(msg) std::cout<<"STATUS: "<<msg<<"\n";
+#define THROW(msg) throw std::runtime_error(msg)
 
-// // MACROS RELATED TO MYUTILS
+// // MANUAL SETTING OF MACROS RELATED TO MYUTILS
 #undef myUtils_DbPr_ON
 
 namespace MyFem {

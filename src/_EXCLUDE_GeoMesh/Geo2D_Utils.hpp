@@ -22,7 +22,7 @@ inline double dist(const Vectord& p1, const Vectord& p2) {
 // Linear interpolation between two points; c \in [0, 1]
 inline Vectord lInterp(const Vectord& p1, const Vectord& p2, double c) {
   // equiv to p1(0)+c*(p2(0) - p1(0))
-  return Vectord({(1-c)*p1(0)+c*p2(0), (1-c)*p1(1)+c*p2(1)});
+  return Vectord(vector<double>{(1-c)*p1(0)+c*p2(0), (1-c)*p1(1)+c*p2(1)});
 }
 
 // Angle between two separate line segments, in radians

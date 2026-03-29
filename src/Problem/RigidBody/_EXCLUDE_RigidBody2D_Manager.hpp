@@ -36,7 +36,7 @@ class Manager2D {
   }
   // e.g. gravity (though doesnt have to be const wrt pos or time) //TODO: make this take a function object or something so you can set it outside idk--just do it however I did it with numerical integration
   Vectord globalAcceleration(double x, double y, double t) {
-    return Vectord({0, -9.81});
+    return Vectord(vector<double>{0, -9.81});
   }
   void example1() {
     rigidBodies_.push_back(new)
