@@ -10,7 +10,7 @@ void Visualization2D::drawFrameImplementation() {
     auto nodeIdLabels = std::vector<sf::Text>(0, sf::Text(*defaultFont_, "", defaultFontSize_));
     
     if(currentFrame_==0) {
-      auto X_0 = problem_->getX_0();
+      auto X_0 = problem_->get_X_0();
       
       FOR(e, elements.size()) {
         auto ele = elements[e];
@@ -44,8 +44,12 @@ void Visualization2D::drawFrameImplementation() {
     }
     else {
     
-      auto X_t = problem_->getX_t();
+      int timeSteps = problem_->get_timeSteps();
+      if(currentFrame() >= timeSteps) { // loop
+        goToFrame(0);
+      }
       
+      auto X_t = problem_->get_X_t()[currentFrame()];
       
       // Deformed configuration (element triangles)
       FOR(e, elements.size()) {
@@ -53,7 +57,6 @@ void Visualization2D::drawFrameImplementation() {
         sf::ConvexShape tri_t;
         tri_t.setFillColor(sf::Color(100,100,100));
         tri_t.setPointCount(3);
-        
         {
           auto tmpPt = offsetScaledVectXY(X_t(ele->getGlobalDofIds()[0]), X_t(ele->getGlobalDofIds()[1]));
           tri_t.setPoint(0, Vector2fInXY(tmpPt.x, tmpPt.y));

@@ -22,14 +22,14 @@ int main(int argCount, char** args) {
   Problem::Linear2D p;
   {
     MyUtils::Timers::ScopedTimer timerLinSolve("p()");
-    p.example_beam(1.0, 0.2, 10, 2, 10000, 1e-8, 0.05);
+    p.example_beam_dyn(1.0, 0.2, 40, 8, 200, 1e-8, 0.05);
   }
   auto pShared = std::make_shared<Problem::Linear2D>(p);
   
   Problem::Linear2D p2;
   {
     MyUtils::Timers::ScopedTimer timerLinSolve("p2()");
-    p2.example_beam(1.0, 0.2, 20, 4, 10000, 1e-8, 0.05);
+    //p2.example_beam(1.0, 0.2, 20, 4, 10000, 1e-8, 0.05);
   }
   auto p2Shared = std::make_shared<Problem::Linear2D>(p2);
   
@@ -40,16 +40,14 @@ int main(int argCount, char** args) {
   
   //p2.getX_t().print();
   
-  MyFem::Vis::Visualization2D vis("p", 1600, 1000, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  1200, pShared, 2);
-  MyFem::Vis::Visualization2D vis2("p2", 1600, 1000, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12,
-  1200, p2Shared, 2);
+  MyFem::Vis::Visualization2D vis("p", 1600, 1000, 1.0/p.deltaT_, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12, 1200, pShared, 2);
+  //MyFem::Vis::Visualization2D vis2("p2", 1600, 1000, 20, sf::Color(200,200,200), sf::Color(200,200,0), sf::Color(0,0,0), timesNewRoman, 12, 1200, p2Shared, 2);
   
   vis.activate();
-  vis2.activate();
+  //vis2.activate();
   while(vis.isActive()) {
     vis.drawFrame();
-    vis2.drawFrame();
+    //vis2.drawFrame();
   }
   
   STATUS("Main end");

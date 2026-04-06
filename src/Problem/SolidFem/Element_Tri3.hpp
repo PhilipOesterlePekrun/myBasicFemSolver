@@ -20,7 +20,7 @@ class Tri3 {
   static constexpr int nnode_ = 3;
   static constexpr int ndofn_ = 2;
   static constexpr int ndof_ = ndofn_*nnode_;
- private:
+ protected:
   static constexpr int dim_ = ndofn_;
   static constexpr double Xi_[nnode_][ndofn_] = {{0, 0}, {1, 0}, {0, 1}};
   /*
@@ -40,16 +40,17 @@ xi1 | |  \
   
   */
 
+// // Displacement values and dofs
  public:
   // This is the local (pos) to global (val) mapping
-  std::vector<int> globalNodeIds;
-  Vectord X_0;
+  const vector<int> globalNodeIds_;
+  Vectord X_0_;
   
-  std::vector<int> getGlobalDofIds() {
-    std::vector<int> arr = std::vector<int>();
+  vector<int> getGlobalDofIds() {
+    vector<int> arr;
     FOR(i, nnode_) {
-      arr.push_back(2*globalNodeIds[i]);
-      arr.push_back(2*globalNodeIds[i] + 1);
+      arr.push_back(2*globalNodeIds_[i]);
+      arr.push_back(2*globalNodeIds_[i] + 1);
     }
     return arr;
   }
@@ -60,17 +61,17 @@ xi1 | |  \
   int nodeldof2dof(int n, int i) {
     return n*ndofn_ + i;
   }
-  int nodeldof2dof(std::vector<int> ni) {
+  int nodeldof2dof(vector<int> ni) {
     return ni[0]*ndofn_ + ni[1];
   }
   // element-global dof to node and node-local dof
-  std::vector<int> dof2nodeldof(int m) {
-    return std::vector<int>{{m/ndofn_, m%ndofn_}};
+  vector<int> dof2nodeldof(int m) {
+    return vector<int>{{m/ndofn_, m%ndofn_}};
   }
 
 // // Constitutive
  public:
-  bool planeStressElsePlaneStrain;
+  bool planeStressElsePlaneStrain_;
   
   // {E, \nu}
   std::function<Vectord(double, double)> youngPoisson_x;
@@ -84,12 +85,12 @@ xi1 | |  \
   // {\lambda, \mu}
   Vectord lameConsts_x(double x0, double x1) const {
     auto yp = youngPoisson_x(x0, x1);
-    if(planeStressElsePlaneStrain) // plane stress
+    if(planeStressElsePlaneStrain_) // plane stress
       return Vectord(vector<double>{yp(0)*yp(1) / (1.0 - yp(1)*yp(1)), yp(0) / (2*(1.0 + yp(1)))});
     else // plane strain
       return Vectord(vector<double>{yp(0)*yp(1) / ((1.0 + yp(1))*(1.0 - 2.0*yp(1))), yp(0) / (2.0*(1.0 + yp(1)))});
   }
- private:
+ protected:
   // St. Venant-Kirchoff
   Matrix2d stressFromStrain(const Matrix2d& strain, double x0, double x1) const {
     Matrix2d stress = Matrix2d(strain.nRows(), strain.nCols());
@@ -120,7 +121,7 @@ xi1 | |  \
     return C_VK_x(xVect(0), xVect(1));
   }
   
-// // Dynamics
+// // Inertial
  public:
   std::function<double(double, double)> density_x;
   
@@ -133,9 +134,9 @@ xi1 | |  \
     LOGARITHMIC
   };
   
-  strainMeasure strainMeasure = LINEAR; // support linear first, then others
+  strainMeasure strainMeasure_ = LINEAR; // support linear first, then others
   
- private:
+ protected:
   // J_lj = \frac{\del x_j}{\del \xi_l}
   // i.e. gradR_x_wrtxi_xi
   Matrix2d jacobian_xi(double xi0, double xi1) {
@@ -144,7 +145,7 @@ xi1 | |  \
       for(int j=0; j<ndofn_; ++j) {
         double sumK = 0;
         for(int k=0; k<nnode_; ++k)
-          sumK += gradL_shFct_wrtxi_xi(xi0, xi1)(k,l) * X_0(nodeldof2dof(k, j));//#j or l in last l?
+          sumK += gradL_shFct_wrtxi_xi(xi0, xi1)(k,l) * X_0_(nodeldof2dof(k, j));//#j or l in last l?
         J(l,j) = sumK;
       }
     return J;
@@ -154,25 +155,25 @@ xi1 | |  \
     return LinAlg::invertMat2d(jacobian_xi(xi0, xi1));
   }
 
-// // ctor(s)
+// // // ctor(s)
  public:
-  Tri3(const std::vector<int>& globalNodeIds_, const Vectord& X_0_, bool planeStressElsePlaneStrain_, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
-  : globalNodeIds(globalNodeIds_), planeStressElsePlaneStrain(planeStressElsePlaneStrain_), youngPoisson_x(youngPoisson_x_), density_x(density_x_), X_0(X_0_) {}
+  Tri3(const vector<int>& globalNodeIds, const Vectord& X_0, bool planeStressElsePlaneStrain, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
+  : globalNodeIds_(globalNodeIds), planeStressElsePlaneStrain_(planeStressElsePlaneStrain), youngPoisson_x(youngPoisson_x_), density_x(density_x_), X_0_(X_0) {}
   
-  Tri3(const Vectord& globalX_0, const std::vector<int>& globalNodeIds_, bool planeStressElsePlaneStrain_, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
-  : globalNodeIds(globalNodeIds_), planeStressElsePlaneStrain(planeStressElsePlaneStrain_), youngPoisson_x(youngPoisson_x_), density_x(density_x_) {
-    X_0 = Vectord();
+  Tri3(const Vectord& globalX_0, const vector<int>& globalNodeIds, bool planeStressElsePlaneStrain, std::function<Vectord(double, double)> youngPoisson_x_, std::function<double(double, double)> density_x_)
+  : globalNodeIds_(globalNodeIds), planeStressElsePlaneStrain_(planeStressElsePlaneStrain), youngPoisson_x(youngPoisson_x_), density_x(density_x_) {
+    X_0_ = Vectord();
     FOR(i, globalNodeIds_.size()) {
-      X_0.push_back(globalX_0(globalNodeIds_[i]*ndofn_));
-      X_0.push_back(globalX_0(globalNodeIds_[i]*ndofn_+1));
+      X_0_.push_back(globalX_0(globalNodeIds_[i]*ndofn_));
+      X_0_.push_back(globalX_0(globalNodeIds_[i]*ndofn_+1));
     }
   }
   
 // // Shape functions
- private:
+ protected:
   ///static double lagrangePolynomialLin_xi(double xi, int i/*, int j for dim>1*/) {return (1.0/2) * (1.0 + Xi_[i]*xi);}
   
- private:
+ protected:
   static constexpr int shFct_xi_size_ = nnode_; // this and similar are ultimately unnecessary but I keep for now
   static inline Vectord shFct_xi(double xi0, double xi1) {
     return Vectord(vector<double>{1 - xi0 - xi1, xi0, xi1});
@@ -259,7 +260,7 @@ xi1 | |  \
     FOR(i, ndofn_) {
       double tmpSum = 0;
       FOR(k, nnode_)
-        tmpSum += shFct_xi(xi0, xi1)(k) * X_0(nodeldof2dof(k,i));
+        tmpSum += shFct_xi(xi0, xi1)(k) * X_0_(nodeldof2dof(k,i));
       x(i) = tmpSum;
     }
     return x;
@@ -306,9 +307,9 @@ xi1 | |  \
   // Get the K matrix
   Matrix2d Kmat() {
     std::string outString = "Element ";
-    FOR(i, globalNodeIds.size()-1)
-      outString += std::to_string(globalNodeIds[i]) + "-";
-    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_[i]) + "-";
+    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += ": getting Kmat()\n";
     MyUtils::Db::pr(outString);
     
@@ -336,7 +337,7 @@ xi1 | |  \
       
     return result;
   }
-  
+
 // // Dynamics
  private:
   Matrix2d integrandMmat_xi(double xi0, double xi1) {
@@ -348,9 +349,9 @@ xi1 | |  \
     // physical position of this quadrature point
     double x0 = 0.0;
     double x1 = 0.0;
-    FOR(a, globalNodeIds.size()) {
-      x0 += N(a) * X_0(ndofn_ * a + 0);
-      x1 += N(a) * X_0(ndofn_ * a + 1);
+    FOR(a, globalNodeIds_.size()) {
+      x0 += N(a) * X_0_(ndofn_ * a + 0);
+      x1 += N(a) * X_0_(ndofn_ * a + 1);
     }
 
     double rho = density_x(x0, x1);
@@ -370,40 +371,13 @@ xi1 | |  \
     return mat;
   }
   
-  Vectord integrandFGravity_xi(double xi0, double xi1, double gravityAccel) {
-    Vectord vec(ndof_);
-
-    double detJ = detMat2d(jacobian_xi(xi0, xi1));
-    if(detJ < 0) MyUtils::Db::warn("detJ is negative! It is " + std::to_string(detJ));
-
-    // Tri3 shape functions
-    Vectord N({1.0 - xi0 - xi1, xi0, xi1});
-
-    // physical position of this quadrature point
-    double x0 = 0.0;
-    double x1 = 0.0;
-    FOR(a, globalNodeIds.size()) {
-      x0 += N(a) * X_0(ndofn_ * a + 0);
-      x1 += N(a) * X_0(ndofn_ * a + 1);
-    }
-
-    double rho = density_x(x0, x1);
-
-    FOR(a, globalNodeIds.size()) {
-      vec(ndofn_ * a + 0) = 0.0;
-      vec(ndofn_ * a + 1) = N(a) * (-rho * gravityAccel) * detJ;
-    }
-
-    return vec;
-  }
-  
  public:
   // Get the mass matrix
   Matrix2d Mmat() {
     std::string outString = "Element ";
-    FOR(i, globalNodeIds.size()-1)
-      outString += std::to_string(globalNodeIds[i]) + "-";
-    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_[i]) + "-";
+    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += ": getting Mmat()\n";
     MyUtils::Db::pr(outString);
     
@@ -430,6 +404,36 @@ xi1 | |  \
     return result;
   }
   
+// // Inertial
+ protected:
+  Vectord integrandFGravity_xi(double xi0, double xi1, double gravityAccel) {
+    Vectord vec(ndof_);
+
+    double detJ = detMat2d(jacobian_xi(xi0, xi1));
+    if(detJ < 0) MyUtils::Db::warn("detJ is negative! It is " + std::to_string(detJ));
+
+    // Tri3 shape functions
+    Vectord N({1.0 - xi0 - xi1, xi0, xi1});
+
+    // physical position of this quadrature point
+    double x0 = 0.0;
+    double x1 = 0.0;
+    FOR(a, globalNodeIds_.size()) {
+      x0 += N(a) * X_0_(ndofn_ * a + 0);
+      x1 += N(a) * X_0_(ndofn_ * a + 1);
+    }
+
+    double rho = density_x(x0, x1);
+
+    FOR(a, globalNodeIds_.size()) {
+      vec(ndofn_ * a + 0) = 0.0;
+      vec(ndofn_ * a + 1) = N(a) * (-rho * gravityAccel) * detJ;
+    }
+
+    return vec;
+  }
+  
+ public:
   // Get the force vector due to gravity (body force)
   Vectord getFGravity(double gravityAccel = 9.81) {
     Vectord result(ndof_);
@@ -456,9 +460,9 @@ xi1 | |  \
 // // Misc
   void test() {
     std::string outString = "--------------- Element ";
-    FOR(i, globalNodeIds.size()-1)
-      outString += std::to_string(globalNodeIds[i]) + "-";
-    outString += std::to_string(globalNodeIds[globalNodeIds.size()-1]);
+    FOR(i, globalNodeIds_.size()-1)
+      outString += std::to_string(globalNodeIds_[i]) + "-";
+    outString += std::to_string(globalNodeIds_[globalNodeIds_.size()-1]);
     outString += " test() ---------------\n";
     
     std::cout<<outString;
