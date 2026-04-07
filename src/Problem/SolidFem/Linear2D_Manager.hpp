@@ -18,8 +18,8 @@ class Linear2D {
  public:
   Linear2D() {};
   
-  void example_beam_static(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4, double density=0);
-  void example_beam_dyn(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4, double density=0);
+  void example_beam_static(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
+  void example_beam_dyn(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
   
   // nc = n circumferential; nr = n radial
   // n = number of nodes, not eles
@@ -47,6 +47,8 @@ class Linear2D {
   
   vector<Vectord> U_t_; // Displacement solution in time (not including dirichlet). If the problem is static, element 1 of the vector is the final solution to the static problem. Element 0 of the vector may be empty sometimes. TODOi: Fix the way the data and computation are handled so that it is guaranteed that all the data is computed
   
+  vector<Vectord> UFull_t_; // Displacement solution in time (not including dirichlet). If the problem is static, element 1 of the vector is the final solution to the static problem. Element 0 of the vector may be empty sometimes. TODOi: Fix the way the data and computation are handled so that it is guaranteed that all the data is computed
+  
  private:
   Vectord X_0_;
   Vectord V_0_;
@@ -55,9 +57,10 @@ class Linear2D {
  public:
   Vectord get_X_0() {return X_0_;}
   vector<Vectord> get_X_t() {return X_t_;}
+  vector<Vectord> get_U_t() {return UFull_t_;} // Full solution including dirichlet
   
-  // The actual position field is computed by adding the initial positions and the displacment field. Parameter n is the time step, which is 1 for the static problem's final solution
-  Vectord compute_X_t_single(vector<size_t> dirichletDofIds, Vectord dirichletVals, size_t n = 1);
+  // Computes and sets UFull_t_ and X_t_
+  void setFinalSolution(const Vectord& URed_t, const vector<size_t>& dirichletDofIds, const Vectord& dirichletVals, size_t n);
   
   size_t get_ndof() const {return nnode_*ndofn_;}
   size_t get_nnode() const {return nnode_;}

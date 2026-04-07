@@ -3,32 +3,24 @@
 #include <SFML/Graphics.hpp> // TODO: delete
 
 namespace MyFem::Problem {
-
-Vectord Linear2D::compute_X_t_single(vector<size_t> dirichletDofIds, Vectord dirichletVals, size_t n) {
-  if(n>=X_t_.size()) X_t_.resize(n+1);
-  X_t_[n] = get_X_0();
   
-  if(n>0) {
-    Vectord U_t_full = Vectord(globalDofIds_.size());
-    
-    std::vector<size_t> solutionDofIds(globalDofIds_);
-    StdVectorUtils::deleteIndices(solutionDofIds, dirichletDofIds);
-    //std::cout<<"solutionDofIds.print();line11\n";
-    //StdVectorUtils::print(solutionDofIds);
-    FOR(i, solutionDofIds.size()) {
-      U_t_full(solutionDofIds[i]) = U_t_[n](i);
-    }
-    
-    FOR(i, dirichletDofIds.size()) {
-      U_t_full(dirichletDofIds[i]) = dirichletVals(i);
-    }
-    
-    FOR(i, X_t_[n].size()) {
-      X_t_[n](i) += U_t_full(i);
-    }
+void Linear2D::setFinalSolution(const Vectord& URed_t, const vector<size_t>& dirichletDofIds, const Vectord& dirichletVals, size_t n) {
+  if(n>=UFull_t_.size()) UFull_t_.resize(n+1);
+  std::vector<size_t> solutionDofIds = globalDofIds_;
+  StdVectorUtils::deleteIndices(solutionDofIds, dirichletDofIds);
+  UFull_t_[n] = Vectord(get_ndof());
+  FOR(i, solutionDofIds.size()) {
+    UFull_t_[n](solutionDofIds[i]) = URed_t(i);
+  }
+  FOR(i, dirichletDofIds.size()) {
+    UFull_t_[n](dirichletDofIds[i]) = dirichletVals(i);
   }
   
-  return X_t_[n];
+  if(n>=X_t_.size()) X_t_.resize(n+1);
+  X_t_[n] = get_X_0();
+  FOR(i, X_t_[n].size()) {
+    X_t_[n](i) += URed_t(i);
+  }
 }
 
 Matrix2d Linear2D::assembleKfull() const {
@@ -282,7 +274,7 @@ void Linear2D::printInfo() {
   std::cout<<infoString()<<"\n";
 }
 
-void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIter, double tol, const double density) {
+void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIter, double tol) {
   STATUS("Running example_beam_dyn()");
   MyUtils::Timers::ScopedTimer timer("example_beam_dyn()");
   
@@ -318,10 +310,10 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
     //}
     
   auto youngPoisson_x = [](double x0, double x1) {
-    return Vectord(vector<double>{10, 0.2});
+    return Vectord(vector<double>{50e9, 0.32});
   };
   auto density_x = [=](double x0, double x1) {
-    return double(1);
+    return double(2710);
   };
     
   FOR(e, eleNodes.size()) {
@@ -384,8 +376,8 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
   double beta = 1.0/4;
   double gamma = 1.0/2;
   
-  finalT_ = 5;
-  deltaT_ = 0.1;
+  finalT_ = 4;
+  deltaT_ = 0.05;
   int timeSteps = get_timeSteps();
   
   double deltaT_2_ = deltaT_*deltaT_;
@@ -413,8 +405,8 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
       
       // vertical
       neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
-      if(currT>0.4&&currT<0.7) {
-        neumannVect.push_back(0.1*deltaT_);//*currT);//*1*0.5*yFrac(1-yFrac));
+      if(currT>0.4&&currT<0.5) {
+        neumannVect.push_back(100e3);//*currT);//*1*0.5*yFrac(1-yFrac));
       }
       else {
         neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));
@@ -430,8 +422,7 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
       // Initial acceleration field; get this by solving M * A_0 = F_0 - K * X_0 // (all reduced)
       A_last = MyUtils::NumMethods::LinSolvers::GaussSeidel(MRed, vectdPlusVectd(rhs_curr, scaleVectd(-1, mat2dTimesVectd(KRed, U_last))), maxIter, tol);
       
-      U_t_.push_back(U_last);
-      compute_X_t_single(dirichIds, dirichVect, n);
+      setFinalSolution(U_last, dirichIds, dirichVect, n);
       
       continue;
     }
@@ -448,13 +439,12 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
     
     // U_curr for next iter
     U_last = vectdPlusVectd(U_predict, scaleVectd(beta*deltaT_2_, A_curr));
-    U_t_.push_back(U_last);
     // V_curr for next iter
     V_last = vectdPlusVectd(V_predict, scaleVectd(gamma*deltaT_, A_curr));
     
     A_last = A_curr;
     
-    compute_X_t_single(dirichIds, dirichVect, n);
+    setFinalSolution(U_last, dirichIds, dirichVect, n);
   }
   
   printInfo();
