@@ -5,7 +5,7 @@ The focus is FEM for solid mechanics problems, but I am leaving room for other p
 Youngs = Density = Horizontal length = 1.0; Poissons = 0.4:
 ![recording_compressed](https://github.com/user-attachments/assets/f4020046-222c-4207-a0cc-16fdaf69b519)
 
-Material properties =~ Aluminium; Horizontal length = 1.0:
+Material properties ~= Aluminium; Horizontal length = 1.0:
 ![recording2_compressed](https://github.com/user-attachments/assets/e72b2ee1-eb1a-400e-b04b-bc77c1ecd3da)
 
 Static:
