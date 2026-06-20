@@ -310,10 +310,10 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
     //}
     
   auto youngPoisson_x = [](double x0, double x1) {
-    return Vectord(vector<double>{50e9, 0.32});
+    return Vectord(vector<double>{100, 0.4});//50e9, 0.32});
   };
   auto density_x = [=](double x0, double x1) {
-    return double(2710);
+    return double(1);//2710);
   };
     
   FOR(e, eleNodes.size()) {
@@ -336,7 +336,7 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
   printInfo();
   auto KFull = assembleKfull();
   auto MFull = assembleMfull();
-  auto FGravity = assembleFGravity(0);
+  auto FGravity = assembleFGravity(0.1);
   if(KFull.nRows() != MFull.nRows() || KFull.nRows() != FGravity.size()) THROW("KFull_.size() != MFull_.size() || KFull_.size() != rhsFull_.size()");
   
   // // Dirichlet BC
@@ -376,7 +376,7 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
   double beta = 1.0/4;
   double gamma = 1.0/2;
   
-  finalT_ = 4;
+  finalT_ = 5;
   deltaT_ = 0.05;
   int timeSteps = get_timeSteps();
   
@@ -395,18 +395,21 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
       // right side
       
       // horizontal
-      /*neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
-      if(currT>1.5&&currT<1.6) {
-        neumannVect.push_back(0.1);//*1*0.5*yFrac(1-yFrac));
+      //neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
+      if(currT>0.2&&currT<0.4) {
+        //neumannVect.push_back(40);//*1*0.5*yFrac(1-yFrac));
       }
       else {
-        neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));
-      }*/
+        //neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));
+      }
       
       // vertical
       neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
+      //if(1){//currT>0.4&&currT<0.5) {
       if(currT>0.4&&currT<0.5) {
-        neumannVect.push_back(100e3);//*currT);//*1*0.5*yFrac(1-yFrac));
+        double period = 0.5;
+        //neumannVect.push_back(1e9*sin(2*MyUtils::Math::pi*currT/period));//*currT);//*1*0.5*yFrac(1-yFrac));
+        neumannVect.push_back(80);
       }
       else {
         neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));

@@ -21,20 +21,25 @@ include_directories(
 )
 
 # --- SFML ---
-get_filename_component(SFML_ROOT "$ENV{HOME}/misc/tpl/SFML_base/install" ABSOLUTE)
-set(CMAKE_PREFIX_PATH "${SFML_ROOT}" CACHE PATH "SFML install prefix" FORCE)
-include_directories("${SFML_ROOT}/include")
-link_directories("${SFML_ROOT}/lib")
-find_package(SFML REQUIRED COMPONENTS Graphics Window System)
+#comment( //# TODO: need to propagate cmake utilities from myUtils too
+#get_filename_component(SFML_ROOT "$ENV{HOME}/misc/tpl/SFML_base/install" ABSOLUTE)
+#set(CMAKE_PREFIX_PATH "${SFML_ROOT}" CACHE PATH "SFML install prefix" FORCE)
+#include_directories("${SFML_ROOT}/include")
+#link_directories("${SFML_ROOT}/lib")
+#find_package(SFML REQUIRED COMPONENTS Graphics Window System)
+#)
 
 # --- Add Executable ---
-add_executable(myBasicFemSolver ${SRC_FILES})
+add_executable(exe ${SRC_FILES})
 
 # --- Create executable for testing/demo ---
 add_executable(UserTest test/user_test/UserTest.cpp)
 
 # --- myUtils ---
-set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install")
+set(MYUTILS_DIR "$ENV{HOME}/misc/myUtils_Base/install"
+      CACHE PATH "Path to myUtils install")
+set(CMAKE_PREFIX_PATH ${MYUTILS_DIR} ${CMAKE_PREFIX_PATH})
+find_package(myUtils REQUIRED)
 option(myUtils_ENABLE_TIMERS "Enable timers" ON)
 add_compile_definitions(
   myUtils_ENABLE_TIMERS=$<IF:$<BOOL:${myUtils_ENABLE_TIMERS}>,1,0>
@@ -44,20 +49,22 @@ add_compile_definitions(
   myUtils_DbPr_ON=$<IF:$<BOOL:${myUtils_DbPr_ON}>,1,0>
 )
 
-target_include_directories(myBasicFemSolver PRIVATE ${MYUTILS_DIR}/include)
+target_include_directories(exe PRIVATE ${MYUTILS_DIR}/include)
 target_include_directories(UserTest PRIVATE ${MYUTILS_DIR}/include "src")
 
 
 
 
 
-target_link_libraries(myBasicFemSolver
+target_link_libraries(exe
     PRIVATE
-        ${MYUTILS_DIR}/lib/libmyUtils.a
-        sfml-graphics sfml-window sfml-system
+        myUtils::myUtils
+        #${MYUTILS_DIR}/lib/libmyUtils.a
+        #sfml-graphics sfml-window sfml-system
 )
 target_link_libraries(UserTest
     PRIVATE
-        ${MYUTILS_DIR}/lib/libmyUtils.a
-        sfml-graphics sfml-window sfml-system
+        myUtils::myUtils
+        #${MYUTILS_DIR}/lib/libmyUtils.a
+        #sfml-graphics sfml-window sfml-system
 )

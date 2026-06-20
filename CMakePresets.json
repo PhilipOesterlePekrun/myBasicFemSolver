@@ -16,7 +16,8 @@
       "CMAKE_CXX_COMPILER": "g++",
       "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
       "CMAKE_C_COMPILER": "gcc",
-      "CMAKE_C_COMPILER_LAUNCHER": "ccache"
+      "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+      "MYUTILS_DIR": "/home/oesterle/misc/myUtils_Base/install"
     }
     }
   ]
