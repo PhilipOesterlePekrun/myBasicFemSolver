@@ -310,7 +310,7 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
     //}
     
   auto youngPoisson_x = [](double x0, double x1) {
-    return Vectord(vector<double>{100, 0.4});//50e9, 0.32});
+    return Vectord(vector<double>{50, 0.4});//50e9, 0.32});
   };
   auto density_x = [=](double x0, double x1) {
     return double(1);//2710);
@@ -409,7 +409,186 @@ void Linear2D::example_beam_dyn(double lx, double ly, int nx, int ny, int maxIte
       if(currT>0.4&&currT<0.5) {
         double period = 0.5;
         //neumannVect.push_back(1e9*sin(2*MyUtils::Math::pi*currT/period));//*currT);//*1*0.5*yFrac(1-yFrac));
-        neumannVect.push_back(80);
+        neumannVect.push_back(20);
+      }
+      else {
+        neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));
+      }
+    }
+    auto rhs_curr = FGravity;
+    applyNeumannToRhsFull(rhs_curr, neumannIds, neumannVect);
+    applyDirichletToRhs(rhs_curr, KFull, dirichIds, dirichVect);
+    
+    if(n==0) {
+      U_last = Vectord(sysSizeReduced, 0.0);
+      V_last = reducedVector(V_0, freeDofIds_);  
+      // Initial acceleration field; get this by solving M * A_0 = F_0 - K * X_0 // (all reduced)
+      A_last = MyUtils::NumMethods::LinSolvers::GaussSeidel(MRed, vectdPlusVectd(rhs_curr, scaleVectd(-1, mat2dTimesVectd(KRed, U_last))), maxIter, tol);
+      
+      setFinalSolution(U_last, dirichIds, dirichVect, n);
+      
+      continue;
+    }
+    
+    
+    Vectord U_predict = vectdPlusVectd(vectdPlusVectd(U_last, scaleVectd(deltaT_, V_last)), scaleVectd(deltaT_2_*(1.0/2-beta), A_last));
+    Vectord V_predict = vectdPlusVectd(V_last, scaleVectd(deltaT_*(1.0-gamma), A_last));
+  
+    // Solve for A_curr: (M + beta * deltaT^2 * K) A_curr = rhs_curr - K * U_predict
+    MyUtils::Timers::StandardTimer timerLinSolve("GaussSeidel()");timerLinSolve.start();
+    Vectord A_curr = MyUtils::NumMethods::LinSolvers::GaussSeidel(mat2dPlusMat2d(MRed, scaleMat2d(beta*deltaT_2_, KRed)), vectdPlusVectd(rhs_curr, scaleVectd(-1, mat2dTimesVectd(KRed, U_predict))), maxIter, tol);
+    timerLinSolve.stop();
+    
+    
+    // U_curr for next iter
+    U_last = vectdPlusVectd(U_predict, scaleVectd(beta*deltaT_2_, A_curr));
+    // V_curr for next iter
+    V_last = vectdPlusVectd(V_predict, scaleVectd(gamma*deltaT_, A_curr));
+    
+    A_last = A_curr;
+    
+    setFinalSolution(U_last, dirichIds, dirichVect, n);
+  }
+  
+  printInfo();
+}
+
+void Linear2D::example_beam_dyn_realtimeinput(double lx, double ly, int nx, int ny, int maxIter, double tol) {
+  STATUS("Running example_beam_dyn()");
+  MyUtils::Timers::ScopedTimer timer("example_beam_dyn()");
+  
+  MyUtils::Timers::StandardTimer timer2("Example meshing");
+  timer2.start();
+  
+  X_0_ = Vectord(); // Initial displacement field (the mesh)
+  auto V_0 = Vectord(); // Initial velocity field
+  
+  FOR(j, ny)
+    FOR(i, nx) {
+      double xNom = i*lx/(nx-1);
+      double yNom = j*ly/(ny-1);
+      double x = xNom;
+      double y = yNom;
+      X_0_.push_back(x);
+      X_0_.push_back(y);
+      
+      V_0.push_back(0);
+      V_0.push_back(0);
+    }
+    
+  auto eleNodes = std::vector<std::vector<int>>();
+  FOR(i, nx-1)
+    FOR(j, ny-1) {
+      vector<int> firstTri = {j*nx+ i, j*nx+ i+1, (j+1)*nx+ i};
+      vector<int> secondTri = {j*nx+ i+1, (j+1)*nx+ i+1, (j+1)*nx+ i};
+      
+      //if(!(i>0&&i<nx-2 && j==1)) {
+        eleNodes.push_back(firstTri);
+        eleNodes.push_back(secondTri);
+      }
+    //}
+    
+  auto youngPoisson_x = [](double x0, double x1) {
+    return Vectord(vector<double>{50, 0.4});//50e9, 0.32});
+  };
+  auto density_x = [=](double x0, double x1) {
+    return double(1);//2710);
+  };
+    
+  FOR(e, eleNodes.size()) {
+    elements_.push_back(new Element::Tri3(
+      X_0_,
+      eleNodes[e],
+      false,
+      youngPoisson_x,
+      density_x
+    )
+    );
+  }
+  
+  timer2.stop();
+  STATUS("Built elements");
+  
+  
+  ///assembleAll(0);//-9.81);
+  setNodeDofInfo();
+  printInfo();
+  auto KFull = assembleKfull();
+  auto MFull = assembleMfull();
+  auto FGravity = assembleFGravity(0.1);
+  if(KFull.nRows() != MFull.nRows() || KFull.nRows() != FGravity.size()) THROW("KFull_.size() != MFull_.size() || KFull_.size() != rhsFull_.size()");
+  
+  // // Dirichlet BC
+  auto dirichIds = std::vector<size_t>();
+  auto dirichVect = Vectord();
+  FOR(j, ny) {
+    // left side
+    dirichIds.push_back(ndofn_*nx*j+ 0);
+    dirichVect.push_back(0.0);
+    dirichIds.push_back(ndofn_*nx*j+ 1);
+    dirichVect.push_back(0.0);
+    
+    
+    // right side
+    //dirichIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
+    //dirichVect.push_back(0.0);
+    //dirichIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
+    //dirichVect.push_back(0.0);
+  }
+  //applyDirichlet(dirichIds, dirichVect);
+  
+  setFreeAndDirichDofIds(dirichIds, dirichVect);
+  auto KRed = reducedMatrix(KFull, freeDofIds_);
+  auto MRed = reducedMatrix(MFull, freeDofIds_);
+  auto X_0Red = reducedVector(X_0_, freeDofIds_);
+  
+  int sysSizeReduced = KRed.nRows();
+  
+  
+  // All of these will be in reduced form (reduced size)
+  Vectord U_last;
+  Vectord V_last;
+  Vectord A_last;
+  
+  // Small deformation dynamic problem time integration; no change in dirichlet currently
+  // Newmark method
+  double beta = 1.0/4;
+  double gamma = 1.0/2;
+  
+  finalT_ = 5;
+  deltaT_ = 0.05;
+  int timeSteps = get_timeSteps();
+  
+  double deltaT_2_ = deltaT_*deltaT_;
+  
+  for(int n = 0; n<=timeSteps; ++n) {
+    double currT = n*deltaT_;
+    STATUS("n="+std::to_string(n)+"; t="+std::to_string(currT))
+  
+    // //Neumann BC
+    auto neumannIds = std::vector<size_t>();
+    auto neumannVect = Vectord();
+    FOR(j, ny) {
+      // from 0 to 1
+      double yFrac = (double)j/(ny-1);
+      // right side
+      
+      // horizontal
+      //neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 0);
+      if(currT>0.2&&currT<0.4) {
+        //neumannVect.push_back(40);//*1*0.5*yFrac(1-yFrac));
+      }
+      else {
+        //neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));
+      }
+      
+      // vertical
+      neumannIds.push_back(ndofn_*(nx*(j+1)-1)+ 1);
+      //if(1){//currT>0.4&&currT<0.5) {
+      if(currT>0.4&&currT<0.5) {
+        double period = 0.5;
+        //neumannVect.push_back(1e9*sin(2*MyUtils::Math::pi*currT/period));//*currT);//*1*0.5*yFrac(1-yFrac));
+        neumannVect.push_back(20);
       }
       else {
         neumannVect.push_back(0);//*1*0.5*yFrac(1-yFrac));

@@ -20,6 +20,7 @@ class Linear2D {
   
   void example_beam_static(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
   void example_beam_dyn(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
+  void example_beam_dyn_realtimeinput(double lx, double ly, int nx, int ny, int maxIter = 200, double tol = 1e-4);
   
   // nc = n circumferential; nr = n radial
   // n = number of nodes, not eles

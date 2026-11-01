@@ -35,6 +35,7 @@ class Visualization2D : public MyUtils::Vis::VisualizationBase {
 		return sf::Vector2f(XYoffset_[0]+scaleFactor_*posX, XYoffset_[1]+scaleFactor_*posY);
 	}
   void drawFrameImplementation() override;
+  void drawFrameImplementation_realtimeinput();
 };
 
 } // namespace Vis
